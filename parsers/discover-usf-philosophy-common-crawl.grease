@@ -1,0 +1,148 @@
+#!/usr/bin/env osh
+# Enumerate USF Philosophy course-detail URLs from Common Crawl before making
+# any broad live request to USF. The only university request in this discovery
+# pass is the Course Inventory search form itself, captured for replay.
+
+set -o errexit
+set -o nounset
+set -o pipefail
+
+ICU=${ICU:-icu}
+CC_WAIT_SECONDS=${CC_WAIT_SECONDS:-1}
+USF_WAIT_SECONDS=${USF_WAIT_SECONDS:-5}
+COLLECTION_LIMIT=${CC_COLLECTION_LIMIT:-12}
+
+CC='https://index.commoncrawl.org'
+USF='https://cloud.usf.edu/academic-programs'
+PREFIXES='PHI PHH PHM PHP'
+OUT='common crawl results pertinent to universities/usf/philosophy'
+RAW='syllabi/usf/philosophy/course-inventory'
+LOG='crawling log/usf/philosophy/common-crawl-discovery.tsv'
+
+mkdir -p "$OUT/index" "$RAW" "$(dirname "$LOG")"
+command -v "$ICU" >/dev/null
+command -v jq >/dev/null
+
+utc_now() { date -u '+%Y-%m-%dT%H:%M:%SZ'; }
+
+log() {
+  printf '%s\t%s\n' "$(utc_now)" "$1" | tee -a "$LOG" >&2
+}
+
+# Common Crawl is purpose-built for bulk discovery, but still keep requests
+# sequential and modest. Successful responses are cached in the branch.
+cc_get() {
+  url=$1
+  out=$2
+  kind=$3
+  if test -s "$out"; then
+    log "CC SKIP $out"
+    return 0
+  fi
+
+  tmp="$out.part"
+  rm -f "$tmp"
+  log "CC GET $url"
+  if ! "$ICU" get "$url" > "$tmp"; then
+    rm -f "$tmp"
+    sleep "$CC_WAIT_SECONDS"
+    log "CC FAIL $url"
+    return 1
+  fi
+  sleep "$CC_WAIT_SECONDS"
+
+  case "$kind" in
+    json) jq -e . "$tmp" >/dev/null ;;
+    ndjson)
+      # An empty result is valid. Non-empty responses must be JSON per line.
+      if test -s "$tmp"; then
+        jq -c . "$tmp" >/dev/null
+      fi
+      ;;
+    *) return 64 ;;
+  esac
+
+  mv "$tmp" "$out"
+  log "CC PASS $out"
+}
+
+# There is exactly one USF request in this discovery pass. It is followed by
+# the same five-second delay used by the live acquisition path. Do not add
+# retries or parallel calls here.
+usf_get_once() {
+  url=$1
+  out=$2
+  if test -s "$out"; then
+    log "USF SKIP $out"
+    return 0
+  fi
+  tmp="$out.part"
+  rm -f "$tmp"
+  log "USF GET $url"
+  set +o errexit
+  "$ICU" get "$url" > "$tmp"
+  code=$?
+  set -o errexit
+  sleep "$USF_WAIT_SECONDS"
+  if test "$code" -ne 0 || ! grep -Eiq '<(html|form|body)([ >])' "$tmp"; then
+    mv "$tmp" "$out.failed" 2>/dev/null || true
+    log "USF FAIL $url"
+    return 1
+  fi
+  mv "$tmp" "$out"
+  log "USF PASS $out"
+}
+
+: > "$LOG"
+log "START common-crawl-first USF Philosophy discovery"
+
+cc_get "$CC/collinfo.json" "$OUT/collinfo.json" json
+
+jq -r --argjson n "$COLLECTION_LIMIT" '.[0:$n][].id' "$OUT/collinfo.json" > "$OUT/collections.txt"
+: > "$OUT/index/all.ndjson.new"
+
+rank=0
+while IFS= read -r collection; do
+  rank=$((rank + 1))
+  for prefix in $PREFIXES; do
+    out="$OUT/index/${collection}-${prefix}.ndjson"
+    url="$CC/${collection}-index?url=cloud.usf.edu%2Facademic-programs%2Fdetails%2Fprefix%2F${prefix}%2Fcode%2F&matchType=prefix&output=json&filter=status%3A200&collapse=urlkey"
+    if ! cc_get "$url" "$out" ndjson; then
+      continue
+    fi
+
+    if test -s "$out"; then
+      jq -c --arg collection "$collection" --arg prefix "$prefix" --argjson rank "$rank" '
+        select(.url? != null)
+        | select(.url | test("^https?://cloud\\.usf\\.edu/academic-programs/details/prefix/" + $prefix + "/code/[0-9]{4}/?$"; "i"))
+        | (.url | capture("/prefix/(?<p>[A-Za-z]{3})/code/(?<c>[0-9]{4})/?$") ) as $m
+        | . + {collection:$collection, collection_rank:$rank,
+               prefix:($m.p|ascii_upcase), code:$m.c,
+               course_key:(($m.p|ascii_upcase) + " " + $m.c)}
+      ' "$out" >> "$OUT/index/all.ndjson.new"
+    fi
+  done
+done < "$OUT/collections.txt"
+
+if test -s "$OUT/index/all.ndjson.new"; then
+  jq -s '
+    sort_by(.collection_rank, .timestamp // "")
+    | unique_by(.course_key)
+    | sort_by(.prefix, .code)
+  ' "$OUT/index/all.ndjson.new" > "$OUT/course-index.json"
+else
+  printf '[]\n' > "$OUT/course-index.json"
+fi
+rm -f "$OUT/index/all.ndjson.new"
+
+printf 'course\turl\tcollection\tcapture_timestamp\twarc_filename\toffset\tlength\n' > "$OUT/course-index.tsv"
+jq -r '.[] | [.course_key,.url,.collection,(.timestamp//""),(.filename//""),(.offset//""),(.length//"")] | @tsv' \
+  "$OUT/course-index.json" >> "$OUT/course-index.tsv"
+
+# Capture the current search form once. Its form action/field names will tell a
+# later, narrowly targeted pass how to ask USF for the current Department of
+# Philosophy inventory in one request instead of probing course numbers.
+usf_get_once "$USF/course-inventory/" "$RAW/search.html" || true
+
+log "FOUND $(jq length "$OUT/course-index.json") distinct PHI/PHH/PHM/PHP course URLs across $(wc -l < "$OUT/collections.txt" | tr -d ' ') Common Crawl collections"
+log "END discovery; no live USF course-detail pages fetched"
