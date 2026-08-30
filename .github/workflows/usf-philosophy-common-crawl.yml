@@ -1,0 +1,76 @@
+name: USF philosophy Common Crawl discovery
+
+on:
+  push:
+    branches:
+      - usf-philosophy-common-crawl
+    paths:
+      - 'parsers/discover-usf-philosophy-common-crawl.grease'
+      - '.github/workflows/usf-philosophy-common-crawl.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  discover:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - name: Checkout syllabi
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Checkout pinned ICU
+        uses: actions/checkout@v4
+        with:
+          repository: dilapidated-shed/icu
+          ref: a9e5e6089bdbf93d0209d673b93c783eb1957b44
+          path: .tools/icu
+          fetch-depth: 1
+
+      - name: Checkout ICU's pinned Idric compiler
+        uses: actions/checkout@v4
+        with:
+          repository: isomorphisms/Idric
+          ref: 61970be77769f607cca8650bf424c0f0b22ddee7
+          path: .tools/Idric
+          fetch-depth: 1
+
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y chezscheme libssl-dev jq
+
+      - name: Build pinned Idric and ICU
+        run: |
+          make -C .tools/Idric bootstrap SCHEME=scheme
+          make -C .tools/icu check-native
+          make -C .tools/icu IDRIC="$GITHUB_WORKSPACE/.tools/Idric/build/exec/idris2"
+          test -x .tools/icu/build/exec/icu
+
+      - name: Enumerate through Common Crawl; touch USF once
+        env:
+          ICU: ${{ github.workspace }}/.tools/icu/build/exec/icu
+          CC_WAIT_SECONDS: '1'
+          USF_WAIT_SECONDS: '5'
+          CC_COLLECTION_LIMIT: '12'
+        run: bash parsers/discover-usf-philosophy-common-crawl.grease
+
+      - name: Commit discovery receipts and temporary raw form
+        run: |
+          git config user.name 'syllabi crawl receipt'
+          git config user.email 'actions@users.noreply.github.com'
+          git add -- \
+            'common crawl results pertinent to universities/usf/philosophy' \
+            'syllabi/usf/philosophy/course-inventory' \
+            'crawling log/usf/philosophy/common-crawl-discovery.tsv'
+          if git diff --cached --quiet; then
+            echo 'No discovery output changed.'
+            exit 0
+          fi
+          git commit -m 'Record Common Crawl USF philosophy course discovery [skip ci]'
+          git fetch origin usf-philosophy-common-crawl
+          git rebase origin/usf-philosophy-common-crawl
+          git push origin HEAD:usf-philosophy-common-crawl
