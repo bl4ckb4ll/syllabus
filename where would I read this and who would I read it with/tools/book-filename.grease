@@ -38,8 +38,13 @@ book_filename() {
   local paper=$3
   local archive=$4
 
+  [[ -n "$author" ]] || die 'author must not be empty'
+  [[ -n "$title" ]] || die 'title must not be empty'
+
   case "$author$title$paper$archive" in
-    *$'\n'*|*$'\r'*) die 'newlines are not allowed in filename inputs' ;;
+    *$'\n'*|*$'\r'*|*$'\t'*)
+      die 'line breaks and tabs are not allowed in filename inputs'
+      ;;
   esac
 
   # A bibliographic slash must not accidentally create another path component.
@@ -51,7 +56,9 @@ book_filename() {
   if [[ -n "$paper" ]]; then
     paper=${paper#\$}
     case "$paper" in
-      ''|.|*[!0-9.]*|*.*.*) die "paper price must be a USD number, got: $paper" ;;
+      ''|*[!0-9.]*|.*|*.|*.*.*)
+        die "paper price must be a non-negative USD number, got: $paper"
+        ;;
     esac
     out="$out - \$$paper paper"
   fi
@@ -67,36 +74,240 @@ book_filename() {
   printf '%s.md\n' "$out"
 }
 
+run_args() {
+  local author=''
+  local title=''
+  local paper=''
+  local archive=''
+  local seen_author=0
+  local seen_title=0
+  local seen_paper=0
+  local seen_archive=0
+
+  while [[ "$#" -gt 0 ]]; do
+    case "$1" in
+      --author)
+        [[ "$seen_author" = 0 ]] || die '--author may appear only once'
+        [[ "$#" -ge 2 ]] || die '--author needs a value'
+        seen_author=1
+        author=$2
+        shift 2
+        ;;
+      --title)
+        [[ "$seen_title" = 0 ]] || die '--title may appear only once'
+        [[ "$#" -ge 2 ]] || die '--title needs a value'
+        seen_title=1
+        title=$2
+        shift 2
+        ;;
+      --paper)
+        [[ "$seen_paper" = 0 ]] || die '--paper may appear only once'
+        [[ "$#" -ge 2 ]] || die '--paper needs a value'
+        seen_paper=1
+        paper=$2
+        shift 2
+        ;;
+      --archive)
+        [[ "$seen_archive" = 0 ]] || die '--archive may appear only once'
+        [[ "$#" -ge 2 ]] || die '--archive needs a value'
+        seen_archive=1
+        archive=$2
+        shift 2
+        ;;
+      --help|-h)
+        usage
+        return 0
+        ;;
+      *)
+        die "unknown argument: $1"
+        ;;
+    esac
+  done
+
+  [[ -n "$author" ]] || die '--author is required'
+  [[ -n "$title" ]] || die '--title is required'
+
+  book_filename "$author" "$title" "$paper" "$archive"
+}
+
+TESTS=0
+
+pass_case() {
+  TESTS=$((TESTS + 1))
+}
+
 assert_name() {
   local want=$1
   shift
   local got
   got=$(book_filename "$@")
   [[ "$got" = "$want" ]] || die "self-test: expected '$want', got '$got'"
+  pass_case
+}
+
+assert_rejected() {
+  local label=$1
+  shift
+  if ( book_filename "$@" >/dev/null 2>&1 ); then
+    die "self-test: accepted invalid case: $label"
+  fi
+  pass_case
+}
+
+assert_cli_name() {
+  local want=$1
+  shift
+  local got
+  got=$(run_args "$@")
+  [[ "$got" = "$want" ]] || die "self-test: CLI expected '$want', got '$got'"
+  pass_case
+}
+
+assert_cli_rejected() {
+  local label=$1
+  shift
+  if ( run_args "$@" >/dev/null 2>&1 ); then
+    die "self-test: CLI accepted invalid case: $label"
+  fi
+  pass_case
+}
+
+assert_cli_success() {
+  local label=$1
+  shift
+  if ! ( run_args "$@" >/dev/null 2>&1 ); then
+    die "self-test: CLI rejected valid case: $label"
+  fi
+  pass_case
 }
 
 self_test() {
+  # Four presence/absence states for the two optional filename facts.
   assert_name \
     'Dante - Inferno - $6 paper - free on Internet Archive.md' \
     Dante Inferno 6 https://archive.org/details/inferno
-
-  assert_name \
-    'Dante - Inferno - $6 paper.md' \
-    Dante Inferno 6 ''
-
+  assert_name 'Dante - Inferno - $6 paper.md' Dante Inferno 6 ''
   assert_name \
     'Dante - Inferno - free on Internet Archive.md' \
     Dante Inferno '' https://archive.org/details/inferno
+  assert_name 'Dante - Inferno.md' Dante Inferno '' ''
 
+  # Normal price spellings and archive URLs.
+  assert_name 'Dante - Inferno - $6 paper.md' Dante Inferno '$6' ''
+  assert_name 'Dante - Inferno - $6.25 paper.md' Dante Inferno 6.25 ''
+  assert_name 'Dante - Inferno - $0 paper.md' Dante Inferno 0 ''
+  assert_name 'Dante - Inferno - $0.00 paper.md' Dante Inferno 0.00 ''
   assert_name \
-    'Dante - Inferno.md' \
-    Dante Inferno '' ''
+    'Dante - Inferno - free on Internet Archive.md' \
+    Dante Inferno '' http://archive.org/details/inferno
+  assert_name \
+    'Dante - Inferno - free on Internet Archive.md' \
+    Dante Inferno '' 'https://archive.org/details/inferno?view=theater'
 
+  # Human bibliography text, including Unicode and punctuation.
   assert_name \
     'Aristotle - Parts ∕ Generation of Animals.md' \
     Aristotle 'Parts / Generation of Animals' '' ''
+  assert_name \
+    'Plato ∕ Aristotle - Selections.md' \
+    'Plato / Aristotle' Selections '' ''
+  assert_name \
+    'Gabriel García Márquez - Cien años de soledad.md' \
+    'Gabriel García Márquez' 'Cien años de soledad' '' ''
+  assert_name \
+    "Flannery O'Connor - A Good Man Is Hard to Find.md" \
+    "Flannery O'Connor" 'A Good Man Is Hard to Find' '' ''
+  assert_name \
+    'W. E. B. Du Bois - The Souls of Black Folk.md' \
+    'W. E. B. Du Bois' 'The Souls of Black Folk' '' ''
 
-  printf 'PASS book-filename\n'
+  # Invalid price observations must never leak into a filename.
+  assert_rejected 'alphabetic price' Dante Inferno six ''
+  assert_rejected 'negative price' Dante Inferno -1 ''
+  assert_rejected 'comma price' Dante Inferno 1,000 ''
+  assert_rejected 'lone decimal point' Dante Inferno . ''
+  assert_rejected 'leading decimal point' Dante Inferno .50 ''
+  assert_rejected 'trailing decimal point' Dante Inferno 6. ''
+  assert_rejected 'two decimal points' Dante Inferno 6.2.5 ''
+  assert_rejected 'double dollar sign' Dante Inferno '$$6' ''
+  assert_rejected 'currency suffix' Dante Inferno '6 USD' ''
+  assert_rejected 'plus sign' Dante Inferno +6 ''
+
+  # Archive evidence has to name the actual Internet Archive host.
+  assert_rejected \
+    'wrong archive host' \
+    Dante Inferno '' https://example.com/details/inferno
+  assert_rejected \
+    'lookalike archive host' \
+    Dante Inferno '' https://archive.org.evil.example/details/inferno
+  assert_rejected \
+    'archive host without scheme' \
+    Dante Inferno '' archive.org/details/inferno
+  assert_rejected \
+    'www archive host is not canonical input' \
+    Dante Inferno '' https://www.archive.org/details/inferno
+
+  # Inputs must remain one filesystem entry and one terminal line.
+  assert_rejected 'empty author' '' Inferno '' ''
+  assert_rejected 'empty title' Dante '' '' ''
+  assert_rejected 'newline in author' $'Dan\nte' Inferno '' ''
+  assert_rejected 'newline in title' Dante $'In\nferno' '' ''
+  assert_rejected 'newline in price' Dante Inferno $'6\n7' ''
+  assert_rejected \
+    'newline in archive URL' \
+    Dante Inferno '' $'https://archive.org/details/inferno\nnext'
+  assert_rejected 'carriage return in title' Dante $'In\rferno' '' ''
+  assert_rejected 'tab in title' Dante $'In\tferno' '' ''
+
+  # Command-line parser behavior is part of the reproducible interface too.
+  assert_cli_name \
+    'Dante - Inferno - $6 paper - free on Internet Archive.md' \
+    --author Dante --title Inferno --paper 6 \
+    --archive https://archive.org/details/inferno
+  assert_cli_name \
+    'Dante - Inferno - $6 paper.md' \
+    --paper 6 --title Inferno --author Dante
+  assert_cli_name \
+    'Dante - --help.md' \
+    --author Dante --title --help
+  assert_cli_rejected 'missing author' --title Inferno
+  assert_cli_rejected 'missing title' --author Dante
+  assert_cli_rejected 'author missing value' --author
+  assert_cli_rejected 'title missing value' --title
+  assert_cli_rejected 'paper missing value' --author Dante --title Inferno --paper
+  assert_cli_rejected \
+    'archive missing value' \
+    --author Dante --title Inferno --archive
+  assert_cli_rejected \
+    'unknown flag' \
+    --author Dante --title Inferno --edition paperback
+  assert_cli_rejected \
+    'stray positional argument' \
+    --author Dante --title Inferno extra
+  assert_cli_rejected \
+    'duplicate author' \
+    --author Dante --author Alighieri --title Inferno
+  assert_cli_rejected \
+    'duplicate title' \
+    --author Dante --title Inferno --title Purgatorio
+  assert_cli_rejected \
+    'duplicate paper' \
+    --author Dante --title Inferno --paper 6 --paper 7
+  assert_cli_rejected \
+    'duplicate archive' \
+    --author Dante --title Inferno \
+    --archive https://archive.org/details/a \
+    --archive https://archive.org/details/b
+  assert_cli_rejected \
+    'invalid price reaches validator' \
+    --author Dante --title Inferno --paper free
+  assert_cli_rejected \
+    'invalid archive reaches validator' \
+    --author Dante --title Inferno --archive https://example.com/inferno
+  assert_cli_success 'long help' --help
+  assert_cli_success 'short help' -h
+
+  printf 'PASS book-filename: %d cases\n' "$TESTS"
 }
 
 if [[ "${1:-}" = --self-test ]]; then
@@ -104,44 +315,4 @@ if [[ "${1:-}" = --self-test ]]; then
   exit 0
 fi
 
-author=''
-title=''
-paper=''
-archive=''
-
-while [[ "$#" -gt 0 ]]; do
-  case "$1" in
-    --author)
-      [[ "$#" -ge 2 ]] || die '--author needs a value'
-      author=$2
-      shift 2
-      ;;
-    --title)
-      [[ "$#" -ge 2 ]] || die '--title needs a value'
-      title=$2
-      shift 2
-      ;;
-    --paper)
-      [[ "$#" -ge 2 ]] || die '--paper needs a value'
-      paper=$2
-      shift 2
-      ;;
-    --archive)
-      [[ "$#" -ge 2 ]] || die '--archive needs a value'
-      archive=$2
-      shift 2
-      ;;
-    --help|-h)
-      usage
-      exit 0
-      ;;
-    *)
-      die "unknown argument: $1"
-      ;;
-  esac
-done
-
-[[ -n "$author" ]] || die '--author is required'
-[[ -n "$title" ]] || die '--title is required'
-
-book_filename "$author" "$title" "$paper" "$archive"
+run_args "$@"
