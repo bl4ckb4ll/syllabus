@@ -1,0 +1,99 @@
+name: test USF Edriç book parser
+
+on:
+  push:
+    branches:
+      - usf-edric-book-parser
+    paths:
+      - 'where would I read this and who would I read it with/tools/usf-syllabus-books.idric'
+      - '.github/workflows/test-usf-edric-book-parser.yml'
+  pull_request:
+    paths:
+      - 'where would I read this and who would I read it with/tools/usf-syllabus-books.idric'
+      - '.github/workflows/test-usf-edric-book-parser.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: usf-edric-book-parser-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  edric-parser:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out syllabi
+        uses: actions/checkout@v4
+
+      - name: Check out the exact Idriç compiler source
+        uses: actions/checkout@v4
+        with:
+          repository: isomorphisms/Idric
+          ref: 9b0bf7fa8be9483440e6ec0530f3aef3999a8735
+          path: .idric-toolchain
+
+      - name: Bootstrap exact Idriç source with CI Chez
+        shell: bash
+        run: |
+          set -euo pipefail
+          sudo apt-get update
+          sudo apt-get install -y chezscheme
+          cd .idric-toolchain
+          make bootstrap SCHEME=scheme
+
+      - name: Build parser as .idric source
+        shell: bash
+        run: |
+          set -euo pipefail
+          compiler="$GITHUB_WORKSPACE/.idric-toolchain/build/exec/idris2"
+          parser="$GITHUB_WORKSPACE/where would I read this and who would I read it with/tools/usf-syllabus-books.idric"
+          work="$RUNNER_TEMP/usf-edric-parser"
+          export IDRIS2_PATH="$GITHUB_WORKSPACE/.idric-toolchain/libs/prelude/build/ttc:$GITHUB_WORKSPACE/.idric-toolchain/libs/base/build/ttc"
+          export IDRIS2_DATA="$GITHUB_WORKSPACE/.idric-toolchain/support"
+          export IDRIS2_LIBS="$GITHUB_WORKSPACE/.idric-toolchain/support/c"
+          mkdir -p "$work"
+          cp "$parser" "$work/Main.idric"
+          cd "$work"
+          "$compiler" --no-banner --no-color --console-width 0 -o usf-syllabus-books Main.idric
+          test -x build/exec/usf-syllabus-books
+          printf 'PASS\tbuild-edric-parser\n'
+
+      - name: Run hostile parser self-tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          "$RUNNER_TEMP/usf-edric-parser/build/exec/usf-syllabus-books" --self-test | tee "$RUNNER_TEMP/parser-self-test.txt"
+          grep -F $'PASS\tself-test' "$RUNNER_TEMP/parser-self-test.txt"
+
+      - name: Parse one committed real USF capture when present
+        shell: bash
+        run: |
+          set -euo pipefail
+          root='where would I read this and who would I read it with/temporary-raw/usf/philosophy'
+          manifest="$root/manifest.tsv"
+          html=$(find "$root/simple-syllabus/html" -type f -name '*.html' -print -quit 2>/dev/null || true)
+
+          if [ -z "$html" ]; then
+            printf 'SKIP\treal-usf-fixture\tno committed captured syllabus HTML on this branch yet\n'
+            exit 0
+          fi
+
+          handle=''
+          course=''
+          term=''
+          instructor=''
+          if [ -s "$manifest" ]; then
+            handle=$(awk -F '\t' -v p="$html" '$7 == p {print $1; exit}' "$manifest")
+            course=$(awk -F '\t' -v p="$html" '$7 == p {print $2; exit}' "$manifest")
+            term=$(awk -F '\t' -v p="$html" '$7 == p {print $4; exit}' "$manifest")
+            instructor=$(awk -F '\t' -v p="$html" '$7 == p {print $6; exit}' "$manifest")
+          fi
+          source_url="https://usf.simplesyllabus.com/api2/doc-full-page-get?code=$handle"
+
+          "$RUNNER_TEMP/usf-edric-parser/build/exec/usf-syllabus-books" \
+            "$html" "$course" "$instructor" "$term" "$source_url" \
+            | tee "$RUNNER_TEMP/real-usf-parser.tsv"
+          grep -F $'kind\tcourse\tinstructor\tterm\tisbn_hint\traw_text\tsource_url\tsource_file' \
+            "$RUNNER_TEMP/real-usf-parser.tsv"
+          printf 'PASS\treal-usf-fixture\t%s\n' "$html"
