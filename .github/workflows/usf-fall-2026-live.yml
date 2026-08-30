@@ -74,7 +74,7 @@ jobs:
             --volume "$GITHUB_WORKSPACE:/workspace" \
             --workdir /workspace/.tooling/grease/source \
             python:2.7.18-buster \
-            bash -lc 'build/py.sh minimal && build/native.sh tarball-demo'
+            bash -lc 'build/py.sh minimal && devtools/release-native.sh gen-shell-build && build/native.sh tarball-demo'
           test -x _bin/cxx-opt-sh/oils-for-unix.stripped
 
       - name: Acquire all public Fall 2026 department syllabi
