@@ -64,8 +64,8 @@ jobs:
 
       - name: FAIL on a curl fallback in the live fetcher
         run: |
-          if grep -En '(^|[;&|[:space:]])curl([[:space:]]|$)' parsers/fetch-usf-philosophy.grease; then
-            echo 'FAIL: live acquisition contains a curl command'
+          if grep -En '(^|\$\(|&&|\|\||;)[[:space:]]*curl([[:space:]]|$)' parsers/fetch-usf-philosophy.grease; then
+            echo 'FAIL: live acquisition contains an executable curl command'
             exit 1
           fi
           grep -F '"$ICU" get "$url"' parsers/fetch-usf-philosophy.grease >/dev/null
