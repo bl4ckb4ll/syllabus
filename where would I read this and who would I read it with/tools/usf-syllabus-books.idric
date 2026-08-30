@@ -1,0 +1,387 @@
+module Main
+
+import Data.Char
+import Data.String
+import System
+
+%default total
+
+-- This is deliberately a first-stage evidence parser.  It finds likely book
+-- citations under explicit syllabus book/reading sections and keeps the source
+-- wording.  It does not guess a canonical title/author pair, Internet Archive
+-- item, or price.  Those are separate normalization/enrichment stages.
+
+choice reading_section one_of
+  outside_section
+  required_section
+  recommended_section
+
+choice reading_kind one_of
+  required_book_candidate
+  recommended_book_candidate
+
+choice html_piece one_of
+  html_tag String
+  html_text String
+
+choice block_kind one_of
+  heading_block
+  item_block
+  paragraph_block
+
+record Block where
+  constructor MkBlock
+  block_kind_value : block_kind
+  block_text : String
+
+record Candidate where
+  constructor MkCandidate
+  candidate_kind : reading_kind
+  raw_text : String
+  isbn_hint : String
+
+normalize : String → String
+normalize = unwords . words . trim
+
+safe_tail : String → String
+safe_tail value =
+  case unpack value of
+    [] => ""
+    _ :: rest => pack rest
+
+split_once : Char → String → (String, String)
+split_once delimiter value =
+  let (before, after) = break (== delimiter) value
+  in if after == ""
+        then (before, "")
+        else (before, safe_tail after)
+
+flush_piece : Bool → List Char → List html_piece
+flush_piece _ [] = []
+flush_piece True chars = [html_tag (pack (reverse chars))]
+flush_piece False chars = [html_text (pack (reverse chars))]
+
+tokenize_chars : Bool → List Char → List Char → List html_piece
+tokenize_chars inside acc [] = flush_piece inside acc
+tokenize_chars False acc ('<' :: rest) =
+  flush_piece False acc ++ tokenize_chars True [] rest
+tokenize_chars True acc ('>' :: rest) =
+  flush_piece True acc ++ tokenize_chars False [] rest
+tokenize_chars inside acc (char :: rest) =
+  tokenize_chars inside (char :: acc) rest
+
+tokenize : String → List html_piece
+tokenize = tokenize_chars False [] . unpack
+
+tag_key : String → String
+tag_key tag =
+  case words (toLower (trim tag)) of
+    [] => ""
+    key :: _ => key
+
+opening_block : String → Maybe block_kind
+opening_block tag =
+  case tag_key tag of
+    "h1" => Just heading_block
+    "h2" => Just heading_block
+    "h3" => Just heading_block
+    "h4" => Just heading_block
+    "h5" => Just heading_block
+    "h6" => Just heading_block
+    "li" => Just item_block
+    "p" => Just paragraph_block
+    "td" => Just paragraph_block
+    "th" => Just paragraph_block
+    _ => Nothing
+
+is_block_close : String → Bool
+is_block_close tag =
+  case tag_key tag of
+    "/h1" => True
+    "/h2" => True
+    "/h3" => True
+    "/h4" => True
+    "/h5" => True
+    "/h6" => True
+    "/li" => True
+    "/p" => True
+    "/td" => True
+    "/th" => True
+    _ => False
+
+emit_block : Maybe block_kind → List String → List Block
+emit_block Nothing _ = []
+emit_block (Just kind) pieces =
+  let value = normalize (unwords (reverse pieces))
+  in if value == "" then [] else [MkBlock kind value]
+
+build_blocks : Maybe block_kind → List String → List html_piece → List Block
+build_blocks current acc [] = emit_block current acc
+build_blocks current acc (html_text value :: rest) =
+  case current of
+    Nothing => build_blocks Nothing [] rest
+    Just _ =>
+      let value' = normalize value
+      in if value' == ""
+            then build_blocks current acc rest
+            else build_blocks current (value' :: acc) rest
+build_blocks current acc (html_tag tag :: rest) =
+  case opening_block tag of
+    Just next => emit_block current acc ++ build_blocks (Just next) [] rest
+    Nothing =>
+      if is_block_close tag
+         then emit_block current acc ++ build_blocks Nothing [] rest
+         else build_blocks current acc rest
+
+html_blocks : String → List Block
+html_blocks = build_blocks Nothing [] . tokenize
+
+starts_with_one : List String → String → Bool
+starts_with_one prefixes value = any (\prefix => isPrefixOf prefix value) prefixes
+
+section_for : String → Maybe reading_section
+section_for value =
+  let lower = toLower (normalize value)
+      required_labels =
+        [ "required text"
+        , "required book"
+        , "required reading"
+        , "required course material"
+        , "course text"
+        , "textbook"
+        ]
+      recommended_labels =
+        [ "recommended text"
+        , "recommended book"
+        , "recommended reading"
+        , "suggested reading"
+        , "optional reading"
+        ]
+  in if starts_with_one recommended_labels lower
+        then Just recommended_section
+        else if starts_with_one required_labels lower
+                then Just required_section
+                else Nothing
+
+is_compact_label : String → Bool
+is_compact_label value = length (words value) <= 8
+
+inline_section : String → Maybe (reading_section, String)
+inline_section value =
+  let value' = normalize value
+      (label, trailing) = split_once ':' value'
+  in case section_for label of
+       Just section =>
+         if is_compact_label label
+            then Just (section, normalize trailing)
+            else Nothing
+       Nothing =>
+         case section_for value' of
+           Just section =>
+             if is_compact_label value'
+                then Just (section, "")
+                else Nothing
+           Nothing => Nothing
+
+is_stop_label : String → Bool
+is_stop_label value =
+  let lower = toLower (normalize value)
+      labels =
+        [ "course policies"
+        , "course policy"
+        , "grading"
+        , "assignments"
+        , "attendance"
+        , "academic integrity"
+        , "learning outcomes"
+        , "course outcomes"
+        , "course objectives"
+        , "schedule"
+        , "course schedule"
+        ]
+  in is_compact_label lower && starts_with_one labels lower
+
+skip_candidate : String → Bool
+skip_candidate value =
+  let lower = toLower (normalize value)
+  in lower == ""
+     || lower == "none"
+     || lower == "n/a"
+     || lower == "not applicable"
+     || isInfixOf "no textbook" lower
+     || isInfixOf "no required text" lower
+     || isInfixOf "no required book" lower
+     || isPrefixOf "see canvas" lower
+     || isPrefixOf "provided on canvas" lower
+     || isPrefixOf "materials will be provided" lower
+
+isbn_char : Char → Bool
+isbn_char char = isDigit char || char == '-' || char == 'x' || char == 'X'
+
+isbn_token : String → Maybe String
+isbn_token token =
+  let cleaned = pack (filter isbn_char (unpack token))
+      chars = unpack cleaned
+      digit_count = length (filter isDigit chars)
+  in if digit_count >= 9 && digit_count <= 13 && length chars <= 17
+        then Just cleaned
+        else Nothing
+
+find_isbn : List String → String
+find_isbn [] = ""
+find_isbn (word :: rest) =
+  case isbn_token word of
+    Just isbn => isbn
+    Nothing => find_isbn rest
+
+kind_for : reading_section → Maybe reading_kind
+kind_for outside_section = Nothing
+kind_for required_section = Just required_book_candidate
+kind_for recommended_section = Just recommended_book_candidate
+
+candidate_for : reading_section → String → Maybe Candidate
+candidate_for section value =
+  let value' = normalize value
+  in if skip_candidate value'
+        then Nothing
+        else case kind_for section of
+               Nothing => Nothing
+               Just kind => Just (MkCandidate kind value' (find_isbn (words value')))
+
+candidate_list : reading_section → String → List Candidate
+candidate_list section value =
+  case candidate_for section value of
+    Nothing => []
+    Just candidate => [candidate]
+
+collect_candidates : reading_section → List Block → List Candidate
+collect_candidates _ [] = []
+collect_candidates section (MkBlock heading_block value :: rest) =
+  case section_for value of
+    Just next => collect_candidates next rest
+    Nothing => collect_candidates outside_section rest
+collect_candidates section (MkBlock _ value :: rest) =
+  if is_stop_label value
+     then collect_candidates outside_section rest
+     else case inline_section value of
+            Just (next, "") => collect_candidates next rest
+            Just (next, trailing) =>
+              candidate_list next trailing ++ collect_candidates next rest
+            Nothing =>
+              candidate_list section value ++ collect_candidates section rest
+
+extract_candidates : String → List Candidate
+extract_candidates = collect_candidates outside_section . html_blocks
+
+kind_text : reading_kind → String
+kind_text required_book_candidate = "required_book_candidate"
+kind_text recommended_book_candidate = "recommended_book_candidate"
+
+sanitize_tsv : String → String
+sanitize_tsv value =
+  pack (map clean (unpack value))
+  where
+    clean : Char → Char
+    clean '\t' = ' '
+    clean '\r' = ' '
+    clean '\n' = ' '
+    clean char = char
+
+render_candidate :
+  String → String → String → String → String → Candidate → String
+render_candidate course instructor term source_url source_file candidate =
+  joinBy "\t"
+    [ kind_text candidate.candidate_kind
+    , sanitize_tsv course
+    , sanitize_tsv instructor
+    , sanitize_tsv term
+    , sanitize_tsv candidate.isbn_hint
+    , sanitize_tsv candidate.raw_text
+    , sanitize_tsv source_url
+    , sanitize_tsv source_file
+    ]
+
+print_rows : String → String → String → String → String → List Candidate → IO ()
+print_rows _ _ _ _ _ [] = pure ()
+print_rows course instructor term source_url source_file (candidate :: rest) = do
+  putStrLn (render_candidate course instructor term source_url source_file candidate)
+  print_rows course instructor term source_url source_file rest
+
+raws : String → List String
+raws = map raw_text . extract_candidates
+
+isbns : String → List String
+isbns = map isbn_hint . extract_candidates
+
+run_test : String → List String → List String → IO Bool
+run_test name actual expected =
+  if actual == expected
+     then do
+       putStrLn ("PASS\t" ++ name)
+       pure True
+     else do
+       putStrLn ("FAIL\t" ++ name)
+       putStrLn ("  expected: " ++ show expected)
+       putStrLn ("  actual:   " ++ show actual)
+       pure False
+
+self_test : IO ()
+self_test = do
+  let required_fixture =
+        "<h2>Required Texts</h2>" ++
+        "<ul><li>Plato, Republic, ISBN 9780140455113</li>" ++
+        "<li>Aristotle, Nicomachean Ethics</li></ul>" ++
+        "<h2>Course Policies</h2>" ++
+        "<p>Students must buy a notebook.</p>"
+  let recommended_fixture =
+        "<p><strong>Recommended Reading:</strong>" ++
+        " Hannah Arendt, The Human Condition</p>"
+  let outside_fixture =
+        "<h2>Course Description</h2>" ++
+        "<p>Students are required to read carefully and bring a book to class.</p>"
+  let none_fixture =
+        "<h3>Required Textbooks</h3><p>No textbook is required.</p>"
+  let nested_fixture =
+        "<h2>Required Reading</h2><ul><li>Simone de Beauvoir, " ++
+        "<em>The Ethics of Ambiguity</em>, ISBN: 9780806501604</li></ul>"
+
+  a <- run_test "required-section-stops-at-next-heading"
+        (raws required_fixture)
+        [ "Plato, Republic, ISBN 9780140455113"
+        , "Aristotle, Nicomachean Ethics"
+        ]
+  b <- run_test "inline-recommended-section"
+        (raws recommended_fixture)
+        ["Hannah Arendt, The Human Condition"]
+  c <- run_test "required-word-outside-book-section-is-not-a-book"
+        (raws outside_fixture) []
+  d <- run_test "explicit-no-textbook-is-empty"
+        (raws none_fixture) []
+  e <- run_test "nested-markup-preserves-citation"
+        (raws nested_fixture)
+        ["Simone de Beauvoir, The Ethics of Ambiguity , ISBN: 9780806501604"]
+  f <- run_test "isbn-hint"
+        (isbns nested_fixture) ["9780806501604"]
+
+  if a && b && c && d && e && f
+     then putStrLn "PASS\tself-test"
+     else die "USF syllabus book parser self-test failed"
+
+covering
+run_file : String → String → String → String → String → IO ()
+run_file source_file course instructor term source_url = do
+  Right html <- readFile source_file
+    | Left _ => die ("could not read " ++ source_file)
+  putStrLn "kind\tcourse\tinstructor\tterm\tisbn_hint\traw_text\tsource_url\tsource_file"
+  print_rows course instructor term source_url source_file (extract_candidates html)
+
+covering
+main : IO ()
+main = do
+  arguments <- getArgs
+  case drop 1 arguments of
+    ["--self-test"] => self_test
+    [source_file, course, instructor, term, source_url] =>
+      run_file source_file course instructor term source_url
+    _ => die
+      "usage: usf-syllabus-books --self-test | HTML COURSE INSTRUCTOR TERM SOURCE_URL"
