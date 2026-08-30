@@ -1,0 +1,57 @@
+name: test USF Edriç book parser
+
+on:
+  push:
+    branches:
+      - usf-edric-book-parser
+    paths:
+      - 'where would I read this and who would I read it with/tools/usf-syllabus-books.idric'
+      - '.github/workflows/test-usf-edric-book-parser.yml'
+  pull_request:
+    paths:
+      - 'where would I read this and who would I read it with/tools/usf-syllabus-books.idric'
+      - '.github/workflows/test-usf-edric-book-parser.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  edric-parser:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out syllabi
+        uses: actions/checkout@v4
+
+      - name: Check out the exact Idriç compiler source
+        uses: actions/checkout@v4
+        with:
+          repository: isomorphisms/Idric
+          ref: 9b0bf7fa8be9483440e6ec0530f3aef3999a8735
+          path: .idric-toolchain
+
+      - name: Bootstrap Idriç
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd .idric-toolchain
+          ./edric bootstrap
+
+      - name: Build parser as .idric source
+        shell: bash
+        run: |
+          set -euo pipefail
+          compiler="$GITHUB_WORKSPACE/.idric-toolchain/build/exec/idris2"
+          parser="$GITHUB_WORKSPACE/where would I read this and who would I read it with/tools/usf-syllabus-books.idric"
+          work="$RUNNER_TEMP/usf-edric-parser"
+          mkdir -p "$work"
+          cp "$parser" "$work/Main.idric"
+          cd "$work"
+          "$compiler" --no-banner --no-color --console-width 0 -o usf-syllabus-books Main.idric
+          test -x build/exec/usf-syllabus-books
+
+      - name: Run hostile parser self-tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          "$RUNNER_TEMP/usf-edric-parser/build/exec/usf-syllabus-books" --self-test | tee "$RUNNER_TEMP/parser-self-test.txt"
+          grep -F $'PASS\tself-test' "$RUNNER_TEMP/parser-self-test.txt"
