@@ -11,11 +11,14 @@ PAGE_SIZE=${USF_PAGE_SIZE:-50}
 MAX_PAGES=${USF_MAX_PAGES:-0}
 FETCH_TIMEOUT_SECONDS=${USF_FETCH_TIMEOUT_SECONDS:-90}
 ICU=${ICU:-icu}
+ITHON=${ITHON:-ithon}
 
 ICU_REPO='dilapidated-shed/icu'
 ICU_COMMIT='a9e5e6089bdbf93d0209d673b93c783eb1957b44'
 GREASE_REPO='isomorphisms/grease'
 GREASE_COMMIT='e963958976eaa80a2517bae3fd34b0e5115ffcbe'
+ITHON_REPO='dilapidated-shed/ithon'
+ITHON_COMMIT='2e0d634550ecf2eb78315c2c165fe0e85ea1980c'
 
 RAW='syllabi/usf/philosophy'
 INFO='course information/usf/philosophy'
@@ -30,10 +33,15 @@ ERROR_DIR="$LOG_ROOT/$RUN_ID-errors"
 
 mkdir -p "$RAW/simple-syllabus/search" "$RAW/simple-syllabus/documents" \
   "$RAW/simple-syllabus/pdf" "$RAW/course-inventory/details" \
-  "$INFO/simple-syllabus/html" "$LOG_ROOT" "$ERROR_DIR"
+  "$INFO/simple-syllabus/html" "$INFO/simple-syllabus/documents" \
+  "$LOG_ROOT" "$ERROR_DIR"
 
 command -v "$ICU" >/dev/null || {
   printf 'FAIL: ICU executable not found: %s\n' "$ICU" >&2
+  exit 69
+}
+command -v "$ITHON" >/dev/null || {
+  printf 'FAIL: Ithon executable not found: %s\n' "$ITHON" >&2
   exit 69
 }
 command -v jq >/dev/null || {
@@ -46,8 +54,12 @@ command -v timeout >/dev/null
 REPO_COMMIT=$(git rev-parse HEAD)
 SCRIPT_PATH='parsers/fetch-usf-philosophy.grease'
 SCRIPT_BLOB=$(git hash-object "$SCRIPT_PATH")
+PARSER_PATH='parsers/usf_course_information.py'
+PARSER_BLOB=$(git hash-object "$PARSER_PATH")
 ICU_PATH=$(command -v "$ICU")
+ITHON_PATH=$(command -v "$ITHON")
 ICU_BINARY_SHA256=$(sha256sum "$ICU_PATH" | awk '{print $1}')
+ITHON_BINARY_SHA256=$(sha256sum "$ITHON_PATH" | awk '{print $1}')
 
 utc_now() { date -u '+%Y-%m-%dT%H:%M:%SZ'; }
 
@@ -102,6 +114,44 @@ fetch_receipt() {
       validation:$validation,exit_code:($exit_code|tonumber),sleep_after_request_seconds:($wait|tonumber),
       error:(if $error_path=="" then null else $error_path end),
       limitation:"current ICU does not expose final HTTP status/headers"}')"
+}
+
+parse_receipt() {
+  status=$1
+  started_at=$2
+  finished_at=$3
+  source_uri=$4
+  input_path=$5
+  output_path=$6
+  input_sha=$7
+  output_sha=$8
+  output_bytes=$9
+  exit_code=${10}
+  error_path=${11}
+
+  append_receipt "$(jq -cn \
+    --arg run_id "$RUN_ID" --arg status "$status" --arg recorded_at "$finished_at" \
+    --arg started_at "$started_at" --arg source_uri "$source_uri" \
+    --arg input_path "$input_path" --arg output_path "$output_path" \
+    --arg input_sha "$input_sha" --arg output_sha "$output_sha" \
+    --arg output_bytes "$output_bytes" --arg exit_code "$exit_code" \
+    --arg error_path "$error_path" --arg repo_commit "$REPO_COMMIT" \
+    --arg parser_path "$PARSER_PATH" --arg parser_blob "$PARSER_BLOB" \
+    --arg tool_repo "$ITHON_REPO" --arg tool_commit "$ITHON_COMMIT" \
+    --arg binary_sha "$ITHON_BINARY_SHA256" \
+    '{schema:1,run_id:$run_id,event:"parse",status:$status,recorded_at:$recorded_at,
+      started_at:$started_at,
+      repository:{name:"isomorphisms/syllabi",commit:$repo_commit},
+      tool:{name:"ithon",repository:$tool_repo,commit:$tool_commit,
+        argv:[$parser_path,"--input",$input_path,"--source-uri",$source_uri,"--output",$output_path],
+        binary_sha256:$binary_sha},
+      script:{path:$parser_path,blob:$parser_blob},
+      source_uri:$source_uri,
+      input:{path:$input_path,sha256:$input_sha},
+      output:{path:$output_path,sha256:(if $output_sha=="" then null else $output_sha end),
+        bytes:(if $output_bytes=="" then null else ($output_bytes|tonumber) end)},
+      exit_code:($exit_code|tonumber),
+      error:(if $error_path=="" then null else $error_path end)}')"
 }
 
 validate_body() {
@@ -167,6 +217,51 @@ get() {
   fetch_receipt PASS "$started" "$finished" "$url" "$out" "$sha" "$bytes" 0 "$kind:pass" "$(test -e "$stderr" && printf '%s' "$stderr" || true)"
 }
 
+parse_course() {
+  source_uri=$1
+  input_path=$2
+  output_path=$3
+  safe_code=$4
+  mkdir -p "$(dirname "$output_path")"
+
+  input_sha=$(sha256sum "$input_path" | awk '{print $1}')
+  stderr="$ERROR_DIR/parse-$safe_code.stderr"
+  rm -f "$stderr" "$output_path" "$output_path.failed"
+  started=$(utc_now)
+
+  set +o errexit
+  "$ITHON" "$PARSER_PATH" \
+    --input "$input_path" \
+    --source-uri "$source_uri" \
+    --output "$output_path" \
+    2> "$stderr"
+  code=$?
+  set -o errexit
+  finished=$(utc_now)
+
+  if test "$code" -ne 0 || ! jq -e . "$output_path" >/dev/null 2>&1; then
+    failed_path="$output_path.failed"
+    output_sha=''
+    output_bytes=''
+    if test -e "$output_path"; then
+      mv "$output_path" "$failed_path"
+      output_sha=$(sha256sum "$failed_path" | awk '{print $1}')
+      output_bytes=$(wc -c < "$failed_path" | tr -d ' ')
+    else
+      failed_path="$output_path"
+    fi
+    parse_receipt FAIL "$started" "$finished" "$source_uri" "$input_path" "$failed_path" \
+      "$input_sha" "$output_sha" "$output_bytes" "$code" "$stderr"
+    return 1
+  fi
+
+  output_sha=$(sha256sum "$output_path" | awk '{print $1}')
+  output_bytes=$(wc -c < "$output_path" | tr -d ' ')
+  test -s "$stderr" || rm -f "$stderr"
+  parse_receipt PASS "$started" "$finished" "$source_uri" "$input_path" "$output_path" \
+    "$input_sha" "$output_sha" "$output_bytes" 0 "$(test -e "$stderr" && printf '%s' "$stderr" || true)"
+}
+
 urlencode() {
   jq -rn --arg value "$1" '$value|@uri'
 }
@@ -223,7 +318,7 @@ fi
 rm -f "$RAW/simple-syllabus/library-items.jsonl.new"
 
 mkdir -p "$INFO"
-printf 'handle\ttitle\tsub_title\tterm\tvisibility\teditors\tdocument_json\tnormalized_html\tpdf\n' > "$INFO/manifest.tsv"
+printf 'handle\ttitle\tsub_title\tterm\tvisibility\teditors\tdocument_json\tparsed_course_json\tnormalized_html\tpdf\n' > "$INFO/manifest.tsv"
 
 jq -c '.[]' "$RAW/simple-syllabus/library-items.json" | while IFS= read -r item; do
   code=$(printf '%s' "$item" | jq -r '.code // empty')
@@ -235,8 +330,13 @@ jq -c '.[]' "$RAW/simple-syllabus/library-items.json" | while IFS= read -r item;
   doc_url="$SS/api2/doc-full-page-get?code=$(urlencode "$code")"
 
   if ! get "$doc_url" "$doc" json; then
-    printf '%s\t%s\t\t\t\t\t\t\t\n' "$code" "$title" >> "$INFO/manifest.tsv"
+    printf '%s\t%s\t\t\t\t\t\t\t\t\n' "$code" "$title" >> "$INFO/manifest.tsv"
     continue
+  fi
+
+  parsed="$INFO/simple-syllabus/documents/$safe_code.json"
+  if ! parse_course "$doc_url" "$doc" "$parsed" "$safe_code"; then
+    parsed=''
   fi
 
   html="$INFO/simple-syllabus/html/$safe_code.html"
@@ -276,8 +376,8 @@ jq -c '.[]' "$RAW/simple-syllabus/library-items.json" | while IFS= read -r item;
   editors=$(printf '%s' "$item" | jq -r '[.editors[]? | (.name // .full_name // tostring)] | join("; ")' | tr '\t\r\n' '   ')
   clean_title=$(printf '%s' "$title" | tr '\t\r\n' '   ')
 
-  printf '%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n' \
-    "$code" "$clean_title" "$sub_title" "$term" "$visibility" "$editors" "$doc" "$html" "$pdf" \
+  printf '%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n' \
+    "$code" "$clean_title" "$sub_title" "$term" "$visibility" "$editors" "$doc" "$parsed" "$html" "$pdf" \
     >> "$INFO/manifest.tsv"
 
   subject=$(printf '%s' "$title" | sed -nE 's/^\s*([A-Za-z]{3})\s*([0-9]{4}).*/\1/p' | tr '[:lower:]' '[:upper:]')
