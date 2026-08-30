@@ -75,6 +75,14 @@ jobs:
           path: .tooling/ninja
           fetch-depth: 1
 
+      - name: Check out pinned re2c source
+        uses: actions/checkout@v4
+        with:
+          repository: skvadrik/re2c
+          ref: e1901b71c6414c510f10f4cc30c0a05600e55ed1
+          path: .tooling/re2c
+          fetch-depth: 1
+
       - name: Build native Grease runtime
         working-directory: .tooling/grease/source
         run: |
@@ -82,7 +90,7 @@ jobs:
             --volume "$GITHUB_WORKSPACE:/workspace" \
             --workdir /workspace/.tooling/grease/source \
             python:2.7.18-buster \
-            bash -lc '(cd /workspace/.tooling/ninja && python configure.py --bootstrap) && export PATH="/workspace/.tooling/ninja:$PATH" && build/py.sh minimal && mkdir -p _devbuild/help _gen/frontend && PYTHONPATH=.:vendor doctools/help_gen.py cards-from-chapters _devbuild/help _devbuild/gen/help_meta.py _gen/frontend/help_meta && ./NINJA-config.sh && ninja _bin/cxx-opt/oils-for-unix'
+            bash -lc '(cd /workspace/.tooling/ninja && python configure.py --bootstrap) && (cd /workspace/.tooling/re2c && ./autogen.sh && ./configure && make -j2) && export PATH="/workspace/.tooling/ninja:/workspace/.tooling/re2c:$PATH" && build/py.sh minimal && build/py.sh fastmatch && mkdir -p _devbuild/help _gen/frontend && PYTHONPATH=.:vendor doctools/help_gen.py cards-from-chapters _devbuild/help _devbuild/gen/help_meta.py _gen/frontend/help_meta && ./NINJA-config.sh && ninja _bin/cxx-opt/oils-for-unix'
           test -x _bin/cxx-opt/oils-for-unix
 
       - name: Acquire all public Fall 2026 department syllabi
