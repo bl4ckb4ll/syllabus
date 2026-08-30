@@ -67,39 +67,25 @@ jobs:
           path: .tooling/grease
           submodules: recursive
 
-      - name: Check out pinned Ninja source
-        uses: actions/checkout@v4
-        with:
-          repository: ninja-build/ninja
-          ref: e72d1d581c945c158ed68d9bc48911063022a2c6
-          path: .tooling/ninja
-          fetch-depth: 1
-
-      - name: Check out pinned re2c source
-        uses: actions/checkout@v4
-        with:
-          repository: skvadrik/re2c
-          ref: e1901b71c6414c510f10f4cc30c0a05600e55ed1
-          path: .tooling/re2c
-          fetch-depth: 1
-
-      - name: Build native Grease runtime
+      - name: Build pinned Grease Python runtime
         working-directory: .tooling/grease/source
         run: |
           docker run --rm \
             --volume "$GITHUB_WORKSPACE:/workspace" \
             --workdir /workspace/.tooling/grease/source \
-            python:2.7.18-buster \
-            bash -lc '(cd /workspace/.tooling/ninja && python configure.py --bootstrap) && (cd /workspace/.tooling/re2c && ./autogen.sh && ./configure && make -j2) && export PATH="/workspace/.tooling/ninja:/workspace/.tooling/re2c:$PATH" && build/py.sh minimal && build/py.sh fastmatch && mkdir -p _devbuild/help _gen/frontend && PYTHONPATH=.:vendor doctools/help_gen.py cards-from-chapters _devbuild/help _devbuild/gen/help_meta.py _gen/frontend/help_meta && ./NINJA-config.sh && ninja _bin/cxx-opt/oils-for-unix'
-          test -x _bin/cxx-opt/oils-for-unix
+            python:2.7.18-buster@sha256:d8fac68ebdc45b8d66d53f1ed6c1532da81109a8f5532a6ca0c951ed31107d70 \
+            bash -lc 'build/py.sh minimal && runtime=/workspace/.tooling/python2-runtime && mkdir -p "$runtime/bin" "$runtime/lib" && cp /usr/local/bin/python2.7 "$runtime/bin/" && cp /usr/local/lib/libpython2.7.so.1.0 "$runtime/lib/" && cp -a /usr/local/lib/python2.7 "$runtime/lib/" && ln -s python2.7 "$runtime/bin/python2"'
+          test -x "$GITHUB_WORKSPACE/.tooling/python2-runtime/bin/python2"
 
       - name: Acquire all public Fall 2026 department syllabi
         env:
           ICU: .tooling/icu/build/exec/icu
           ITHON: .tooling/ithon/python
         run: |
-          .tooling/grease/source/_bin/cxx-opt/oils-for-unix \
-            osh parsers/fetch-usf-fall-2026.grease
+          export PATH="$GITHUB_WORKSPACE/.tooling/python2-runtime/bin:$PATH"
+          export LD_LIBRARY_PATH="$GITHUB_WORKSPACE/.tooling/python2-runtime/lib"
+          export PYTHONHOME="$GITHUB_WORKSPACE/.tooling/python2-runtime"
+          .tooling/grease/source/bin/osh parsers/fetch-usf-fall-2026.grease
 
       - name: Validate receipts and exact coverage
         run: |
