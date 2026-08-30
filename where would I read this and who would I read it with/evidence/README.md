@@ -2,23 +2,24 @@
 
 Do not mirror every syllabus PDF here.
 
-For each public syllabus we need enough information to reproduce and audit the
+For each public syllabus, keep enough information to reproduce and audit the
 book extraction:
 
 - institution;
 - course code/title and section;
+- subject: philosophy, English, or history;
 - term;
 - instructor(s), when present;
 - department/college, when present;
 - public source URL and source-system handle;
 - date observed;
-- exact material citations extracted from the syllabus;
-- canonical book records those citations resolve to;
+- exact book/material citations extracted from the syllabus;
+- symbolic links or paths to the canonical top-level book records;
 - extraction confidence and unresolved material strings.
 
-The source URL remains the authority for the syllabus text.  This repository is
-the index from that evidence to the books.
+The source URL remains the authority for the syllabus text. This repository is
+an index from that evidence to the books.
 
-Instructor, department, course, and term folders should use symbolic links back
-to these canonical evidence records and/or directly to canonical `books/`
-records.  They are views, not duplicate databases.
+College, department, course, instructor, and term folders are views. Prefer
+symbolic links back to the top-level book directories and canonical evidence
+records rather than duplicate files.
