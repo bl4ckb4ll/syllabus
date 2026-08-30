@@ -3,6 +3,7 @@ module Main
 import Data.Char
 import Data.String
 import System
+import System.File
 
 %default total
 
