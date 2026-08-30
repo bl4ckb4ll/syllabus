@@ -64,11 +64,11 @@ jobs:
 
       - name: FAIL on a curl fallback in the live fetcher
         run: |
-          if grep -En '(^|\$\(|&&|\|\||;)[[:space:]]*curl([[:space:]]|$)' parsers/fetch-usf-philosophy.grease; then
+          if grep -En '(^|\$\(|&&|\|\||;)[[:space:]]*curl([[:space:]]|$)' parsers/fetch-usf-fall-2026.grease; then
             echo 'FAIL: live acquisition contains an executable curl command'
             exit 1
           fi
-          grep -F '"$ICU" get "$url"' parsers/fetch-usf-philosophy.grease >/dev/null
+          grep -F '"$ICU" get "$url"' parsers/fetch-usf-fall-2026.grease >/dev/null
           echo 'PASS ICU-only fetch boundary'
 
       - name: SKIP live university fetch during replay

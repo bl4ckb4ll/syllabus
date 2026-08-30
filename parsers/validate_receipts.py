@@ -9,7 +9,7 @@ import re
 SHA40 = re.compile(r"^[0-9a-f]{40}$")
 SHA256 = re.compile(r"^[0-9a-f]{64}$")
 GENERAL = {"schema", "run_id", "event", "status", "recorded_at", "repository", "tool", "script"}
-EVENTS = {"run_start", "fetch", "parse", "replay", "run_end"}
+EVENTS = {"run_start", "coverage_assertion", "fetch", "parse", "replay", "run_end"}
 STATUSES = {"PASS", "FAIL", "SKIP"}
 
 

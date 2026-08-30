@@ -7,8 +7,7 @@ set -o nounset
 set -o pipefail
 
 WAIT_SECONDS=${USF_WAIT_SECONDS:-5}
-PAGE_SIZE=${USF_PAGE_SIZE:-50}
-MAX_PAGES=${USF_MAX_PAGES:-0}
+PAGE_SIZE=${USF_PAGE_SIZE:-500}
 FETCH_TIMEOUT_SECONDS=${USF_FETCH_TIMEOUT_SECONDS:-90}
 ICU=${ICU:-icu}
 ITHON=${ITHON:-ithon}
@@ -20,21 +19,17 @@ GREASE_COMMIT='e963958976eaa80a2517bae3fd34b0e5115ffcbe'
 ITHON_REPO='dilapidated-shed/ithon'
 ITHON_COMMIT='2e0d634550ecf2eb78315c2c165fe0e85ea1980c'
 
-RAW='syllabi/usf/philosophy'
-INFO='course information/usf/philosophy'
-LOG_ROOT='crawling log/usf/philosophy'
+TERM_NAME='Fall 2026'
+RAW_ROOT='syllabi/usf/fall-2026'
+INFO_ROOT='course information/usf/fall-2026'
+LOG_ROOT='crawling log/usf/fall-2026'
 SS='https://usf.simplesyllabus.com'
-INVENTORY='https://cloud.usf.edu/academic-programs'
-PREFIXES='PHI PHH PHM PHP'
 
 RUN_ID=${CRAWL_RUN_ID:-"$(date -u '+%Y%m%dT%H%M%SZ')-$$"}
 RECEIPT="$LOG_ROOT/$RUN_ID.ndjson"
 ERROR_DIR="$LOG_ROOT/$RUN_ID-errors"
 
-mkdir -p "$RAW/simple-syllabus/search" "$RAW/simple-syllabus/documents" \
-  "$RAW/simple-syllabus/pdf" "$RAW/course-inventory/details" \
-  "$INFO/simple-syllabus/html" "$INFO/simple-syllabus/documents" \
-  "$LOG_ROOT" "$ERROR_DIR"
+mkdir -p "$RAW_ROOT" "$INFO_ROOT" "$LOG_ROOT" "$ERROR_DIR"
 
 command -v "$ICU" >/dev/null || {
   printf 'FAIL: ICU executable not found: %s\n' "$ICU" >&2
@@ -52,7 +47,7 @@ command -v sha256sum >/dev/null
 command -v timeout >/dev/null
 
 REPO_COMMIT=$(git rev-parse HEAD)
-SCRIPT_PATH='parsers/fetch-usf-philosophy.grease'
+SCRIPT_PATH='parsers/fetch-usf-fall-2026.grease'
 SCRIPT_BLOB=$(git hash-object "$SCRIPT_PATH")
 PARSER_PATH='parsers/usf_course_information.py'
 PARSER_BLOB=$(git hash-object "$PARSER_PATH")
@@ -121,33 +116,38 @@ parse_receipt() {
   started_at=$2
   finished_at=$3
   source_uri=$4
-  input_path=$5
-  output_path=$6
-  input_sha=$7
-  output_sha=$8
-  output_bytes=$9
-  exit_code=${10}
-  error_path=${11}
+  public_uri=$5
+  input_path=$6
+  metadata_path=$7
+  output_path=$8
+  input_sha=$9
+  metadata_sha=${10}
+  output_sha=${11}
+  output_bytes=${12}
+  exit_code=${13}
+  error_path=${14}
 
   append_receipt "$(jq -cn \
     --arg run_id "$RUN_ID" --arg status "$status" --arg recorded_at "$finished_at" \
     --arg started_at "$started_at" --arg source_uri "$source_uri" \
-    --arg input_path "$input_path" --arg output_path "$output_path" \
-    --arg input_sha "$input_sha" --arg output_sha "$output_sha" \
-    --arg output_bytes "$output_bytes" --arg exit_code "$exit_code" \
-    --arg error_path "$error_path" --arg repo_commit "$REPO_COMMIT" \
-    --arg parser_path "$PARSER_PATH" --arg parser_blob "$PARSER_BLOB" \
-    --arg tool_repo "$ITHON_REPO" --arg tool_commit "$ITHON_COMMIT" \
-    --arg binary_sha "$ITHON_BINARY_SHA256" \
+    --arg public_uri "$public_uri" --arg input_path "$input_path" \
+    --arg metadata_path "$metadata_path" --arg output_path "$output_path" \
+    --arg input_sha "$input_sha" --arg metadata_sha "$metadata_sha" \
+    --arg output_sha "$output_sha" --arg output_bytes "$output_bytes" \
+    --arg exit_code "$exit_code" --arg error_path "$error_path" \
+    --arg repo_commit "$REPO_COMMIT" --arg parser_path "$PARSER_PATH" \
+    --arg parser_blob "$PARSER_BLOB" --arg tool_repo "$ITHON_REPO" \
+    --arg tool_commit "$ITHON_COMMIT" --arg binary_sha "$ITHON_BINARY_SHA256" \
     '{schema:1,run_id:$run_id,event:"parse",status:$status,recorded_at:$recorded_at,
       started_at:$started_at,
       repository:{name:"isomorphisms/syllabi",commit:$repo_commit},
       tool:{name:"ithon",repository:$tool_repo,commit:$tool_commit,
-        argv:[$parser_path,"--input",$input_path,"--source-uri",$source_uri,"--output",$output_path],
+        argv:[$parser_path,"--input",$input_path,"--metadata",$metadata_path,"--source-uri",$source_uri,"--public-uri",$public_uri,"--output",$output_path],
         binary_sha256:$binary_sha},
       script:{path:$parser_path,blob:$parser_blob},
-      source_uri:$source_uri,
+      source_uri:$source_uri,public_uri:$public_uri,
       input:{path:$input_path,sha256:$input_sha},
+      metadata:{path:$metadata_path,sha256:$metadata_sha},
       output:{path:$output_path,sha256:(if $output_sha=="" then null else $output_sha end),
         bytes:(if $output_bytes=="" then null else ($output_bytes|tonumber) end)},
       exit_code:($exit_code|tonumber),
@@ -159,8 +159,7 @@ validate_body() {
   file=$2
   case "$kind" in
     json) jq -e . "$file" >/dev/null 2>&1 ;;
-    html) grep -Eiq '<(!doctype|html|body|head|title|div|main|section|form)([ >])' "$file" ;;
-    pdf) test "$(head -c 5 "$file")" = '%PDF-' ;;
+    html) grep -Eiq '<(div|main|section|article|h1|h2)([ >])' "$file" ;;
     bytes) test -s "$file" ;;
     *) printf 'unknown validation kind: %s\n' "$kind" >&2; return 64 ;;
   esac
@@ -219,12 +218,15 @@ get() {
 
 parse_course() {
   source_uri=$1
-  input_path=$2
-  output_path=$3
-  safe_code=$4
+  public_uri=$2
+  input_path=$3
+  metadata_path=$4
+  output_path=$5
+  safe_code=$6
   mkdir -p "$(dirname "$output_path")"
 
   input_sha=$(sha256sum "$input_path" | awk '{print $1}')
+  metadata_sha=$(sha256sum "$metadata_path" | awk '{print $1}')
   stderr="$ERROR_DIR/parse-$safe_code.stderr"
   rm -f "$stderr" "$output_path" "$output_path.failed"
   started=$(utc_now)
@@ -232,7 +234,9 @@ parse_course() {
   set +o errexit
   "$ITHON" "$PARSER_PATH" \
     --input "$input_path" \
+    --metadata "$metadata_path" \
     --source-uri "$source_uri" \
+    --public-uri "$public_uri" \
     --output "$output_path" \
     2> "$stderr"
   code=$?
@@ -250,143 +254,101 @@ parse_course() {
     else
       failed_path="$output_path"
     fi
-    parse_receipt FAIL "$started" "$finished" "$source_uri" "$input_path" "$failed_path" \
-      "$input_sha" "$output_sha" "$output_bytes" "$code" "$stderr"
+    parse_receipt FAIL "$started" "$finished" "$source_uri" "$public_uri" \
+      "$input_path" "$metadata_path" "$failed_path" "$input_sha" "$metadata_sha" \
+      "$output_sha" "$output_bytes" "$code" "$stderr"
     return 1
   fi
 
   output_sha=$(sha256sum "$output_path" | awk '{print $1}')
   output_bytes=$(wc -c < "$output_path" | tr -d ' ')
   test -s "$stderr" || rm -f "$stderr"
-  parse_receipt PASS "$started" "$finished" "$source_uri" "$input_path" "$output_path" \
-    "$input_sha" "$output_sha" "$output_bytes" 0 "$(test -e "$stderr" && printf '%s' "$stderr" || true)"
+  parse_receipt PASS "$started" "$finished" "$source_uri" "$public_uri" \
+    "$input_path" "$metadata_path" "$output_path" "$input_sha" "$metadata_sha" \
+    "$output_sha" "$output_bytes" 0 "$(test -e "$stderr" && printf '%s' "$stderr" || true)"
 }
 
 urlencode() {
   jq -rn --arg value "$1" '$value|@uri'
 }
 
-run_event run_start PASS 'USF philosophy live acquisition started'
+document_slug() {
+  jq -r '
+    ((.term_name // "") + " " + (.title // "") +
+      (if (.sub_title // "") == "" then "" else " - " + .sub_title end))
+    | gsub("[ _.\\-/]+"; "-")
+    | @uri
+  '
+}
 
-get "$INVENTORY/course-inventory/" "$RAW/course-inventory/search.html" html || true
+crawl_department() {
+  department=$1
+  department_tag=$2
+  expected_count=$3
+  raw="$RAW_ROOT/$department/simple-syllabus"
+  info="$INFO_ROOT/$department"
+  response="$raw/library-response.json"
+  items="$raw/library-items.json"
+  manifest="$info/manifest.tsv"
 
-: > "$RAW/simple-syllabus/library-items.jsonl.new"
+  mkdir -p "$raw/documents" "$info/documents"
+  encoded_tag=$(urlencode "$department_tag")
+  search_url="$SS/api2/doc-library-search?search=$encoded_tag&page=1&page_size=$PAGE_SIZE"
+  get "$search_url" "$response" json
 
-for prefix in $PREFIXES; do
-  page=1
-  previous_handles=''
+  total=$(jq '.pagination.total // 0' "$response")
+  returned=$(jq '(.items // []) | length' "$response")
+  if test "$total" -gt "$PAGE_SIZE" || test "$returned" -ne "$total"; then
+    run_event coverage_assertion FAIL "$department search was paginated or truncated: total=$total returned=$returned page_size=$PAGE_SIZE"
+    return 65
+  fi
 
-  while :; do
-    if test "$MAX_PAGES" -gt 0 && test "$page" -gt "$MAX_PAGES"; then
-      break
-    fi
+  jq --arg term "$TERM_NAME" --arg tag "$department_tag" '
+    [(.items // [])[]
+      | select((.term_name // "") == $term)
+      | select((.title // "") | contains("(" + $tag + ")"))]
+    | sort_by(.code)
+    | unique_by(.code)
+  ' "$response" > "$items"
 
-    encoded=$(urlencode "$prefix")
-    out="$RAW/simple-syllabus/search/$prefix/page-$page.json"
-    url="$SS/api2/doc-library-search?search=$encoded&page=$page&page_size=$PAGE_SIZE"
+  count=$(jq 'length' "$items")
+  if test "$count" -ne "$expected_count"; then
+    run_event coverage_assertion FAIL "$department expected $expected_count public Fall 2026 syllabi, found $count"
+    return 65
+  fi
+  run_event coverage_assertion PASS "$department exact public Fall 2026 syllabus count: $count"
 
-    if ! get "$url" "$out" json; then
-      break
-    fi
+  printf 'document_code\tcourse\tcourse_title\tterm\tinstructors\tpublic_syllabus\tcaptured_html\tparsed_course_json\n' > "$manifest"
 
-    count=$(jq '(.items // []) | length' "$out")
-    test "$count" -gt 0 || break
+  jq -c '.[]' "$items" | while IFS= read -r item; do
+    code=$(printf '%s' "$item" | jq -r '.code // empty')
+    test -n "$code" || continue
+    safe_code=$(printf '%s' "$code" | tr -cd 'A-Za-z0-9._-')
+    metadata="$raw/documents/$safe_code.metadata.json"
+    printf '%s\n' "$item" | jq . > "$metadata"
 
-    jq -c --arg p "$prefix" '
-      (.items // [])[]
-      | select((.title // "") | test("^\\s*" + $p + "\\s*[0-9]{4}"; "i"))
-    ' "$out" >> "$RAW/simple-syllabus/library-items.jsonl.new"
+    slug=$(printf '%s' "$item" | document_slug)
+    doc_url="$SS/api2/doc-html/$(urlencode "$code")/$slug"
+    public_url="$SS/doc/$(urlencode "$code")/$slug?mode=view"
+    html="$raw/documents/$safe_code.html"
+    parsed="$info/documents/$safe_code.json"
 
-    handles=$(jq -r '(.items // [])[].code // empty' "$out" | sort | tr '\n' ' ')
-    if test -n "$previous_handles" && test "$handles" = "$previous_handles"; then
-      break
-    fi
-    previous_handles=$handles
+    get "$doc_url" "$html" html
+    parse_course "$doc_url" "$public_url" "$html" "$metadata" "$parsed" "$safe_code"
 
-    test "$count" -ge "$PAGE_SIZE" || break
-    page=$((page + 1))
+    title=$(printf '%s' "$item" | jq -r '.title // ""' | tr '\t\r\n' '   ')
+    sub_title=$(printf '%s' "$item" | jq -r '.sub_title // ""' | tr '\t\r\n' '   ')
+    term=$(printf '%s' "$item" | jq -r '.term_name // ""' | tr '\t\r\n' '   ')
+    editors=$(printf '%s' "$item" | jq -r '[.editors[]? | (.name // .full_name // tostring)] | join("; ")' | tr '\t\r\n' '   ')
+    printf '%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n' \
+      "$code" "$title" "$sub_title" "$term" "$editors" "$public_url" "$html" "$parsed" \
+      >> "$manifest"
   done
-done
+}
 
-if test -s "$RAW/simple-syllabus/library-items.jsonl.new"; then
-  jq -s 'sort_by(.code) | unique_by(.code)' \
-    "$RAW/simple-syllabus/library-items.jsonl.new" \
-    > "$RAW/simple-syllabus/library-items.json"
-else
-  printf '[]\n' > "$RAW/simple-syllabus/library-items.json"
-fi
-rm -f "$RAW/simple-syllabus/library-items.jsonl.new"
-
-mkdir -p "$INFO"
-printf 'handle\ttitle\tsub_title\tterm\tvisibility\teditors\tdocument_json\tparsed_course_json\tnormalized_html\tpdf\n' > "$INFO/manifest.tsv"
-
-jq -c '.[]' "$RAW/simple-syllabus/library-items.json" | while IFS= read -r item; do
-  code=$(printf '%s' "$item" | jq -r '.code // empty')
-  title=$(printf '%s' "$item" | jq -r '.title // ""')
-  test -n "$code" || continue
-
-  safe_code=$(printf '%s' "$code" | tr -cd 'A-Za-z0-9._-')
-  doc="$RAW/simple-syllabus/documents/$safe_code.json"
-  doc_url="$SS/api2/doc-full-page-get?code=$(urlencode "$code")"
-
-  if ! get "$doc_url" "$doc" json; then
-    printf '%s\t%s\t\t\t\t\t\t\t\t\n' "$code" "$title" >> "$INFO/manifest.tsv"
-    continue
-  fi
-
-  parsed="$INFO/simple-syllabus/documents/$safe_code.json"
-  if ! parse_course "$doc_url" "$doc" "$parsed" "$safe_code"; then
-    parsed=''
-  fi
-
-  html="$INFO/simple-syllabus/html/$safe_code.html"
-  {
-    printf '<!doctype html>\n<meta charset="utf-8">\n'
-    printf '<title>%s</title>\n<body>\n' \
-      "$(printf '%s' "$title" | sed 's/&/\&amp;/g; s/</\&lt;/g; s/>/\&gt;/g')"
-    jq -r '
-      (.items[0].doc_data.components // [])
-      | sort_by(.sort_order // 0)
-      | .[]
-      | .html // empty
-    ' "$doc"
-    printf '\n</body>\n'
-  } > "$html"
-
-  pdf=''
-  pdf_url=$(jq -r '
-    [.. | strings | select(test("^(https?://|/).*[.]pdf([?#].*)?$"; "i"))]
-    | unique | .[0] // empty
-  ' "$doc")
-
-  if test -n "$pdf_url"; then
-    case "$pdf_url" in /*) pdf_url="$SS$pdf_url" ;; esac
-    case "$pdf_url" in
-      "$SS"/*)
-        candidate="$RAW/simple-syllabus/pdf/$safe_code.pdf"
-        if get "$pdf_url" "$candidate" pdf; then pdf=$candidate; fi
-        ;;
-      *) ;;
-    esac
-  fi
-
-  sub_title=$(printf '%s' "$item" | jq -r '.sub_title // ""' | tr '\t\r\n' '   ')
-  term=$(printf '%s' "$item" | jq -r '.term_name // ""' | tr '\t\r\n' '   ')
-  visibility=$(printf '%s' "$item" | jq -r '.visibility // ""' | tr '\t\r\n' '   ')
-  editors=$(printf '%s' "$item" | jq -r '[.editors[]? | (.name // .full_name // tostring)] | join("; ")' | tr '\t\r\n' '   ')
-  clean_title=$(printf '%s' "$title" | tr '\t\r\n' '   ')
-
-  printf '%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n' \
-    "$code" "$clean_title" "$sub_title" "$term" "$visibility" "$editors" "$doc" "$parsed" "$html" "$pdf" \
-    >> "$INFO/manifest.tsv"
-
-  subject=$(printf '%s' "$title" | sed -nE 's/^\s*([A-Za-z]{3})\s*([0-9]{4}).*/\1/p' | tr '[:lower:]' '[:upper:]')
-  number=$(printf '%s' "$title" | sed -nE 's/^\s*[A-Za-z]{3}\s*([0-9]{4}).*/\1/p')
-  if test -n "$subject" && test -n "$number"; then
-    inventory_file="$RAW/course-inventory/details/${subject}-${number}.html"
-    get "$INVENTORY/details/prefix/$subject/code/$number" "$inventory_file" html || true
-  fi
-done
-
-run_event run_end PASS "USF philosophy live acquisition finished; receipt=$RECEIPT"
+run_event run_start PASS 'USF philosophy, English, and history Fall 2026 public-syllabus acquisition started'
+crawl_department philosophy AC.PHI 70
+crawl_department english AC.ENG 312
+crawl_department history AC.HTY 82
+run_event run_end PASS "USF Fall 2026 acquisition finished: 464 public syllabi; receipt=$RECEIPT"
 printf 'receipt: %s\n' "$RECEIPT"

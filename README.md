@@ -4,7 +4,7 @@ What do colleges actually make you read?
 
 The repository root is still the bookshelf: each canonical book is a top-level Markdown file, with no `books/` wrapper and no directory per book. Five reserved top-level work areas keep acquisition and parsing separate so every book/course claim can be traced back to bytes and replayed.
 
-- `syllabi/` — captured university HTML and PDF evidence.
+- `syllabi/` — public syllabus metadata and HTML provenance captures. Do not mirror syllabus PDFs.
 - `parsers/` — Grease/shell/Ithon parsers, replay programs, and toolchain pins.
 - `course information/` — machine-oriented parser output. It is allowed to be messy.
 - `common crawl results pertinent to universities/` — Common Crawl result sets, WARC pointers, and bounded search outputs relevant to universities.
@@ -28,6 +28,6 @@ The current ICU streams final response bodies but does not expose the final resp
 
 ## GitHub storage boundary
 
-Keeping HTML/PDF here is fine for now, but raw evidence is sharded by university/term/subject instead of collected in one directory. GitHub warns for ordinary Git files over 50 MiB and blocks files over 100 MiB. Its repository guidance recommends no more than 3,000 entries in one directory and an on-disk repository size no larger than 10 GB. If captures approach those boundaries, move large raw bodies to WARC/LFS/object storage while retaining checksums and replay metadata here.
+Keeping bounded public HTML provenance here is fine for now, but raw evidence is sharded by university/term/subject instead of collected in one directory. Syllabus PDFs remain at their public source URLs rather than being mirrored. GitHub warns for ordinary Git files over 50 MiB and blocks files over 100 MiB. Its repository guidance recommends no more than 3,000 entries in one directory and an on-disk repository size no larger than 10 GB. If captures approach those boundaries, move large raw bodies to WARC/LFS/object storage while retaining checksums and replay metadata here.
 
 Book filenames and records remain human-readable. The naming contract lives at `parsers/book-filename.grease`. Missing evidence stays missing; the acquisition/parsing machinery must not manufacture it.

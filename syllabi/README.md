@@ -1,6 +1,6 @@
 # syllabi
 
-Temporary/raw university evidence lives here: HTML, PDF, JSON, and other exact bodies obtained during a crawl.
+Temporary/raw university evidence lives here: public HTML, JSON metadata, and other exact non-PDF bodies obtained during a crawl. Syllabus PDFs remain linked at the university source rather than mirrored.
 
 Organize captures shallowly enough to avoid huge directories, normally:
 

@@ -38,7 +38,7 @@ jobs:
             python:2.7.18-buster \
             bash -lc "
               build/py.sh minimal
-              bin/osh -n '../../parsers/fetch-usf-philosophy.grease'
+              bin/osh -n '../../parsers/fetch-usf-fall-2026.grease'
               echo 'PASS Grease parses live acquisition script'
               bin/osh '../../parsers/book-filename.grease' --self-test
             "

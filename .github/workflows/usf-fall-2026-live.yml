@@ -1,0 +1,105 @@
+name: USF Fall 2026 live acquisition
+
+on:
+  push:
+    branches:
+      - book-first-usf
+    paths:
+      - 'parsers/fetch-usf-fall-2026.grease'
+      - 'parsers/usf_course_information.py'
+      - '.github/workflows/usf-fall-2026-live.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  acquire:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - name: Check out syllabi branch
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Check out pinned Ithon source
+        uses: actions/checkout@v4
+        with:
+          repository: dilapidated-shed/ithon
+          ref: 2e0d634550ecf2eb78315c2c165fe0e85ea1980c
+          path: .tooling/ithon
+          fetch-depth: 1
+
+      - name: Build pinned native Ithon
+        working-directory: .tooling/ithon
+        run: |
+          ./configure --without-ensurepip
+          make -j2
+
+      - name: Check out pinned Idric and ICU source
+        uses: actions/checkout@v4
+        with:
+          repository: isomorphisms/Idric
+          ref: 61970be77769f607cca8650bf424c0f0b22ddee7
+          path: .tooling/Idric
+          fetch-depth: 1
+
+      - uses: actions/checkout@v4
+        with:
+          repository: dilapidated-shed/icu
+          ref: a9e5e6089bdbf93d0209d673b93c783eb1957b44
+          path: .tooling/icu
+          fetch-depth: 1
+
+      - name: Build pinned Idric and ICU
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y chezscheme libssl-dev
+          make -C .tooling/Idric bootstrap SCHEME=scheme
+          IDRIS2_PREFIX="$GITHUB_WORKSPACE/.tooling/Idric/bootstrap-build" \
+            make -C .tooling/icu IDRIC="$GITHUB_WORKSPACE/.tooling/Idric/build/exec/idris2"
+
+      - name: Check out pinned Grease source
+        uses: actions/checkout@v4
+        with:
+          repository: isomorphisms/grease
+          ref: e963958976eaa80a2517bae3fd34b0e5115ffcbe
+          path: .tooling/grease
+          submodules: recursive
+
+      - name: Build native Grease runtime
+        working-directory: .tooling/grease/source
+        run: |
+          docker run --rm \
+            --volume "$GITHUB_WORKSPACE:/workspace" \
+            --workdir /workspace/.tooling/grease/source \
+            python:2.7.18-buster \
+            bash -lc 'build/py.sh minimal && build/native.sh tarball-demo'
+          test -x _bin/cxx-opt-sh/oils-for-unix.stripped
+
+      - name: Acquire all public Fall 2026 department syllabi
+        env:
+          ICU: .tooling/icu/build/exec/icu
+          ITHON: .tooling/ithon/python
+        run: |
+          .tooling/grease/source/_bin/cxx-opt-sh/oils-for-unix.stripped \
+            osh parsers/fetch-usf-fall-2026.grease
+
+      - name: Validate receipts and exact coverage
+        run: |
+          .tooling/ithon/python parsers/validate_receipts.py 'crawling log'
+          test "$(find 'course information/usf/fall-2026' -path '*/documents/*.json' -type f | wc -l)" -eq 464
+          if find syllabi/usf/fall-2026 -type f -iname '*.pdf' | grep -q .; then
+            echo 'FAIL: syllabus PDF mirror found'
+            exit 1
+          fi
+
+      - name: Commit acquisition receipts to this branch
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add 'syllabi/usf/fall-2026' 'course information/usf/fall-2026' 'crawling log/usf/fall-2026'
+          git diff --cached --quiet && exit 0
+          git commit -m 'Capture public USF Fall 2026 syllabus provenance'
+          git push origin "HEAD:${GITHUB_REF_NAME}"
