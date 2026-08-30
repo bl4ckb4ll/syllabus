@@ -24,14 +24,26 @@ jobs:
           path: grease
           submodules: recursive
 
-      - name: Build Grease runtime
+      - name: Cache Grease development dependencies
+        uses: actions/cache@v4
+        with:
+          path: grease/oils.DEPS
+          key: grease-oils-deps-${{ runner.os }}-e9a54ad727d89cd593d0bfe56136046808ea81d2
+
+      - name: Build Grease development runtime
         working-directory: grease/source
         run: |
-          ./configure --without-readline
-          _build/oils.sh
+          build/deps.sh wedge-deps-debian
+          build/deps.sh fetch
+          build/deps.sh install-wedges
+          . build/dev-shell.sh
+          build/py.sh minimal
+          bin/osh -c 'echo Grease runtime ready'
 
       - name: Run book filename contract
+        working-directory: grease/source
         run: |
-          grease/source/_bin/cxx-opt-sh/osh \
-            'where would I read this and who would I read it with/tools/book-filename.grease' \
+          . build/dev-shell.sh
+          bin/osh \
+            '../../where would I read this and who would I read it with/tools/book-filename.grease' \
             --self-test
