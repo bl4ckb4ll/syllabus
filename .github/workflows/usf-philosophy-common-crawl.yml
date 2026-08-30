@@ -44,8 +44,11 @@ jobs:
           sudo apt-get install -y chezscheme libssl-dev jq
 
       - name: Build pinned Idric and ICU
+        env:
+          IDRIS2_PREFIX: ${{ github.workspace }}/.tools/Idric/bootstrap-build
         run: |
           make -C .tools/Idric bootstrap SCHEME=scheme
+          "$GITHUB_WORKSPACE/.tools/Idric/build/exec/idris2" --version
           make -C .tools/icu check-native
           make -C .tools/icu IDRIC="$GITHUB_WORKSPACE/.tools/Idric/build/exec/idris2"
           test -x .tools/icu/build/exec/icu
