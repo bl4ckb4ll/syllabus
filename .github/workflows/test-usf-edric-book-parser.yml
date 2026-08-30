@@ -50,6 +50,8 @@ jobs:
           parser="$GITHUB_WORKSPACE/where would I read this and who would I read it with/tools/usf-syllabus-books.idric"
           work="$RUNNER_TEMP/usf-edric-parser"
           export IDRIS2_PATH="$GITHUB_WORKSPACE/.idric-toolchain/libs/prelude/build/ttc:$GITHUB_WORKSPACE/.idric-toolchain/libs/base/build/ttc"
+          export IDRIS2_DATA="$GITHUB_WORKSPACE/.idric-toolchain/support"
+          export IDRIS2_LIBS="$GITHUB_WORKSPACE/.idric-toolchain/support/c"
           mkdir -p "$work"
           cp "$parser" "$work/Main.idric"
           cd "$work"
