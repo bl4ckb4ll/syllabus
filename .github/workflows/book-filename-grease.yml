@@ -2,6 +2,8 @@ name: book filename grease
 
 on:
   push:
+    branches:
+      - main
     paths:
       - 'parsers/book-filename.grease'
       - '.github/workflows/book-filename-grease.yml'
@@ -28,24 +30,13 @@ jobs:
           path: grease
           submodules: recursive
 
-      - name: Cache Grease development dependencies
-        uses: actions/cache@v4
-        with:
-          path: grease/oils.DEPS
-          key: grease-oils-deps-${{ runner.os }}-e9a54ad727d89cd593d0bfe56136046808ea81d2
-
-      - name: Build Grease development runtime
-        working-directory: grease/source
+      - name: Build minimal Grease runtime and run contract
         run: |
-          build/deps.sh wedge-deps-debian
-          build/deps.sh fetch
-          build/deps.sh install-wedges
-          . build/dev-shell.sh
-          build/py.sh minimal
-          bin/osh -c 'echo Grease runtime ready'
-
-      - name: Run book filename contract
-        working-directory: grease/source
-        run: |
-          . build/dev-shell.sh
-          bin/osh '../../parsers/book-filename.grease' --self-test
+          docker run --rm \
+            --volume "$GITHUB_WORKSPACE:/workspace" \
+            --workdir /workspace/grease/source \
+            python:2.7.18-buster \
+            bash -lc "
+              build/py.sh minimal
+              bin/osh '../../parsers/book-filename.grease' --self-test
+            "
