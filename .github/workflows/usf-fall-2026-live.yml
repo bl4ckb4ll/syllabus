@@ -85,7 +85,14 @@ jobs:
           export PATH="$GITHUB_WORKSPACE/.tooling/python2-runtime/bin:$PATH"
           export LD_LIBRARY_PATH="$GITHUB_WORKSPACE/.tooling/python2-runtime/lib"
           export PYTHONHOME="$GITHUB_WORKSPACE/.tooling/python2-runtime"
-          .tooling/grease/source/bin/osh parsers/fetch-usf-fall-2026.grease
+          if ! .tooling/grease/source/bin/osh parsers/fetch-usf-fall-2026.grease; then
+            echo 'USF acquisition failed; captured diagnostics follow' >&2
+            find 'crawling log/usf/fall-2026' -path '*-errors/*' -type f \
+              -print -exec sed -n '1,120p' {} \; >&2
+            find 'crawling log/usf/fall-2026' -maxdepth 1 -type f \
+              -print -exec tail -n 20 {} \; >&2
+            exit 1
+          fi
 
       - name: Validate receipts and exact coverage
         run: |
