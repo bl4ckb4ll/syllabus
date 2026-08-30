@@ -3,12 +3,15 @@ name: book filename grease
 on:
   push:
     paths:
-      - 'where would I read this and who would I read it with/tools/book-filename.grease'
+      - 'parsers/book-filename.grease'
       - '.github/workflows/book-filename-grease.yml'
   pull_request:
     paths:
-      - 'where would I read this and who would I read it with/tools/book-filename.grease'
+      - 'parsers/book-filename.grease'
       - '.github/workflows/book-filename-grease.yml'
+
+permissions:
+  contents: read
 
 jobs:
   book-filename:
@@ -17,10 +20,11 @@ jobs:
       - name: Check out syllabi
         uses: actions/checkout@v4
 
-      - name: Check out Grease and its pinned source
+      - name: Check out pinned Grease and source
         uses: actions/checkout@v4
         with:
           repository: isomorphisms/grease
+          ref: e963958976eaa80a2517bae3fd34b0e5115ffcbe
           path: grease
           submodules: recursive
 
@@ -44,6 +48,4 @@ jobs:
         working-directory: grease/source
         run: |
           . build/dev-shell.sh
-          bin/osh \
-            '../../where would I read this and who would I read it with/tools/book-filename.grease' \
-            --self-test
+          bin/osh '../../parsers/book-filename.grease' --self-test

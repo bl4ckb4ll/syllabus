@@ -1,0 +1,292 @@
+#!/usr/bin/env osh
+# Grease source. Current Grease executes through its OSH-derived implementation.
+# Live acquisition only. Replay/validation reads captured bytes and never uses the network.
+
+set -o errexit
+set -o nounset
+set -o pipefail
+
+WAIT_SECONDS=${USF_WAIT_SECONDS:-5}
+PAGE_SIZE=${USF_PAGE_SIZE:-50}
+MAX_PAGES=${USF_MAX_PAGES:-0}
+FETCH_TIMEOUT_SECONDS=${USF_FETCH_TIMEOUT_SECONDS:-90}
+ICU=${ICU:-icu}
+
+ICU_REPO='dilapidated-shed/icu'
+ICU_COMMIT='a9e5e6089bdbf93d0209d673b93c783eb1957b44'
+GREASE_REPO='isomorphisms/grease'
+GREASE_COMMIT='e963958976eaa80a2517bae3fd34b0e5115ffcbe'
+
+RAW='syllabi/usf/philosophy'
+INFO='course information/usf/philosophy'
+LOG_ROOT='crawling log/usf/philosophy'
+SS='https://usf.simplesyllabus.com'
+INVENTORY='https://cloud.usf.edu/academic-programs'
+PREFIXES='PHI PHH PHM PHP'
+
+RUN_ID=${CRAWL_RUN_ID:-"$(date -u '+%Y%m%dT%H%M%SZ')-$$"}
+RECEIPT="$LOG_ROOT/$RUN_ID.ndjson"
+ERROR_DIR="$LOG_ROOT/$RUN_ID-errors"
+
+mkdir -p "$RAW/simple-syllabus/search" "$RAW/simple-syllabus/documents" \
+  "$RAW/simple-syllabus/pdf" "$RAW/course-inventory/details" \
+  "$INFO/simple-syllabus/html" "$LOG_ROOT" "$ERROR_DIR"
+
+command -v "$ICU" >/dev/null || {
+  printf 'FAIL: ICU executable not found: %s\n' "$ICU" >&2
+  exit 69
+}
+command -v jq >/dev/null || {
+  printf 'FAIL: jq is required for current USF JSON discovery\n' >&2
+  exit 69
+}
+command -v sha256sum >/dev/null
+command -v timeout >/dev/null
+
+REPO_COMMIT=$(git rev-parse HEAD)
+SCRIPT_PATH='parsers/fetch-usf-philosophy.grease'
+SCRIPT_BLOB=$(git hash-object "$SCRIPT_PATH")
+ICU_PATH=$(command -v "$ICU")
+ICU_BINARY_SHA256=$(sha256sum "$ICU_PATH" | awk '{print $1}')
+
+utc_now() { date -u '+%Y-%m-%dT%H:%M:%SZ'; }
+
+append_receipt() {
+  printf '%s\n' "$1" >> "$RECEIPT"
+}
+
+run_event() {
+  event=$1
+  status=$2
+  message=$3
+  append_receipt "$(jq -cn \
+    --arg run_id "$RUN_ID" --arg event "$event" --arg status "$status" \
+    --arg recorded_at "$(utc_now)" --arg repo_commit "$REPO_COMMIT" \
+    --arg tool_repo "$GREASE_REPO" --arg tool_commit "$GREASE_COMMIT" \
+    --arg script_path "$SCRIPT_PATH" --arg script_blob "$SCRIPT_BLOB" \
+    --arg message "$message" \
+    '{schema:1,run_id:$run_id,event:$event,status:$status,recorded_at:$recorded_at,
+      repository:{name:"isomorphisms/syllabi",commit:$repo_commit},
+      tool:{name:"grease",repository:$tool_repo,commit:$tool_commit,argv:[]},
+      script:{path:$script_path,blob:$script_blob},message:$message}')"
+}
+
+fetch_receipt() {
+  status=$1
+  started_at=$2
+  finished_at=$3
+  url=$4
+  out=$5
+  sha=$6
+  bytes=$7
+  exit_code=$8
+  validation=$9
+  error_path=${10}
+
+  append_receipt "$(jq -cn \
+    --arg run_id "$RUN_ID" --arg status "$status" --arg recorded_at "$finished_at" \
+    --arg started_at "$started_at" --arg url "$url" --arg out "$out" \
+    --arg sha "$sha" --arg bytes "$bytes" --arg exit_code "$exit_code" \
+    --arg validation "$validation" --arg error_path "$error_path" \
+    --arg repo_commit "$REPO_COMMIT" --arg script_path "$SCRIPT_PATH" \
+    --arg script_blob "$SCRIPT_BLOB" --arg tool_repo "$ICU_REPO" \
+    --arg tool_commit "$ICU_COMMIT" --arg binary_sha "$ICU_BINARY_SHA256" \
+    --arg wait "$WAIT_SECONDS" \
+    '{schema:1,run_id:$run_id,event:"fetch",status:$status,recorded_at:$recorded_at,
+      started_at:$started_at,
+      repository:{name:"isomorphisms/syllabi",commit:$repo_commit},
+      tool:{name:"icu",repository:$tool_repo,commit:$tool_commit,argv:["get",$url],binary_sha256:$binary_sha},
+      script:{path:$script_path,blob:$script_blob},
+      url:$url,http_status:null,
+      output:{path:$out,sha256:(if $sha=="" then null else $sha end),bytes:(if $bytes=="" then null else ($bytes|tonumber) end)},
+      validation:$validation,exit_code:($exit_code|tonumber),sleep_after_request_seconds:($wait|tonumber),
+      error:(if $error_path=="" then null else $error_path end),
+      limitation:"current ICU does not expose final HTTP status/headers"}')"
+}
+
+validate_body() {
+  kind=$1
+  file=$2
+  case "$kind" in
+    json) jq -e . "$file" >/dev/null 2>&1 ;;
+    html) grep -Eiq '<(!doctype|html|body|head|title|div|main|section|form)([ >])' "$file" ;;
+    pdf) test "$(head -c 5 "$file")" = '%PDF-' ;;
+    bytes) test -s "$file" ;;
+    *) printf 'unknown validation kind: %s\n' "$kind" >&2; return 64 ;;
+  esac
+}
+
+# Fetch one body with ICU. There is intentionally no curl fallback.
+get() {
+  url=$1
+  out=$2
+  kind=${3:-bytes}
+  mkdir -p "$(dirname "$out")"
+
+  if test -s "$out" && validate_body "$kind" "$out"; then
+    sha=$(sha256sum "$out" | awk '{print $1}')
+    bytes=$(wc -c < "$out" | tr -d ' ')
+    now=$(utc_now)
+    fetch_receipt SKIP "$now" "$now" "$url" "$out" "$sha" "$bytes" 0 "$kind:existing" ''
+    return 0
+  fi
+
+  tmp="$out.part"
+  stderr="$ERROR_DIR/$(printf '%s' "$out" | tr '/ ' '__').stderr"
+  rm -f "$tmp" "$stderr"
+  started=$(utc_now)
+
+  set +o errexit
+  timeout "$FETCH_TIMEOUT_SECONDS" "$ICU" get "$url" > "$tmp" 2> "$stderr"
+  code=$?
+  set -o errexit
+
+  # Every actual request waits, successful or not.
+  sleep "$WAIT_SECONDS"
+  finished=$(utc_now)
+
+  if test "$code" -ne 0; then
+    fetch_receipt FAIL "$started" "$finished" "$url" "$out" '' '' "$code" "$kind:transport-failed" "$stderr"
+    rm -f "$tmp"
+    return 1
+  fi
+
+  if ! validate_body "$kind" "$tmp"; then
+    sha=$(sha256sum "$tmp" | awk '{print $1}')
+    bytes=$(wc -c < "$tmp" | tr -d ' ')
+    failed="$out.failed-validation"
+    mv "$tmp" "$failed"
+    fetch_receipt FAIL "$started" "$finished" "$url" "$failed" "$sha" "$bytes" 65 "$kind:failed" "$stderr"
+    return 1
+  fi
+
+  mv "$tmp" "$out"
+  sha=$(sha256sum "$out" | awk '{print $1}')
+  bytes=$(wc -c < "$out" | tr -d ' ')
+  test -s "$stderr" || rm -f "$stderr"
+  fetch_receipt PASS "$started" "$finished" "$url" "$out" "$sha" "$bytes" 0 "$kind:pass" "$(test -e "$stderr" && printf '%s' "$stderr" || true)"
+}
+
+urlencode() {
+  jq -rn --arg value "$1" '$value|@uri'
+}
+
+run_event run_start PASS 'USF philosophy live acquisition started'
+
+get "$INVENTORY/course-inventory/" "$RAW/course-inventory/search.html" html || true
+
+: > "$RAW/simple-syllabus/library-items.jsonl.new"
+
+for prefix in $PREFIXES; do
+  page=1
+  previous_handles=''
+
+  while :; do
+    if test "$MAX_PAGES" -gt 0 && test "$page" -gt "$MAX_PAGES"; then
+      break
+    fi
+
+    encoded=$(urlencode "$prefix")
+    out="$RAW/simple-syllabus/search/$prefix/page-$page.json"
+    url="$SS/api2/doc-library-search?search=$encoded&page=$page&page_size=$PAGE_SIZE"
+
+    if ! get "$url" "$out" json; then
+      break
+    fi
+
+    count=$(jq '(.items // []) | length' "$out")
+    test "$count" -gt 0 || break
+
+    jq -c --arg p "$prefix" '
+      (.items // [])[]
+      | select((.title // "") | test("^\\s*" + $p + "\\s*[0-9]{4}"; "i"))
+    ' "$out" >> "$RAW/simple-syllabus/library-items.jsonl.new"
+
+    handles=$(jq -r '(.items // [])[].code // empty' "$out" | sort | tr '\n' ' ')
+    if test -n "$previous_handles" && test "$handles" = "$previous_handles"; then
+      break
+    fi
+    previous_handles=$handles
+
+    test "$count" -ge "$PAGE_SIZE" || break
+    page=$((page + 1))
+  done
+done
+
+if test -s "$RAW/simple-syllabus/library-items.jsonl.new"; then
+  jq -s 'sort_by(.code) | unique_by(.code)' \
+    "$RAW/simple-syllabus/library-items.jsonl.new" \
+    > "$RAW/simple-syllabus/library-items.json"
+else
+  printf '[]\n' > "$RAW/simple-syllabus/library-items.json"
+fi
+rm -f "$RAW/simple-syllabus/library-items.jsonl.new"
+
+mkdir -p "$INFO"
+printf 'handle\ttitle\tsub_title\tterm\tvisibility\teditors\tdocument_json\tnormalized_html\tpdf\n' > "$INFO/manifest.tsv"
+
+jq -c '.[]' "$RAW/simple-syllabus/library-items.json" | while IFS= read -r item; do
+  code=$(printf '%s' "$item" | jq -r '.code // empty')
+  title=$(printf '%s' "$item" | jq -r '.title // ""')
+  test -n "$code" || continue
+
+  safe_code=$(printf '%s' "$code" | tr -cd 'A-Za-z0-9._-')
+  doc="$RAW/simple-syllabus/documents/$safe_code.json"
+  doc_url="$SS/api2/doc-full-page-get?code=$(urlencode "$code")"
+
+  if ! get "$doc_url" "$doc" json; then
+    printf '%s\t%s\t\t\t\t\t\t\t\n' "$code" "$title" >> "$INFO/manifest.tsv"
+    continue
+  fi
+
+  html="$INFO/simple-syllabus/html/$safe_code.html"
+  {
+    printf '<!doctype html>\n<meta charset="utf-8">\n'
+    printf '<title>%s</title>\n<body>\n' \
+      "$(printf '%s' "$title" | sed 's/&/\&amp;/g; s/</\&lt;/g; s/>/\&gt;/g')"
+    jq -r '
+      (.items[0].doc_data.components // [])
+      | sort_by(.sort_order // 0)
+      | .[]
+      | .html // empty
+    ' "$doc"
+    printf '\n</body>\n'
+  } > "$html"
+
+  pdf=''
+  pdf_url=$(jq -r '
+    [.. | strings | select(test("^(https?://|/).*[.]pdf([?#].*)?$"; "i"))]
+    | unique | .[0] // empty
+  ' "$doc")
+
+  if test -n "$pdf_url"; then
+    case "$pdf_url" in /*) pdf_url="$SS$pdf_url" ;; esac
+    case "$pdf_url" in
+      "$SS"/*)
+        candidate="$RAW/simple-syllabus/pdf/$safe_code.pdf"
+        if get "$pdf_url" "$candidate" pdf; then pdf=$candidate; fi
+        ;;
+      *) ;;
+    esac
+  fi
+
+  sub_title=$(printf '%s' "$item" | jq -r '.sub_title // ""' | tr '\t\r\n' '   ')
+  term=$(printf '%s' "$item" | jq -r '.term_name // ""' | tr '\t\r\n' '   ')
+  visibility=$(printf '%s' "$item" | jq -r '.visibility // ""' | tr '\t\r\n' '   ')
+  editors=$(printf '%s' "$item" | jq -r '[.editors[]? | (.name // .full_name // tostring)] | join("; ")' | tr '\t\r\n' '   ')
+  clean_title=$(printf '%s' "$title" | tr '\t\r\n' '   ')
+
+  printf '%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n' \
+    "$code" "$clean_title" "$sub_title" "$term" "$visibility" "$editors" "$doc" "$html" "$pdf" \
+    >> "$INFO/manifest.tsv"
+
+  subject=$(printf '%s' "$title" | sed -nE 's/^\s*([A-Za-z]{3})\s*([0-9]{4}).*/\1/p' | tr '[:lower:]' '[:upper:]')
+  number=$(printf '%s' "$title" | sed -nE 's/^\s*[A-Za-z]{3}\s*([0-9]{4}).*/\1/p')
+  if test -n "$subject" && test -n "$number"; then
+    inventory_file="$RAW/course-inventory/details/${subject}-${number}.html"
+    get "$INVENTORY/details/prefix/$subject/code/$number" "$inventory_file" html || true
+  fi
+done
+
+run_event run_end PASS "USF philosophy live acquisition finished; receipt=$RECEIPT"
+printf 'receipt: %s\n' "$RECEIPT"

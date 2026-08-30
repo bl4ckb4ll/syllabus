@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/isomorphisms/syllabi/crawling-log/schema-v1.json",
+  "title": "syllabi crawl/parse receipt v1",
+  "type": "object",
+  "required": ["schema", "run_id", "event", "status", "recorded_at", "repository", "tool", "script"],
+  "properties": {
+    "schema": {"const": 1},
+    "run_id": {"type": "string", "minLength": 1},
+    "event": {"enum": ["run_start", "fetch", "parse", "replay", "run_end"]},
+    "status": {"enum": ["PASS", "FAIL", "SKIP"]},
+    "recorded_at": {"type": "string", "format": "date-time"},
+    "repository": {"type": "object", "required": ["name", "commit"], "properties": {"name": {"type": "string"}, "commit": {"type": "string", "pattern": "^[0-9a-f]{40}$"}}},
+    "tool": {"type": "object", "required": ["name", "repository", "commit", "argv"], "properties": {"name": {"type": "string"}, "repository": {"type": "string"}, "commit": {"type": ["string", "null"]}, "argv": {"type": "array", "items": {"type": "string"}}}},
+    "script": {"type": "object", "required": ["path", "blob"], "properties": {"path": {"type": "string"}, "blob": {"type": "string", "pattern": "^[0-9a-f]{40}$"}}},
+    "url": {"type": "string"},
+    "http_status": {"type": ["integer", "null"]},
+    "input": {"type": "object"},
+    "output": {"type": "object"},
+    "error": {"type": ["string", "null"]}
+  }
+}

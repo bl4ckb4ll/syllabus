@@ -1,0 +1,44 @@
+{
+  "book_candidates": [
+    {
+      "isbns": [
+        "9781405111546"
+      ],
+      "section": "Required Texts",
+      "source_text": "Julia Driver, Ethics: The Fundamentals, ISBN 9781405111546"
+    },
+    {
+      "isbns": [
+        "9780078038242"
+      ],
+      "section": "Required Texts",
+      "source_text": "James Rachels, The Elements of Moral Philosophy, ISBN 9780078038242"
+    }
+  ],
+  "components": [
+    {
+      "sort_order": 1,
+      "text": "A checked WARC replay fixture.",
+      "title": "Course Description"
+    },
+    {
+      "sort_order": 2,
+      "text": "Julia Driver, Ethics: The Fundamentals, ISBN 9781405111546\nJames Rachels, The Elements of Moral Philosophy, ISBN 9780078038242",
+      "title": "Required Texts"
+    }
+  ],
+  "course_code": "PHI 2010",
+  "course_title": "Introduction to Philosophy",
+  "document_code": "fixture-phi2010-fall2025",
+  "instructors": [
+    "Fixture Professor"
+  ],
+  "schema": 1,
+  "source": {
+    "path": ".replay/usf-course.json",
+    "sha256": "f256713c77a1cb8289c99a1590c637c0f6aa1befec157b8c22374271ff601141",
+    "uri": "https://usf.simplesyllabus.com/api2/doc-full-page-get?code=fixture-phi2010"
+  },
+  "term": "Fall 2025",
+  "university": "University of South Florida"
+}

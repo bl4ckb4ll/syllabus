@@ -1,0 +1,75 @@
+name: ingestion replay
+
+on:
+  push:
+    paths:
+      - 'parsers/**'
+      - 'syllabi/**'
+      - 'course information/**'
+      - 'common crawl results pertinent to universities/**'
+      - 'crawling log/**'
+      - '.github/workflows/ingestion-replay.yml'
+  pull_request:
+    paths:
+      - 'parsers/**'
+      - 'syllabi/**'
+      - 'course information/**'
+      - 'common crawl results pertinent to universities/**'
+      - 'crawling log/**'
+      - '.github/workflows/ingestion-replay.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  replay:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Check out pinned Ithon source
+        uses: actions/checkout@v4
+        with:
+          repository: dilapidated-shed/ithon
+          ref: 2e0d634550ecf2eb78315c2c165fe0e85ea1980c
+          path: .tooling/ithon
+          fetch-depth: 1
+
+      - name: Build pinned native Ithon
+        working-directory: .tooling/ithon
+        run: |
+          ./configure --without-ensurepip
+          make -j2
+
+      - name: Expose the Ithon build as ithon
+        run: |
+          mkdir -p .tooling/bin
+          ln -s "$(pwd)/.tooling/ithon/python" .tooling/bin/ithon
+          test -x .tooling/bin/ithon
+
+      - name: PASS offline WARC replay under Ithon
+        env:
+          ITHON: .tooling/bin/ithon
+        run: bash parsers/replay-fixture.sh
+
+      - name: PASS receipt validator fixture under Ithon
+        run: .tooling/bin/ithon parsers/validate_receipts.py parsers/fixtures/receipt-log
+
+      - name: PASS committed receipt structure under Ithon
+        run: .tooling/bin/ithon parsers/validate_receipts.py 'crawling log'
+
+      - name: FAIL on a curl fallback in the live fetcher
+        run: |
+          if grep -En '(^|[;&|[:space:]])curl([[:space:]]|$)' parsers/fetch-usf-philosophy.grease; then
+            echo 'FAIL: live acquisition contains a curl command'
+            exit 1
+          fi
+          grep -F '"$ICU" get "$url"' parsers/fetch-usf-philosophy.grease >/dev/null
+          echo 'PASS ICU-only fetch boundary'
+
+      - name: SKIP live university fetch during replay
+        run: echo 'SKIP live fetch - replay checks are intentionally network-independent with respect to university data'
