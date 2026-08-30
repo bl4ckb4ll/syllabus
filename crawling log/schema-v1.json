@@ -7,7 +7,7 @@
   "properties": {
     "schema": {"const": 1},
     "run_id": {"type": "string", "minLength": 1},
-    "event": {"enum": ["run_start", "fetch", "parse", "replay", "run_end"]},
+    "event": {"enum": ["run_start", "coverage_assertion", "fetch", "parse", "replay", "run_end"]},
     "status": {"enum": ["PASS", "FAIL", "SKIP"]},
     "recorded_at": {"type": "string", "format": "date-time"},
     "repository": {"type": "object", "required": ["name", "commit"], "properties": {"name": {"type": "string"}, "commit": {"type": "string", "pattern": "^[0-9a-f]{40}$"}}},
