@@ -67,6 +67,14 @@ jobs:
           path: .tooling/grease
           submodules: recursive
 
+      - name: Check out pinned Ninja source
+        uses: actions/checkout@v4
+        with:
+          repository: ninja-build/ninja
+          ref: e72d1d581c945c158ed68d9bc48911063022a2c6
+          path: .tooling/ninja
+          fetch-depth: 1
+
       - name: Build native Grease runtime
         working-directory: .tooling/grease/source
         run: |
@@ -74,15 +82,15 @@ jobs:
             --volume "$GITHUB_WORKSPACE:/workspace" \
             --workdir /workspace/.tooling/grease/source \
             python:2.7.18-buster \
-            bash -lc 'build/py.sh minimal && ./NINJA-config.sh && devtools/release-native.sh gen-shell-build && build/native.sh tarball-demo'
-          test -x _bin/cxx-opt-sh/oils-for-unix.stripped
+            bash -lc '(cd /workspace/.tooling/ninja && python configure.py --bootstrap) && export PATH="/workspace/.tooling/ninja:$PATH" && build/py.sh minimal && ./NINJA-config.sh && ninja _bin/cxx-opt/oils-for-unix'
+          test -x _bin/cxx-opt/oils-for-unix
 
       - name: Acquire all public Fall 2026 department syllabi
         env:
           ICU: .tooling/icu/build/exec/icu
           ITHON: .tooling/ithon/python
         run: |
-          .tooling/grease/source/_bin/cxx-opt-sh/oils-for-unix.stripped \
+          .tooling/grease/source/_bin/cxx-opt/oils-for-unix \
             osh parsers/fetch-usf-fall-2026.grease
 
       - name: Validate receipts and exact coverage
