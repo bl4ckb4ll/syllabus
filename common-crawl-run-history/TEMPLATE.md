@@ -5,6 +5,10 @@
 - **Status:** completed | interrupted | failed
 - **Coverage class:** exhaustive_within_declared_scope | systematic_but_incomplete | targeted | sampled | exploratory | failed_before_search
 - **Repository commit:** <commit SHA containing the search code/configuration>
+- **Hostile-input corpus revision:** <semantic revision and exact ai-ci commit SHA>
+- **Implementation-under-test revision:** <exact commit SHA and executable hash>
+- **Oracle revision:** <exact curl/WARC/HTML implementation versions and hashes>
+- **Stage receipt artifact:** <stable path or artifact identifier>
 
 ## Question
 
@@ -73,6 +77,25 @@ Use `unknown` rather than guessing.
 | Ambiguous documents | unknown |
 | Duplicates | unknown |
 | Unique syllabi retained | unknown |
+
+## Checked stage receipt
+
+Use only `PASS`, `FAIL`, or `SKIP`. `SKIP` means the stage did not execute. A
+candidate count is meaningful only when every applicable upstream stage passed.
+
+| Stage | Result | Code / evidence owner |
+| --- | --- | --- |
+| Input acquisition | SKIP | not recorded yet |
+| Network / HTTP / TLS | SKIP | not recorded yet |
+| Decompression | SKIP | not recorded yet |
+| Byte-to-text decoding | SKIP | not recorded yet |
+| HTML recovery | SKIP | not recorded yet |
+| Document construction | SKIP | not recorded yet |
+| Downstream extraction | SKIP | not recorded yet |
+
+- **First real failure:** none | <stage>
+- **First incomplete stage:** <stage> | none
+- **Oracle fallback:** none
 
 ## Findings
 
