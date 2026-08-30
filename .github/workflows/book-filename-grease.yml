@@ -1,0 +1,37 @@
+name: book filename grease
+
+on:
+  push:
+    paths:
+      - 'where would I read this and who would I read it with/tools/book-filename.grease'
+      - '.github/workflows/book-filename-grease.yml'
+  pull_request:
+    paths:
+      - 'where would I read this and who would I read it with/tools/book-filename.grease'
+      - '.github/workflows/book-filename-grease.yml'
+
+jobs:
+  book-filename:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out syllabi
+        uses: actions/checkout@v4
+
+      - name: Check out Grease and its pinned source
+        uses: actions/checkout@v4
+        with:
+          repository: isomorphisms/grease
+          path: grease
+          submodules: recursive
+
+      - name: Build Grease runtime
+        working-directory: grease/source
+        run: |
+          ./configure --without-readline
+          _build/oils.sh
+
+      - name: Run book filename contract
+        run: |
+          grease/source/_bin/cxx-opt-sh/osh \
+            'where would I read this and who would I read it with/tools/book-filename.grease' \
+            --self-test
