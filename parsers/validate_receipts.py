@@ -17,6 +17,11 @@ def fail(path, line_no, message):
     raise ValueError(f"{path}:{line_no}: {message}")
 
 
+def require_sha256(path, line_no, value, label):
+    if not SHA256.fullmatch(value or ""):
+        fail(path, line_no, label + " is not a SHA-256")
+
+
 def validate_record(path, line_no, record):
     missing = GENERAL - set(record)
     if missing:
@@ -41,18 +46,36 @@ def validate_record(path, line_no, record):
     tool = record["tool"]
     if not isinstance(tool.get("argv"), list):
         fail(path, line_no, "tool argv must be a list")
+    if not SHA40.fullmatch(tool.get("commit", "")):
+        fail(path, line_no, "tool commit is not a full SHA")
 
     if record["event"] == "fetch":
         if not record.get("url"):
             fail(path, line_no, "fetch has no URL")
+        if tool.get("name") != "icu" or tool.get("repository") != "dilapidated-shed/icu":
+            fail(path, line_no, "fetch receipt is not pinned to ICU")
+        require_sha256(path, line_no, tool.get("binary_sha256"), "ICU binary hash")
         if record["status"] in {"PASS", "SKIP"}:
             output = record.get("output") or {}
             if not output.get("path"):
                 fail(path, line_no, "successful fetch has no output path")
-            if not SHA256.fullmatch(output.get("sha256") or ""):
-                fail(path, line_no, "successful fetch has no SHA-256")
-        if tool.get("name") != "icu":
-            fail(path, line_no, "fetch receipt is not ICU")
+            require_sha256(path, line_no, output.get("sha256"), "fetch output hash")
+
+    if record["event"] == "parse":
+        if tool.get("name") != "ithon" or tool.get("repository") != "dilapidated-shed/ithon":
+            fail(path, line_no, "parse receipt is not pinned to Ithon")
+        require_sha256(path, line_no, tool.get("binary_sha256"), "Ithon binary hash")
+        if not record.get("source_uri"):
+            fail(path, line_no, "parse has no source URI")
+        input_record = record.get("input") or {}
+        if not input_record.get("path"):
+            fail(path, line_no, "parse has no input path")
+        require_sha256(path, line_no, input_record.get("sha256"), "parse input hash")
+        if record["status"] == "PASS":
+            output = record.get("output") or {}
+            if not output.get("path"):
+                fail(path, line_no, "successful parse has no output path")
+            require_sha256(path, line_no, output.get("sha256"), "parse output hash")
 
 
 def main():
