@@ -1,22 +1,22 @@
-name: book filename grease
+name: grease parser checks
 
 on:
   push:
     branches:
       - main
     paths:
-      - 'parsers/book-filename.grease'
+      - 'parsers/*.grease'
       - '.github/workflows/book-filename-grease.yml'
   pull_request:
     paths:
-      - 'parsers/book-filename.grease'
+      - 'parsers/*.grease'
       - '.github/workflows/book-filename-grease.yml'
 
 permissions:
   contents: read
 
 jobs:
-  book-filename:
+  grease:
     runs-on: ubuntu-latest
     steps:
       - name: Check out syllabi
@@ -30,7 +30,7 @@ jobs:
           path: grease
           submodules: recursive
 
-      - name: Build minimal Grease runtime and run contract
+      - name: Build minimal Grease runtime and check parsers
         run: |
           docker run --rm \
             --volume "$GITHUB_WORKSPACE:/workspace" \
@@ -38,5 +38,7 @@ jobs:
             python:2.7.18-buster \
             bash -lc "
               build/py.sh minimal
+              bin/osh -n '../../parsers/fetch-usf-philosophy.grease'
+              echo 'PASS Grease parses live acquisition script'
               bin/osh '../../parsers/book-filename.grease' --self-test
             "
