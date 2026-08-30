@@ -62,6 +62,24 @@ jobs:
       - name: PASS committed receipt structure under Ithon
         run: .tooling/bin/ithon parsers/validate_receipts.py 'crawling log'
 
+      - name: Bind hostile-input receipt to this exact source revision
+        shell: sh
+        run: |
+          implementation_revision=$(git rev-parse HEAD)
+          locked_revision=$(awk -F '\t' '$1 == "repository_revision" { print $2 }' parsers/hostile-ingestion/ai-ci.lock)
+          template_revision=$(awk -F '\t' '$1 == "meta" && $2 == "corpus_repository_revision" { print $3 }' parsers/hostile-ingestion/run.receipt.template.tsv)
+          test "$locked_revision" = c1e423d506f6adfc8c1c9659a4faaf94ae84eaf0
+          test "$template_revision" = "$locked_revision"
+          sed "s/@IMPLEMENTATION_REVISION@/$implementation_revision/" \
+            parsers/hostile-ingestion/run.receipt.template.tsv \
+            >"$RUNNER_TEMP/syllabi-ingestion.receipt.tsv"
+
+      - name: PASS honest hostile-input consumer receipt
+        uses: isomorphisms/ai-ci/ingestion@c1e423d506f6adfc8c1c9659a4faaf94ae84eaf0
+        with:
+          receipt: ${{ runner.temp }}/syllabi-ingestion.receipt.tsv
+          role: consumer
+
       - name: FAIL on a curl fallback in the live fetcher
         run: |
           if grep -En '(^|\$\(|&&|\|\||;)[[:space:]]*curl([[:space:]]|$)' parsers/fetch-usf-fall-2026.grease; then
