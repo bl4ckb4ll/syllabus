@@ -82,7 +82,7 @@ jobs:
             --volume "$GITHUB_WORKSPACE:/workspace" \
             --workdir /workspace/.tooling/grease/source \
             python:2.7.18-buster \
-            bash -lc '(cd /workspace/.tooling/ninja && python configure.py --bootstrap) && export PATH="/workspace/.tooling/ninja:$PATH" && build/py.sh minimal && ./NINJA-config.sh && ninja _bin/cxx-opt/oils-for-unix'
+            bash -lc '(cd /workspace/.tooling/ninja && python configure.py --bootstrap) && export PATH="/workspace/.tooling/ninja:$PATH" && build/py.sh minimal && mkdir -p _devbuild/help _gen/frontend && PYTHONPATH=.:vendor doctools/help_gen.py cards-from-chapters _devbuild/help _devbuild/gen/help_meta.py _gen/frontend/help_meta && ./NINJA-config.sh && ninja _bin/cxx-opt/oils-for-unix'
           test -x _bin/cxx-opt/oils-for-unix
 
       - name: Acquire all public Fall 2026 department syllabi
