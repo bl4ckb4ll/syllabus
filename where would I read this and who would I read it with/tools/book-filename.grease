@@ -1,0 +1,147 @@
+#!/usr/bin/env osh
+# Grease source. Grease currently executes through its OSH-derived implementation.
+#
+# This is deliberately a pure naming step. Network lookups happen elsewhere:
+# `abe used` supplies a dated paper-price observation and Internet Archive supplies
+# the checked access URL. This script turns those checked observations into the
+# human-visible top-level book filename.
+
+set -o errexit
+set -o nounset
+
+usage() {
+  cat <<'EOF'
+usage:
+  book-filename.grease --author AUTHOR --title TITLE [--paper USD] [--archive URL]
+  book-filename.grease --self-test
+
+example:
+  book-filename.grease \
+    --author Dante \
+    --title Inferno \
+    --paper 6 \
+    --archive https://archive.org/details/inferno
+
+prints:
+  Dante - Inferno - $6 paper - free on Internet Archive.md
+EOF
+}
+
+die() {
+  printf 'book-filename: %s\n' "$1" >&2
+  exit 64
+}
+
+book_filename() {
+  local author=$1
+  local title=$2
+  local paper=$3
+  local archive=$4
+
+  case "$author$title$paper$archive" in
+    *$'\n'*|*$'\r'*) die 'newlines are not allowed in filename inputs' ;;
+  esac
+
+  # A bibliographic slash must not accidentally create another path component.
+  author=${author//\//∕}
+  title=${title//\//∕}
+
+  local out="$author - $title"
+
+  if [[ -n "$paper" ]]; then
+    paper=${paper#\$}
+    case "$paper" in
+      ''|.|*[!0-9.]*|*.*.*) die "paper price must be a USD number, got: $paper" ;;
+    esac
+    out="$out - \$$paper paper"
+  fi
+
+  if [[ -n "$archive" ]]; then
+    case "$archive" in
+      https://archive.org/*|http://archive.org/*) ;;
+      *) die "--archive must be an archive.org URL, got: $archive" ;;
+    esac
+    out="$out - free on Internet Archive"
+  fi
+
+  printf '%s.md\n' "$out"
+}
+
+assert_name() {
+  local want=$1
+  shift
+  local got
+  got=$(book_filename "$@")
+  [[ "$got" = "$want" ]] || die "self-test: expected '$want', got '$got'"
+}
+
+self_test() {
+  assert_name \
+    'Dante - Inferno - $6 paper - free on Internet Archive.md' \
+    Dante Inferno 6 https://archive.org/details/inferno
+
+  assert_name \
+    'Dante - Inferno - $6 paper.md' \
+    Dante Inferno 6 ''
+
+  assert_name \
+    'Dante - Inferno - free on Internet Archive.md' \
+    Dante Inferno '' https://archive.org/details/inferno
+
+  assert_name \
+    'Dante - Inferno.md' \
+    Dante Inferno '' ''
+
+  assert_name \
+    'Aristotle - Parts ∕ Generation of Animals.md' \
+    Aristotle 'Parts / Generation of Animals' '' ''
+
+  printf 'PASS book-filename\n'
+}
+
+if [[ "${1:-}" = --self-test ]]; then
+  self_test
+  exit 0
+fi
+
+author=''
+title=''
+paper=''
+archive=''
+
+while [[ "$#" -gt 0 ]]; do
+  case "$1" in
+    --author)
+      [[ "$#" -ge 2 ]] || die '--author needs a value'
+      author=$2
+      shift 2
+      ;;
+    --title)
+      [[ "$#" -ge 2 ]] || die '--title needs a value'
+      title=$2
+      shift 2
+      ;;
+    --paper)
+      [[ "$#" -ge 2 ]] || die '--paper needs a value'
+      paper=$2
+      shift 2
+      ;;
+    --archive)
+      [[ "$#" -ge 2 ]] || die '--archive needs a value'
+      archive=$2
+      shift 2
+      ;;
+    --help|-h)
+      usage
+      exit 0
+      ;;
+    *)
+      die "unknown argument: $1"
+      ;;
+  esac
+done
+
+[[ -n "$author" ]] || die '--author is required'
+[[ -n "$title" ]] || die '--title is required'
+
+book_filename "$author" "$title" "$paper" "$archive"
