@@ -1,0 +1,44 @@
+name: grease parser checks
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'parsers/*.grease'
+      - '.github/workflows/book-filename-grease.yml'
+  pull_request:
+    paths:
+      - 'parsers/*.grease'
+      - '.github/workflows/book-filename-grease.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  grease:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out syllabi
+        uses: actions/checkout@v4
+
+      - name: Check out pinned Grease and source
+        uses: actions/checkout@v4
+        with:
+          repository: isomorphisms/grease
+          ref: e963958976eaa80a2517bae3fd34b0e5115ffcbe
+          path: grease
+          submodules: recursive
+
+      - name: Build minimal Grease runtime and check parsers
+        run: |
+          docker run --rm \
+            --volume "$GITHUB_WORKSPACE:/workspace" \
+            --workdir /workspace/grease/source \
+            python:2.7.18-buster \
+            bash -lc "
+              build/py.sh minimal
+              bin/osh -n '../../parsers/fetch-usf-fall-2026.grease'
+              echo 'PASS Grease parses live acquisition script'
+              bin/osh '../../parsers/book-filename.grease' --self-test
+            "

@@ -1,0 +1,354 @@
+#!/usr/bin/env osh
+# Grease source. Current Grease executes through its OSH-derived implementation.
+# Live acquisition only. Replay/validation reads captured bytes and never uses the network.
+
+set -o errexit
+set -o nounset
+set -o pipefail
+
+WAIT_SECONDS=${USF_WAIT_SECONDS:-5}
+PAGE_SIZE=${USF_PAGE_SIZE:-500}
+FETCH_TIMEOUT_SECONDS=${USF_FETCH_TIMEOUT_SECONDS:-90}
+ICU=${ICU:-icu}
+ITHON=${ITHON:-ithon}
+
+ICU_REPO='dilapidated-shed/icu'
+ICU_COMMIT='a9e5e6089bdbf93d0209d673b93c783eb1957b44'
+GREASE_REPO='isomorphisms/grease'
+GREASE_COMMIT='e963958976eaa80a2517bae3fd34b0e5115ffcbe'
+ITHON_REPO='dilapidated-shed/ithon'
+ITHON_COMMIT='2e0d634550ecf2eb78315c2c165fe0e85ea1980c'
+
+TERM_NAME='Fall 2026'
+RAW_ROOT='syllabi/usf/fall-2026'
+INFO_ROOT='course information/usf/fall-2026'
+LOG_ROOT='crawling log/usf/fall-2026'
+SS='https://usf.simplesyllabus.com'
+
+RUN_ID=${CRAWL_RUN_ID:-"$(date -u '+%Y%m%dT%H%M%SZ')-$$"}
+RECEIPT="$LOG_ROOT/$RUN_ID.ndjson"
+ERROR_DIR="$LOG_ROOT/$RUN_ID-errors"
+
+mkdir -p "$RAW_ROOT" "$INFO_ROOT" "$LOG_ROOT" "$ERROR_DIR"
+
+command -v "$ICU" >/dev/null || {
+  printf 'FAIL: ICU executable not found: %s\n' "$ICU" >&2
+  exit 69
+}
+command -v "$ITHON" >/dev/null || {
+  printf 'FAIL: Ithon executable not found: %s\n' "$ITHON" >&2
+  exit 69
+}
+command -v jq >/dev/null || {
+  printf 'FAIL: jq is required for current USF JSON discovery\n' >&2
+  exit 69
+}
+command -v sha256sum >/dev/null
+command -v timeout >/dev/null
+
+REPO_COMMIT=$(git rev-parse HEAD)
+SCRIPT_PATH='parsers/fetch-usf-fall-2026.grease'
+SCRIPT_BLOB=$(git hash-object "$SCRIPT_PATH")
+PARSER_PATH='parsers/usf_course_information.py'
+PARSER_BLOB=$(git hash-object "$PARSER_PATH")
+ICU_PATH=$(command -v "$ICU")
+ITHON_PATH=$(command -v "$ITHON")
+ICU_BINARY_SHA256=$(sha256sum "$ICU_PATH" | awk '{print $1}')
+ITHON_BINARY_SHA256=$(sha256sum "$ITHON_PATH" | awk '{print $1}')
+
+utc_now() { date -u '+%Y-%m-%dT%H:%M:%SZ'; }
+
+append_receipt() {
+  printf '%s\n' "$1" >> "$RECEIPT"
+}
+
+run_event() {
+  event=$1
+  status=$2
+  message=$3
+  append_receipt "$(jq -cn \
+    --arg run_id "$RUN_ID" --arg event "$event" --arg status "$status" \
+    --arg recorded_at "$(utc_now)" --arg repo_commit "$REPO_COMMIT" \
+    --arg tool_repo "$GREASE_REPO" --arg tool_commit "$GREASE_COMMIT" \
+    --arg script_path "$SCRIPT_PATH" --arg script_blob "$SCRIPT_BLOB" \
+    --arg message "$message" \
+    '{schema:1,run_id:$run_id,event:$event,status:$status,recorded_at:$recorded_at,
+      repository:{name:"isomorphisms/syllabi",commit:$repo_commit},
+      tool:{name:"grease",repository:$tool_repo,commit:$tool_commit,argv:[]},
+      script:{path:$script_path,blob:$script_blob},message:$message}')"
+}
+
+fetch_receipt() {
+  status=$1
+  started_at=$2
+  finished_at=$3
+  url=$4
+  out=$5
+  sha=$6
+  bytes=$7
+  exit_code=$8
+  validation=$9
+  error_path=${10}
+
+  append_receipt "$(jq -cn \
+    --arg run_id "$RUN_ID" --arg status "$status" --arg recorded_at "$finished_at" \
+    --arg started_at "$started_at" --arg url "$url" --arg out "$out" \
+    --arg sha "$sha" --arg bytes "$bytes" --arg exit_code "$exit_code" \
+    --arg validation "$validation" --arg error_path "$error_path" \
+    --arg repo_commit "$REPO_COMMIT" --arg script_path "$SCRIPT_PATH" \
+    --arg script_blob "$SCRIPT_BLOB" --arg tool_repo "$ICU_REPO" \
+    --arg tool_commit "$ICU_COMMIT" --arg binary_sha "$ICU_BINARY_SHA256" \
+    --arg wait "$WAIT_SECONDS" \
+    '{schema:1,run_id:$run_id,event:"fetch",status:$status,recorded_at:$recorded_at,
+      started_at:$started_at,
+      repository:{name:"isomorphisms/syllabi",commit:$repo_commit},
+      tool:{name:"icu",repository:$tool_repo,commit:$tool_commit,argv:["get",$url],binary_sha256:$binary_sha},
+      script:{path:$script_path,blob:$script_blob},
+      url:$url,http_status:null,
+      output:{path:$out,sha256:(if $sha=="" then null else $sha end),bytes:(if $bytes=="" then null else ($bytes|tonumber) end)},
+      validation:$validation,exit_code:($exit_code|tonumber),sleep_after_request_seconds:($wait|tonumber),
+      error:(if $error_path=="" then null else $error_path end),
+      limitation:"current ICU does not expose final HTTP status/headers"}')"
+}
+
+parse_receipt() {
+  status=$1
+  started_at=$2
+  finished_at=$3
+  source_uri=$4
+  public_uri=$5
+  input_path=$6
+  metadata_path=$7
+  output_path=$8
+  input_sha=$9
+  metadata_sha=${10}
+  output_sha=${11}
+  output_bytes=${12}
+  exit_code=${13}
+  error_path=${14}
+
+  append_receipt "$(jq -cn \
+    --arg run_id "$RUN_ID" --arg status "$status" --arg recorded_at "$finished_at" \
+    --arg started_at "$started_at" --arg source_uri "$source_uri" \
+    --arg public_uri "$public_uri" --arg input_path "$input_path" \
+    --arg metadata_path "$metadata_path" --arg output_path "$output_path" \
+    --arg input_sha "$input_sha" --arg metadata_sha "$metadata_sha" \
+    --arg output_sha "$output_sha" --arg output_bytes "$output_bytes" \
+    --arg exit_code "$exit_code" --arg error_path "$error_path" \
+    --arg repo_commit "$REPO_COMMIT" --arg parser_path "$PARSER_PATH" \
+    --arg parser_blob "$PARSER_BLOB" --arg tool_repo "$ITHON_REPO" \
+    --arg tool_commit "$ITHON_COMMIT" --arg binary_sha "$ITHON_BINARY_SHA256" \
+    '{schema:1,run_id:$run_id,event:"parse",status:$status,recorded_at:$recorded_at,
+      started_at:$started_at,
+      repository:{name:"isomorphisms/syllabi",commit:$repo_commit},
+      tool:{name:"ithon",repository:$tool_repo,commit:$tool_commit,
+        argv:[$parser_path,"--input",$input_path,"--metadata",$metadata_path,"--source-uri",$source_uri,"--public-uri",$public_uri,"--output",$output_path],
+        binary_sha256:$binary_sha},
+      script:{path:$parser_path,blob:$parser_blob},
+      source_uri:$source_uri,public_uri:$public_uri,
+      input:{path:$input_path,sha256:$input_sha},
+      metadata:{path:$metadata_path,sha256:$metadata_sha},
+      output:{path:$output_path,sha256:(if $output_sha=="" then null else $output_sha end),
+        bytes:(if $output_bytes=="" then null else ($output_bytes|tonumber) end)},
+      exit_code:($exit_code|tonumber),
+      error:(if $error_path=="" then null else $error_path end)}')"
+}
+
+validate_body() {
+  kind=$1
+  file=$2
+  case "$kind" in
+    json) jq -e . "$file" >/dev/null 2>&1 ;;
+    html) grep -Eiq '<(div|main|section|article|h1|h2)([ >])' "$file" ;;
+    bytes) test -s "$file" ;;
+    *) printf 'unknown validation kind: %s\n' "$kind" >&2; return 64 ;;
+  esac
+}
+
+# Fetch one body with ICU. There is intentionally no curl fallback.
+get() {
+  url=$1
+  out=$2
+  kind=${3:-bytes}
+  mkdir -p "$(dirname "$out")"
+
+  if test -s "$out" && validate_body "$kind" "$out"; then
+    sha=$(sha256sum "$out" | awk '{print $1}')
+    bytes=$(wc -c < "$out" | tr -d ' ')
+    now=$(utc_now)
+    fetch_receipt SKIP "$now" "$now" "$url" "$out" "$sha" "$bytes" 0 "$kind:existing" ''
+    return 0
+  fi
+
+  tmp="$out.part"
+  stderr="$ERROR_DIR/$(printf '%s' "$out" | tr '/ ' '__').stderr"
+  rm -f "$tmp" "$stderr"
+  started=$(utc_now)
+
+  set +o errexit
+  timeout "$FETCH_TIMEOUT_SECONDS" "$ICU" get "$url" > "$tmp" 2> "$stderr"
+  code=$?
+  set -o errexit
+
+  # Every actual request waits, successful or not.
+  sleep "$WAIT_SECONDS"
+  finished=$(utc_now)
+
+  if test "$code" -ne 0; then
+    fetch_receipt FAIL "$started" "$finished" "$url" "$out" '' '' "$code" "$kind:transport-failed" "$stderr"
+    rm -f "$tmp"
+    return 1
+  fi
+
+  if ! validate_body "$kind" "$tmp"; then
+    sha=$(sha256sum "$tmp" | awk '{print $1}')
+    bytes=$(wc -c < "$tmp" | tr -d ' ')
+    failed="$out.failed-validation"
+    mv "$tmp" "$failed"
+    fetch_receipt FAIL "$started" "$finished" "$url" "$failed" "$sha" "$bytes" 65 "$kind:failed" "$stderr"
+    return 1
+  fi
+
+  mv "$tmp" "$out"
+  sha=$(sha256sum "$out" | awk '{print $1}')
+  bytes=$(wc -c < "$out" | tr -d ' ')
+  test -s "$stderr" || rm -f "$stderr"
+  fetch_receipt PASS "$started" "$finished" "$url" "$out" "$sha" "$bytes" 0 "$kind:pass" "$(test -e "$stderr" && printf '%s' "$stderr" || true)"
+}
+
+parse_course() {
+  source_uri=$1
+  public_uri=$2
+  input_path=$3
+  metadata_path=$4
+  output_path=$5
+  safe_code=$6
+  mkdir -p "$(dirname "$output_path")"
+
+  input_sha=$(sha256sum "$input_path" | awk '{print $1}')
+  metadata_sha=$(sha256sum "$metadata_path" | awk '{print $1}')
+  stderr="$ERROR_DIR/parse-$safe_code.stderr"
+  rm -f "$stderr" "$output_path" "$output_path.failed"
+  started=$(utc_now)
+
+  set +o errexit
+  "$ITHON" "$PARSER_PATH" \
+    --input "$input_path" \
+    --metadata "$metadata_path" \
+    --source-uri "$source_uri" \
+    --public-uri "$public_uri" \
+    --output "$output_path" \
+    2> "$stderr"
+  code=$?
+  set -o errexit
+  finished=$(utc_now)
+
+  if test "$code" -ne 0 || ! jq -e . "$output_path" >/dev/null 2>&1; then
+    failed_path="$output_path.failed"
+    output_sha=''
+    output_bytes=''
+    if test -e "$output_path"; then
+      mv "$output_path" "$failed_path"
+      output_sha=$(sha256sum "$failed_path" | awk '{print $1}')
+      output_bytes=$(wc -c < "$failed_path" | tr -d ' ')
+    else
+      failed_path="$output_path"
+    fi
+    parse_receipt FAIL "$started" "$finished" "$source_uri" "$public_uri" \
+      "$input_path" "$metadata_path" "$failed_path" "$input_sha" "$metadata_sha" \
+      "$output_sha" "$output_bytes" "$code" "$stderr"
+    return 1
+  fi
+
+  output_sha=$(sha256sum "$output_path" | awk '{print $1}')
+  output_bytes=$(wc -c < "$output_path" | tr -d ' ')
+  test -s "$stderr" || rm -f "$stderr"
+  parse_receipt PASS "$started" "$finished" "$source_uri" "$public_uri" \
+    "$input_path" "$metadata_path" "$output_path" "$input_sha" "$metadata_sha" \
+    "$output_sha" "$output_bytes" 0 "$(test -e "$stderr" && printf '%s' "$stderr" || true)"
+}
+
+urlencode() {
+  jq -rn --arg value "$1" '$value|@uri'
+}
+
+document_slug() {
+  jq -r '
+    ((.term_name // "") + " " + (.title // "") +
+      (if (.sub_title // "") == "" then "" else " - " + .sub_title end))
+    | gsub("[ _.\\-/]+"; "-")
+    | @uri
+  '
+}
+
+crawl_department() {
+  department=$1
+  department_tag=$2
+  expected_count=$3
+  raw="$RAW_ROOT/$department/simple-syllabus"
+  info="$INFO_ROOT/$department"
+  response="$raw/library-response.json"
+  items="$raw/library-items.json"
+  manifest="$info/manifest.tsv"
+
+  mkdir -p "$raw/documents" "$info/documents"
+  encoded_tag=$(urlencode "$department_tag")
+  search_url="$SS/api2/doc-library-search?search=$encoded_tag&page=1&page_size=$PAGE_SIZE"
+  get "$search_url" "$response" json
+
+  total=$(jq '.pagination.total // 0' "$response")
+  returned=$(jq '(.items // []) | length' "$response")
+  if test "$total" -gt "$PAGE_SIZE" || test "$returned" -ne "$total"; then
+    run_event coverage_assertion FAIL "$department search was paginated or truncated: total=$total returned=$returned page_size=$PAGE_SIZE"
+    return 65
+  fi
+
+  jq --arg term "$TERM_NAME" --arg tag "$department_tag" '
+    [(.items // [])[]
+      | select((.term_name // "") == $term)
+      | select((.title // "") | contains("(" + $tag + ")"))]
+    | sort_by(.code)
+    | unique_by(.code)
+  ' "$response" > "$items"
+
+  count=$(jq 'length' "$items")
+  if test "$count" -ne "$expected_count"; then
+    run_event coverage_assertion FAIL "$department expected $expected_count public Fall 2026 syllabi, found $count"
+    return 65
+  fi
+  run_event coverage_assertion PASS "$department exact public Fall 2026 syllabus count: $count"
+
+  printf 'document_code\tcourse\tcourse_title\tterm\tinstructors\tpublic_syllabus\tcaptured_html\tparsed_course_json\n' > "$manifest"
+
+  jq -c '.[]' "$items" | while IFS= read -r item; do
+    code=$(printf '%s' "$item" | jq -r '.code // empty')
+    test -n "$code" || continue
+    safe_code=$(printf '%s' "$code" | tr -cd 'A-Za-z0-9._-')
+    metadata="$raw/documents/$safe_code.metadata.json"
+    printf '%s\n' "$item" | jq . > "$metadata"
+
+    slug=$(printf '%s' "$item" | document_slug)
+    doc_url="$SS/api2/doc-html/$(urlencode "$code")/$slug"
+    public_url="$SS/doc/$(urlencode "$code")/$slug?mode=view"
+    html="$raw/documents/$safe_code.html"
+    parsed="$info/documents/$safe_code.json"
+
+    get "$doc_url" "$html" html
+    parse_course "$doc_url" "$public_url" "$html" "$metadata" "$parsed" "$safe_code"
+
+    title=$(printf '%s' "$item" | jq -r '.title // ""' | tr '\t\r\n' '   ')
+    sub_title=$(printf '%s' "$item" | jq -r '.sub_title // ""' | tr '\t\r\n' '   ')
+    term=$(printf '%s' "$item" | jq -r '.term_name // ""' | tr '\t\r\n' '   ')
+    editors=$(printf '%s' "$item" | jq -r '[.editors[]? | (.name // .full_name // tostring)] | join("; ")' | tr '\t\r\n' '   ')
+    printf '%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n' \
+      "$code" "$title" "$sub_title" "$term" "$editors" "$public_url" "$html" "$parsed" \
+      >> "$manifest"
+  done
+}
+
+run_event run_start PASS 'USF philosophy, English, and history Fall 2026 public-syllabus acquisition started'
+crawl_department philosophy AC.PHI 70
+crawl_department english AC.ENG 312
+crawl_department history AC.HTY 82
+run_event run_end PASS "USF Fall 2026 acquisition finished: 464 public syllabi; receipt=$RECEIPT"
+printf 'receipt: %s\n' "$RECEIPT"
