@@ -1,0 +1,103 @@
+2026-08-30T01:43:43Z	START common-crawl-first USF Philosophy discovery
+2026-08-30T01:43:43Z	CC GET https://index.commoncrawl.org/collinfo.json
+2026-08-30T01:43:44Z	CC PASS common crawl results pertinent to universities/usf/philosophy/collinfo.json
+2026-08-30T01:43:44Z	CC GET https://index.commoncrawl.org/CC-MAIN-2026-34-index?url=cloud.usf.edu%2Facademic-programs%2Fdetails%2Fprefix%2FPHI%2Fcode%2F&matchType=prefix&output=json&filter=status%3A200&collapse=urlkey
+2026-08-30T01:43:45Z	CC PASS common crawl results pertinent to universities/usf/philosophy/index/CC-MAIN-2026-34-PHI.ndjson
+2026-08-30T01:43:45Z	CC GET https://index.commoncrawl.org/CC-MAIN-2026-34-index?url=cloud.usf.edu%2Facademic-programs%2Fdetails%2Fprefix%2FPHH%2Fcode%2F&matchType=prefix&output=json&filter=status%3A200&collapse=urlkey
+2026-08-30T01:43:47Z	CC PASS common crawl results pertinent to universities/usf/philosophy/index/CC-MAIN-2026-34-PHH.ndjson
+2026-08-30T01:43:47Z	CC GET https://index.commoncrawl.org/CC-MAIN-2026-34-index?url=cloud.usf.edu%2Facademic-programs%2Fdetails%2Fprefix%2FPHM%2Fcode%2F&matchType=prefix&output=json&filter=status%3A200&collapse=urlkey
+2026-08-30T01:43:48Z	CC PASS common crawl results pertinent to universities/usf/philosophy/index/CC-MAIN-2026-34-PHM.ndjson
+2026-08-30T01:43:48Z	CC GET https://index.commoncrawl.org/CC-MAIN-2026-34-index?url=cloud.usf.edu%2Facademic-programs%2Fdetails%2Fprefix%2FPHP%2Fcode%2F&matchType=prefix&output=json&filter=status%3A200&collapse=urlkey
+2026-08-30T01:43:49Z	CC PASS common crawl results pertinent to universities/usf/philosophy/index/CC-MAIN-2026-34-PHP.ndjson
+2026-08-30T01:43:49Z	CC GET https://index.commoncrawl.org/CC-MAIN-2026-30-index?url=cloud.usf.edu%2Facademic-programs%2Fdetails%2Fprefix%2FPHI%2Fcode%2F&matchType=prefix&output=json&filter=status%3A200&collapse=urlkey
+2026-08-30T01:43:50Z	CC PASS common crawl results pertinent to universities/usf/philosophy/index/CC-MAIN-2026-30-PHI.ndjson
+2026-08-30T01:43:50Z	CC GET https://index.commoncrawl.org/CC-MAIN-2026-30-index?url=cloud.usf.edu%2Facademic-programs%2Fdetails%2Fprefix%2FPHH%2Fcode%2F&matchType=prefix&output=json&filter=status%3A200&collapse=urlkey
+2026-08-30T01:43:52Z	CC PASS common crawl results pertinent to universities/usf/philosophy/index/CC-MAIN-2026-30-PHH.ndjson
+2026-08-30T01:43:52Z	CC GET https://index.commoncrawl.org/CC-MAIN-2026-30-index?url=cloud.usf.edu%2Facademic-programs%2Fdetails%2Fprefix%2FPHM%2Fcode%2F&matchType=prefix&output=json&filter=status%3A200&collapse=urlkey
+2026-08-30T01:43:53Z	CC PASS common crawl results pertinent to universities/usf/philosophy/index/CC-MAIN-2026-30-PHM.ndjson
+2026-08-30T01:43:53Z	CC GET https://index.commoncrawl.org/CC-MAIN-2026-30-index?url=cloud.usf.edu%2Facademic-programs%2Fdetails%2Fprefix%2FPHP%2Fcode%2F&matchType=prefix&output=json&filter=status%3A200&collapse=urlkey
+2026-08-30T01:43:54Z	CC PASS common crawl results pertinent to universities/usf/philosophy/index/CC-MAIN-2026-30-PHP.ndjson
+2026-08-30T01:43:54Z	CC GET https://index.commoncrawl.org/CC-MAIN-2026-25-index?url=cloud.usf.edu%2Facademic-programs%2Fdetails%2Fprefix%2FPHI%2Fcode%2F&matchType=prefix&output=json&filter=status%3A200&collapse=urlkey
+2026-08-30T01:43:55Z	CC PASS common crawl results pertinent to universities/usf/philosophy/index/CC-MAIN-2026-25-PHI.ndjson
+2026-08-30T01:43:55Z	CC GET https://index.commoncrawl.org/CC-MAIN-2026-25-index?url=cloud.usf.edu%2Facademic-programs%2Fdetails%2Fprefix%2FPHH%2Fcode%2F&matchType=prefix&output=json&filter=status%3A200&collapse=urlkey
+2026-08-30T01:43:56Z	CC PASS common crawl results pertinent to universities/usf/philosophy/index/CC-MAIN-2026-25-PHH.ndjson
+2026-08-30T01:43:56Z	CC GET https://index.commoncrawl.org/CC-MAIN-2026-25-index?url=cloud.usf.edu%2Facademic-programs%2Fdetails%2Fprefix%2FPHM%2Fcode%2F&matchType=prefix&output=json&filter=status%3A200&collapse=urlkey
+2026-08-30T01:43:58Z	CC PASS common crawl results pertinent to universities/usf/philosophy/index/CC-MAIN-2026-25-PHM.ndjson
+2026-08-30T01:43:58Z	CC GET https://index.commoncrawl.org/CC-MAIN-2026-25-index?url=cloud.usf.edu%2Facademic-programs%2Fdetails%2Fprefix%2FPHP%2Fcode%2F&matchType=prefix&output=json&filter=status%3A200&collapse=urlkey
+2026-08-30T01:43:59Z	CC PASS common crawl results pertinent to universities/usf/philosophy/index/CC-MAIN-2026-25-PHP.ndjson
+2026-08-30T01:43:59Z	CC GET https://index.commoncrawl.org/CC-MAIN-2026-21-index?url=cloud.usf.edu%2Facademic-programs%2Fdetails%2Fprefix%2FPHI%2Fcode%2F&matchType=prefix&output=json&filter=status%3A200&collapse=urlkey
+2026-08-30T01:44:01Z	CC PASS common crawl results pertinent to universities/usf/philosophy/index/CC-MAIN-2026-21-PHI.ndjson
+2026-08-30T01:44:01Z	CC GET https://index.commoncrawl.org/CC-MAIN-2026-21-index?url=cloud.usf.edu%2Facademic-programs%2Fdetails%2Fprefix%2FPHH%2Fcode%2F&matchType=prefix&output=json&filter=status%3A200&collapse=urlkey
+2026-08-30T01:44:02Z	CC PASS common crawl results pertinent to universities/usf/philosophy/index/CC-MAIN-2026-21-PHH.ndjson
+2026-08-30T01:44:02Z	CC GET https://index.commoncrawl.org/CC-MAIN-2026-21-index?url=cloud.usf.edu%2Facademic-programs%2Fdetails%2Fprefix%2FPHM%2Fcode%2F&matchType=prefix&output=json&filter=status%3A200&collapse=urlkey
+2026-08-30T01:44:04Z	CC PASS common crawl results pertinent to universities/usf/philosophy/index/CC-MAIN-2026-21-PHM.ndjson
+2026-08-30T01:44:04Z	CC GET https://index.commoncrawl.org/CC-MAIN-2026-21-index?url=cloud.usf.edu%2Facademic-programs%2Fdetails%2Fprefix%2FPHP%2Fcode%2F&matchType=prefix&output=json&filter=status%3A200&collapse=urlkey
+2026-08-30T01:44:05Z	CC PASS common crawl results pertinent to universities/usf/philosophy/index/CC-MAIN-2026-21-PHP.ndjson
+2026-08-30T01:44:05Z	CC GET https://index.commoncrawl.org/CC-MAIN-2026-17-index?url=cloud.usf.edu%2Facademic-programs%2Fdetails%2Fprefix%2FPHI%2Fcode%2F&matchType=prefix&output=json&filter=status%3A200&collapse=urlkey
+2026-08-30T01:44:06Z	CC PASS common crawl results pertinent to universities/usf/philosophy/index/CC-MAIN-2026-17-PHI.ndjson
+2026-08-30T01:44:06Z	CC GET https://index.commoncrawl.org/CC-MAIN-2026-17-index?url=cloud.usf.edu%2Facademic-programs%2Fdetails%2Fprefix%2FPHH%2Fcode%2F&matchType=prefix&output=json&filter=status%3A200&collapse=urlkey
+2026-08-30T01:44:07Z	CC PASS common crawl results pertinent to universities/usf/philosophy/index/CC-MAIN-2026-17-PHH.ndjson
+2026-08-30T01:44:07Z	CC GET https://index.commoncrawl.org/CC-MAIN-2026-17-index?url=cloud.usf.edu%2Facademic-programs%2Fdetails%2Fprefix%2FPHM%2Fcode%2F&matchType=prefix&output=json&filter=status%3A200&collapse=urlkey
+2026-08-30T01:44:09Z	CC PASS common crawl results pertinent to universities/usf/philosophy/index/CC-MAIN-2026-17-PHM.ndjson
+2026-08-30T01:44:09Z	CC GET https://index.commoncrawl.org/CC-MAIN-2026-17-index?url=cloud.usf.edu%2Facademic-programs%2Fdetails%2Fprefix%2FPHP%2Fcode%2F&matchType=prefix&output=json&filter=status%3A200&collapse=urlkey
+2026-08-30T01:44:10Z	CC PASS common crawl results pertinent to universities/usf/philosophy/index/CC-MAIN-2026-17-PHP.ndjson
+2026-08-30T01:44:10Z	CC GET https://index.commoncrawl.org/CC-MAIN-2026-12-index?url=cloud.usf.edu%2Facademic-programs%2Fdetails%2Fprefix%2FPHI%2Fcode%2F&matchType=prefix&output=json&filter=status%3A200&collapse=urlkey
+2026-08-30T01:44:11Z	CC PASS common crawl results pertinent to universities/usf/philosophy/index/CC-MAIN-2026-12-PHI.ndjson
+2026-08-30T01:44:11Z	CC GET https://index.commoncrawl.org/CC-MAIN-2026-12-index?url=cloud.usf.edu%2Facademic-programs%2Fdetails%2Fprefix%2FPHH%2Fcode%2F&matchType=prefix&output=json&filter=status%3A200&collapse=urlkey
+2026-08-30T01:44:12Z	CC PASS common crawl results pertinent to universities/usf/philosophy/index/CC-MAIN-2026-12-PHH.ndjson
+2026-08-30T01:44:12Z	CC GET https://index.commoncrawl.org/CC-MAIN-2026-12-index?url=cloud.usf.edu%2Facademic-programs%2Fdetails%2Fprefix%2FPHM%2Fcode%2F&matchType=prefix&output=json&filter=status%3A200&collapse=urlkey
+2026-08-30T01:44:13Z	CC PASS common crawl results pertinent to universities/usf/philosophy/index/CC-MAIN-2026-12-PHM.ndjson
+2026-08-30T01:44:13Z	CC GET https://index.commoncrawl.org/CC-MAIN-2026-12-index?url=cloud.usf.edu%2Facademic-programs%2Fdetails%2Fprefix%2FPHP%2Fcode%2F&matchType=prefix&output=json&filter=status%3A200&collapse=urlkey
+2026-08-30T01:44:15Z	CC PASS common crawl results pertinent to universities/usf/philosophy/index/CC-MAIN-2026-12-PHP.ndjson
+2026-08-30T01:44:15Z	CC GET https://index.commoncrawl.org/CC-MAIN-2026-08-index?url=cloud.usf.edu%2Facademic-programs%2Fdetails%2Fprefix%2FPHI%2Fcode%2F&matchType=prefix&output=json&filter=status%3A200&collapse=urlkey
+2026-08-30T01:44:19Z	CC PASS common crawl results pertinent to universities/usf/philosophy/index/CC-MAIN-2026-08-PHI.ndjson
+2026-08-30T01:44:19Z	CC GET https://index.commoncrawl.org/CC-MAIN-2026-08-index?url=cloud.usf.edu%2Facademic-programs%2Fdetails%2Fprefix%2FPHH%2Fcode%2F&matchType=prefix&output=json&filter=status%3A200&collapse=urlkey
+2026-08-30T01:44:21Z	CC PASS common crawl results pertinent to universities/usf/philosophy/index/CC-MAIN-2026-08-PHH.ndjson
+2026-08-30T01:44:21Z	CC GET https://index.commoncrawl.org/CC-MAIN-2026-08-index?url=cloud.usf.edu%2Facademic-programs%2Fdetails%2Fprefix%2FPHM%2Fcode%2F&matchType=prefix&output=json&filter=status%3A200&collapse=urlkey
+2026-08-30T01:44:22Z	CC PASS common crawl results pertinent to universities/usf/philosophy/index/CC-MAIN-2026-08-PHM.ndjson
+2026-08-30T01:44:22Z	CC GET https://index.commoncrawl.org/CC-MAIN-2026-08-index?url=cloud.usf.edu%2Facademic-programs%2Fdetails%2Fprefix%2FPHP%2Fcode%2F&matchType=prefix&output=json&filter=status%3A200&collapse=urlkey
+2026-08-30T01:44:23Z	CC PASS common crawl results pertinent to universities/usf/philosophy/index/CC-MAIN-2026-08-PHP.ndjson
+2026-08-30T01:44:23Z	CC GET https://index.commoncrawl.org/CC-MAIN-2026-04-index?url=cloud.usf.edu%2Facademic-programs%2Fdetails%2Fprefix%2FPHI%2Fcode%2F&matchType=prefix&output=json&filter=status%3A200&collapse=urlkey
+2026-08-30T01:44:25Z	CC PASS common crawl results pertinent to universities/usf/philosophy/index/CC-MAIN-2026-04-PHI.ndjson
+2026-08-30T01:44:25Z	CC GET https://index.commoncrawl.org/CC-MAIN-2026-04-index?url=cloud.usf.edu%2Facademic-programs%2Fdetails%2Fprefix%2FPHH%2Fcode%2F&matchType=prefix&output=json&filter=status%3A200&collapse=urlkey
+2026-08-30T01:44:26Z	CC PASS common crawl results pertinent to universities/usf/philosophy/index/CC-MAIN-2026-04-PHH.ndjson
+2026-08-30T01:44:26Z	CC GET https://index.commoncrawl.org/CC-MAIN-2026-04-index?url=cloud.usf.edu%2Facademic-programs%2Fdetails%2Fprefix%2FPHM%2Fcode%2F&matchType=prefix&output=json&filter=status%3A200&collapse=urlkey
+2026-08-30T01:44:27Z	CC PASS common crawl results pertinent to universities/usf/philosophy/index/CC-MAIN-2026-04-PHM.ndjson
+2026-08-30T01:44:27Z	CC GET https://index.commoncrawl.org/CC-MAIN-2026-04-index?url=cloud.usf.edu%2Facademic-programs%2Fdetails%2Fprefix%2FPHP%2Fcode%2F&matchType=prefix&output=json&filter=status%3A200&collapse=urlkey
+2026-08-30T01:44:28Z	CC PASS common crawl results pertinent to universities/usf/philosophy/index/CC-MAIN-2026-04-PHP.ndjson
+2026-08-30T01:44:28Z	CC GET https://index.commoncrawl.org/CC-MAIN-2025-51-index?url=cloud.usf.edu%2Facademic-programs%2Fdetails%2Fprefix%2FPHI%2Fcode%2F&matchType=prefix&output=json&filter=status%3A200&collapse=urlkey
+2026-08-30T01:44:30Z	CC PASS common crawl results pertinent to universities/usf/philosophy/index/CC-MAIN-2025-51-PHI.ndjson
+2026-08-30T01:44:30Z	CC GET https://index.commoncrawl.org/CC-MAIN-2025-51-index?url=cloud.usf.edu%2Facademic-programs%2Fdetails%2Fprefix%2FPHH%2Fcode%2F&matchType=prefix&output=json&filter=status%3A200&collapse=urlkey
+2026-08-30T01:44:31Z	CC PASS common crawl results pertinent to universities/usf/philosophy/index/CC-MAIN-2025-51-PHH.ndjson
+2026-08-30T01:44:31Z	CC GET https://index.commoncrawl.org/CC-MAIN-2025-51-index?url=cloud.usf.edu%2Facademic-programs%2Fdetails%2Fprefix%2FPHM%2Fcode%2F&matchType=prefix&output=json&filter=status%3A200&collapse=urlkey
+2026-08-30T01:44:32Z	CC PASS common crawl results pertinent to universities/usf/philosophy/index/CC-MAIN-2025-51-PHM.ndjson
+2026-08-30T01:44:32Z	CC GET https://index.commoncrawl.org/CC-MAIN-2025-51-index?url=cloud.usf.edu%2Facademic-programs%2Fdetails%2Fprefix%2FPHP%2Fcode%2F&matchType=prefix&output=json&filter=status%3A200&collapse=urlkey
+2026-08-30T01:44:34Z	CC PASS common crawl results pertinent to universities/usf/philosophy/index/CC-MAIN-2025-51-PHP.ndjson
+2026-08-30T01:44:34Z	CC GET https://index.commoncrawl.org/CC-MAIN-2025-47-index?url=cloud.usf.edu%2Facademic-programs%2Fdetails%2Fprefix%2FPHI%2Fcode%2F&matchType=prefix&output=json&filter=status%3A200&collapse=urlkey
+2026-08-30T01:44:35Z	CC PASS common crawl results pertinent to universities/usf/philosophy/index/CC-MAIN-2025-47-PHI.ndjson
+2026-08-30T01:44:35Z	CC GET https://index.commoncrawl.org/CC-MAIN-2025-47-index?url=cloud.usf.edu%2Facademic-programs%2Fdetails%2Fprefix%2FPHH%2Fcode%2F&matchType=prefix&output=json&filter=status%3A200&collapse=urlkey
+2026-08-30T01:44:36Z	CC PASS common crawl results pertinent to universities/usf/philosophy/index/CC-MAIN-2025-47-PHH.ndjson
+2026-08-30T01:44:36Z	CC GET https://index.commoncrawl.org/CC-MAIN-2025-47-index?url=cloud.usf.edu%2Facademic-programs%2Fdetails%2Fprefix%2FPHM%2Fcode%2F&matchType=prefix&output=json&filter=status%3A200&collapse=urlkey
+2026-08-30T01:44:37Z	CC PASS common crawl results pertinent to universities/usf/philosophy/index/CC-MAIN-2025-47-PHM.ndjson
+2026-08-30T01:44:37Z	CC GET https://index.commoncrawl.org/CC-MAIN-2025-47-index?url=cloud.usf.edu%2Facademic-programs%2Fdetails%2Fprefix%2FPHP%2Fcode%2F&matchType=prefix&output=json&filter=status%3A200&collapse=urlkey
+2026-08-30T01:44:39Z	CC PASS common crawl results pertinent to universities/usf/philosophy/index/CC-MAIN-2025-47-PHP.ndjson
+2026-08-30T01:44:39Z	CC GET https://index.commoncrawl.org/CC-MAIN-2025-43-index?url=cloud.usf.edu%2Facademic-programs%2Fdetails%2Fprefix%2FPHI%2Fcode%2F&matchType=prefix&output=json&filter=status%3A200&collapse=urlkey
+2026-08-30T01:44:43Z	CC PASS common crawl results pertinent to universities/usf/philosophy/index/CC-MAIN-2025-43-PHI.ndjson
+2026-08-30T01:44:43Z	CC GET https://index.commoncrawl.org/CC-MAIN-2025-43-index?url=cloud.usf.edu%2Facademic-programs%2Fdetails%2Fprefix%2FPHH%2Fcode%2F&matchType=prefix&output=json&filter=status%3A200&collapse=urlkey
+2026-08-30T01:44:44Z	CC PASS common crawl results pertinent to universities/usf/philosophy/index/CC-MAIN-2025-43-PHH.ndjson
+2026-08-30T01:44:44Z	CC GET https://index.commoncrawl.org/CC-MAIN-2025-43-index?url=cloud.usf.edu%2Facademic-programs%2Fdetails%2Fprefix%2FPHM%2Fcode%2F&matchType=prefix&output=json&filter=status%3A200&collapse=urlkey
+2026-08-30T01:44:45Z	CC PASS common crawl results pertinent to universities/usf/philosophy/index/CC-MAIN-2025-43-PHM.ndjson
+2026-08-30T01:44:46Z	CC GET https://index.commoncrawl.org/CC-MAIN-2025-43-index?url=cloud.usf.edu%2Facademic-programs%2Fdetails%2Fprefix%2FPHP%2Fcode%2F&matchType=prefix&output=json&filter=status%3A200&collapse=urlkey
+2026-08-30T01:44:47Z	CC PASS common crawl results pertinent to universities/usf/philosophy/index/CC-MAIN-2025-43-PHP.ndjson
+2026-08-30T01:44:47Z	CC GET https://index.commoncrawl.org/CC-MAIN-2025-38-index?url=cloud.usf.edu%2Facademic-programs%2Fdetails%2Fprefix%2FPHI%2Fcode%2F&matchType=prefix&output=json&filter=status%3A200&collapse=urlkey
+2026-08-30T01:44:48Z	CC PASS common crawl results pertinent to universities/usf/philosophy/index/CC-MAIN-2025-38-PHI.ndjson
+2026-08-30T01:44:48Z	CC GET https://index.commoncrawl.org/CC-MAIN-2025-38-index?url=cloud.usf.edu%2Facademic-programs%2Fdetails%2Fprefix%2FPHH%2Fcode%2F&matchType=prefix&output=json&filter=status%3A200&collapse=urlkey
+2026-08-30T01:44:49Z	CC PASS common crawl results pertinent to universities/usf/philosophy/index/CC-MAIN-2025-38-PHH.ndjson
+2026-08-30T01:44:49Z	CC GET https://index.commoncrawl.org/CC-MAIN-2025-38-index?url=cloud.usf.edu%2Facademic-programs%2Fdetails%2Fprefix%2FPHM%2Fcode%2F&matchType=prefix&output=json&filter=status%3A200&collapse=urlkey
+2026-08-30T01:44:51Z	CC PASS common crawl results pertinent to universities/usf/philosophy/index/CC-MAIN-2025-38-PHM.ndjson
+2026-08-30T01:44:51Z	CC GET https://index.commoncrawl.org/CC-MAIN-2025-38-index?url=cloud.usf.edu%2Facademic-programs%2Fdetails%2Fprefix%2FPHP%2Fcode%2F&matchType=prefix&output=json&filter=status%3A200&collapse=urlkey
+2026-08-30T01:44:52Z	CC PASS common crawl results pertinent to universities/usf/philosophy/index/CC-MAIN-2025-38-PHP.ndjson
+2026-08-30T01:44:52Z	USF GET https://cloud.usf.edu/academic-programs/course-inventory/
+2026-08-30T01:44:57Z	USF PASS syllabi/usf/philosophy/course-inventory/search.html
+2026-08-30T01:44:57Z	FOUND 0 distinct PHI/PHH/PHM/PHP course URLs across 12 Common Crawl collections
+2026-08-30T01:44:57Z	END discovery; no live USF course-detail pages fetched
