@@ -137,7 +137,7 @@ html_blocks : String → List Block
 html_blocks = build_blocks Nothing [] . tokenize
 
 starts_with_one : List String → String → Bool
-starts_with_one prefixes value = any (\prefix => isPrefixOf prefix value) prefixes
+starts_with_one prefixes value = any (\candidate => isPrefixOf candidate value) prefixes
 
 section_for : String → Maybe reading_section
 section_for value =
