@@ -1,0 +1,38 @@
+name: fetch USF philosophy raw material
+
+on:
+  push:
+    branches:
+      - book-first-usf
+    paths:
+      - 'where would I read this and who would I read it with/tools/fetch-usf-philosophy.sh'
+      - '.github/workflows/fetch-usf-philosophy.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  capture:
+    runs-on: ubuntu-latest
+    timeout-minutes: 300
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Capture public USF Philosophy material slowly
+        env:
+          USF_WAIT_SECONDS: '5'
+        run: bash 'where would I read this and who would I read it with/tools/fetch-usf-philosophy.sh'
+
+      - name: Commit temporary raw capture
+        run: |
+          git config user.name 'syllabi raw capture'
+          git config user.email 'actions@users.noreply.github.com'
+          git add -- 'where would I read this and who would I read it with/temporary-raw/usf/philosophy'
+          if git diff --cached --quiet; then
+            echo 'No new raw capture to commit.'
+          else
+            git commit -m 'Capture USF philosophy raw material [skip ci]'
+            git push origin HEAD:book-first-usf
+          fi
