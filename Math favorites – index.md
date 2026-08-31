@@ -11,6 +11,7 @@ This is a landing page for mathematics material to expand into paper-first entri
 - [William P. Thurston — *The Geometry and Topology of Three-Manifolds* (GT3M)](<William P. Thurston – The Geometry and Topology of Three-Manifolds.md>)
 - [Joan Birman and William Thurston — retrospective material](<Joan Birman and William Thurston – retrospectives – collection stub.md>)
 - [Athanase Papadopoulos — arXiv math.HO](<Athanase Papadopoulos – math.HO – collection stub.md>)
+- [Frank Ruskey, Carla D. Savage, and Stan Wagon — *The Search for Simple Symmetric Venn Diagrams*](<Frank Ruskey, Carla D. Savage, and Stan Wagon – The Search for Simple Symmetric Venn Diagrams.md>)
 - [Armin Straub — Notices of the AMS “What Is...?” continuity mirror](<Armin Straub – Notices What Is column – continuity mirror.md>)
 - [Joshua Evan Greene — *Heegaard Floer Homology*](<Joshua Evan Greene – Heegaard Floer Homology.md>)
 - [Juanita Pinzón-Caicedo and Daniel Ruberman — *Applications of Instanton Floer Homology*](<Juanita Pinzón-Caicedo and Daniel Ruberman – Applications of Instanton Floer Homology.md>)
