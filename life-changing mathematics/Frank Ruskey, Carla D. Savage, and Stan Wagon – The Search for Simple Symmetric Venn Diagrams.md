@@ -20,6 +20,8 @@ This is exactly the kind of paper that can change somebody’s idea of what math
 
 Its exposition is also unusually good. The main questions can be understood before most of the machinery is introduced, and each new piece of mathematics answers a question created by the pictures rather than appearing as detached formalism.
 
+There is also direct evidence of that formative effect. One person who later earned a PhD in mathematics described this paper as significant in motivating their decision to go to graduate school. Their name is intentionally omitted here. This is a private recollection supplied to the repository, not a publicly sourced biographical claim.
+
 ## Summary
 
 An `n`-Venn diagram consists of `n` simple closed Jordan curves whose intersections cut the plane into exactly the `2^n` possible inside/outside membership regions, each nonempty and connected. Ordinary circles cannot do this once `n ≥ 4`, but arbitrary Jordan curves can.
@@ -61,4 +63,4 @@ Wagon and Peter Webb’s 2008 note, *Venn Symmetry and Prime Numbers: A Seductiv
 
 ## Provenance
 
-Added 2026-08-31 after recalling the paper as an example of a Venn-diagram article that could be mathematically formative. The summary and evaluative comments above are original to this repository; the bibliography is transcribed and normalized from the paper’s own references.
+Added 2026-08-31 after recalling the paper as an example of a Venn-diagram article that could be mathematically formative. The summary and evaluative comments above are original to this repository; the bibliography is transcribed and normalized from the paper’s own references. The anonymous graduate-school motivation note above is preserved as a personal recollection rather than presented as independently verified biography.
