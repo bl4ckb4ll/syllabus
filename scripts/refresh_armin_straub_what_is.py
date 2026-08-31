@@ -72,14 +72,24 @@ class WhatIsParser(HTMLParser):
 def fetch_items() -> list[str]:
     req = Request(
         SOURCE_URL,
-        headers={"User-Agent": "bl4ckb4ll-syllabus-continuity-mirror/1.0"},
+        headers={
+            "User-Agent": (
+                "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 "
+                "(KHTML, like Gecko) Chrome/124.0 Safari/537.36"
+            ),
+            "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+            "Accept-Language": "en-US,en;q=0.9",
+        },
     )
     with urlopen(req, timeout=30) as response:
         html = response.read().decode("utf-8", errors="replace")
     parser = WhatIsParser()
     parser.feed(html)
     if len(parser.items) < 150:
-        raise RuntimeError(f"refusing to overwrite mirror: extracted only {len(parser.items)} entries")
+        raise RuntimeError(
+            f"refusing to overwrite mirror: extracted only {len(parser.items)} entries "
+            f"from {len(html)} bytes"
+        )
     return parser.items
 
 
