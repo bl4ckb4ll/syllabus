@@ -25,6 +25,7 @@ For an individual paper or book, entries should normally contain:
 - [Miles Reid — papers](<Miles Reid – papers – collection stub.md>)
 - [Allen Hatcher — papers](<Allen Hatcher – papers – collection stub.md>)
 - [William P. Thurston — *The Geometry and Topology of Three-Manifolds* (GT3M)](<William P. Thurston – The Geometry and Topology of Three-Manifolds.md>)
+- [Why GT3M changed my life — AI-written stub](<Why GT3M changed my life.md>)
 - [Joan Birman and William Thurston — retrospective material](<Joan Birman and William Thurston – retrospectives – collection stub.md>)
 - [Athanase Papadopoulos — arXiv `math.HO`](<Athanase Papadopoulos – math.HO – collection stub.md>)
 - [Frank Ruskey, Carla D. Savage, and Stan Wagon — *The Search for Simple Symmetric Venn Diagrams*](<Frank Ruskey, Carla D. Savage, and Stan Wagon – The Search for Simple Symmetric Venn Diagrams.md>)
