@@ -11,5 +11,8 @@ This is a landing page for mathematics material to expand into paper-first entri
 - [William P. Thurston — *The Geometry and Topology of Three-Manifolds* (GT3M)](<William P. Thurston – The Geometry and Topology of Three-Manifolds.md>)
 - [Joan Birman and William Thurston — retrospective material](<Joan Birman and William Thurston – retrospectives – collection stub.md>)
 - [Athanase Papadopoulos — arXiv math.HO](<Athanase Papadopoulos – math.HO – collection stub.md>)
+- [Armin Straub — Notices of the AMS “What Is...?” continuity mirror](<Armin Straub – Notices What Is column – continuity mirror.md>)
+- [Joshua Evan Greene — *Heegaard Floer Homology*](<Joshua Evan Greene – Heegaard Floer Homology.md>)
+- [Juanita Pinzón-Caicedo and Daniel Ruberman — *Applications of Instanton Floer Homology*](<Juanita Pinzón-Caicedo and Daniel Ruberman – Applications of Instanton Floer Homology.md>)
 
 The collection pages are deliberately lightweight. As individual favorite papers are selected, they should get their own top-level paper entries rather than remaining buried in an author list.
