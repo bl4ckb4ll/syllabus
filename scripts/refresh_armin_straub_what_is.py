@@ -86,6 +86,11 @@ def fetch_items() -> list[str]:
     parser = WhatIsParser()
     parser.feed(html)
     if len(parser.items) < 150:
+        for needle in ("Chen-Fliess", "What is", "What Is"):
+            pos = html.find(needle)
+            if pos >= 0:
+                print(f"DIAGNOSTIC around {needle!r}:\n{html[max(0, pos-1200):pos+2400]}")
+                break
         raise RuntimeError(
             f"refusing to overwrite mirror: extracted only {len(parser.items)} entries "
             f"from {len(html)} bytes"
