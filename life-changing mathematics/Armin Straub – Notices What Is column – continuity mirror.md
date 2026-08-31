@@ -6,7 +6,7 @@ This mirror preserves bibliographic metadata and links only. It does **not** cop
 
 - Original Straub index: https://arminstraub.com/math/what-is-column
 - Official AMS What Is collection: https://www.ams.org/cgi-bin/notices/nxgnotices.pl?cnt=whatis&fm=gen
-- Last automated refresh: 2026-08-31 13:26 UTC
+- Last automated refresh: 2026-08-31 13:45 UTC
 - Entries mirrored: 174
 
 ## Straub index snapshot
@@ -186,9 +186,9 @@ This mirror preserves bibliographic metadata and links only. It does **not** cop
 173. What is...the [monster](http://www.ams.org/notices/200209/what-is.pdf)? — Richard Borcherds, October 2002
 174. What is...an [amoeba](http://www.ams.org/notices/200208/what-is.pdf)? — Oleg Viro, September 2002
 
-## Additions in this syllabus
+## Additions in Life-changing mathematics
 
-The following Notices survey articles are favorites in this syllabus and are **not claimed to be entries in Straub’s ‘What Is...?’ index**:
+The following *Notices* survey articles are favorites in this collection and are **not claimed to be entries in Straub’s ‘What Is...?’ index**:
 
 - [Joshua Evan Greene — *Heegaard Floer Homology*](<Joshua Evan Greene – Heegaard Floer Homology.md>) — January 2021, *Notices of the AMS* 68(1), 19–33; DOI: https://doi.org/10.1090/noti2194
 - [Juanita Pinzón-Caicedo and Daniel Ruberman — *Applications of Instanton Floer Homology*](<Juanita Pinzón-Caicedo and Daniel Ruberman – Applications of Instanton Floer Homology.md>) — September 2022, *Notices of the AMS* 69(8), 1307–1319; DOI: https://doi.org/10.1090/noti2536
