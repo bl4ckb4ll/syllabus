@@ -1,0 +1,38 @@
+name: Refresh Straub What Is mirror
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - math-favorites-stubs
+    paths:
+      - scripts/refresh_armin_straub_what_is.py
+      - .github/workflows/refresh-straub-whatis-mirror.yml
+  schedule:
+    - cron: '17 9 * * 1'
+
+permissions:
+  contents: write
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+      - name: Refresh mirror
+        run: python scripts/refresh_armin_straub_what_is.py
+      - name: Commit refreshed snapshot when changed
+        run: |
+          if git diff --quiet -- 'Armin Straub – Notices What Is column – continuity mirror.md'; then
+            exit 0
+          fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -- 'Armin Straub – Notices What Is column – continuity mirror.md'
+          git commit -m 'Refresh Straub What Is index mirror'
+          git push
