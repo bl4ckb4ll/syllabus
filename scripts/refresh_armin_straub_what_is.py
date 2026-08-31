@@ -17,7 +17,11 @@ from urllib.request import Request, urlopen
 
 SOURCE_URL = "https://arminstraub.com/math/what-is-column"
 AMS_COLLECTION_URL = "https://www.ams.org/cgi-bin/notices/nxgnotices.pl?cnt=whatis&fm=gen"
-OUTPUT = Path(__file__).resolve().parents[1] / "Armin Straub – Notices What Is column – continuity mirror.md"
+OUTPUT = (
+    Path(__file__).resolve().parents[1]
+    / "life-changing mathematics"
+    / "Armin Straub – Notices What Is column – continuity mirror.md"
+)
 
 
 def md_escape(text: str) -> str:
@@ -47,8 +51,6 @@ class WhatIsParser(HTMLParser):
 
     def handle_starttag(self, tag: str, attrs) -> None:
         if tag == "li":
-            # Straub's HTML relies on HTML's implicit closing of one <li> when
-            # the next begins, so explicitly finalize the previous item here.
             self.finish_item()
             self.in_li = True
         elif self.in_li and tag == "a":
@@ -122,9 +124,9 @@ def render(items: list[str]) -> str:
     lines.extend(
         [
             "",
-            "## Additions in this syllabus",
+            "## Additions in Life-changing mathematics",
             "",
-            "The following Notices survey articles are favorites in this syllabus and are **not claimed to be entries in Straub’s ‘What Is...?’ index**:",
+            "The following *Notices* survey articles are favorites in this collection and are **not claimed to be entries in Straub’s ‘What Is...?’ index**:",
             "",
             "- [Joshua Evan Greene — *Heegaard Floer Homology*](<Joshua Evan Greene – Heegaard Floer Homology.md>) — January 2021, *Notices of the AMS* 68(1), 19–33; DOI: https://doi.org/10.1090/noti2194",
             "- [Juanita Pinzón-Caicedo and Daniel Ruberman — *Applications of Instanton Floer Homology*](<Juanita Pinzón-Caicedo and Daniel Ruberman – Applications of Instanton Floer Homology.md>) — September 2022, *Notices of the AMS* 69(8), 1307–1319; DOI: https://doi.org/10.1090/noti2536",
@@ -140,6 +142,7 @@ def render(items: list[str]) -> str:
 
 def main() -> None:
     items = fetch_items()
+    OUTPUT.parent.mkdir(parents=True, exist_ok=True)
     OUTPUT.write_text(render(items), encoding="utf-8")
     print(f"wrote {OUTPUT} with {len(items)} entries")
 

@@ -28,7 +28,7 @@ jobs:
         run: python scripts/refresh_armin_straub_what_is.py
       - name: Commit refreshed snapshot when changed
         run: |
-          file='Armin Straub – Notices What Is column – continuity mirror.md'
+          file='life-changing mathematics/Armin Straub – Notices What Is column – continuity mirror.md'
           if [ -z "$(git status --porcelain -- "$file")" ]; then
             exit 0
           fi
