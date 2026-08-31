@@ -9,6 +9,7 @@ Poetry, performance, and listening material in the syllabus repository.
 ## Discovery and indexing
 
 - [Poetry Foundation — topics, emotions, and public-domain corpus](poetry-foundation/README.md) — preserves the useful many-to-many topic/emotion indexing idea while keeping copyrighted Foundation material as links/summaries and sourcing public-domain text independently.
+- [Emotion classifier index](emotions/README.md) — stable emotion-label directories containing symbolic links to canonical works; intended to become a reusable training/classification corpus.
 
 ## Audio archives
 
