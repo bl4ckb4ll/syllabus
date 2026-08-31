@@ -33,27 +33,34 @@ class WhatIsParser(HTMLParser):
         self.plain: list[str] = []
         self.items: list[str] = []
 
+    def finish_item(self) -> None:
+        if not self.in_li:
+            return
+        plain = re.sub(r"\s+", " ", "".join(self.plain)).strip()
+        rendered = re.sub(r"\s+", " ", "".join(self.parts)).strip()
+        if plain.lower().startswith("what is"):
+            self.items.append(rendered)
+        self.in_li = False
+        self.href = None
+        self.parts = []
+        self.plain = []
+
     def handle_starttag(self, tag: str, attrs) -> None:
         if tag == "li":
+            # Straub's HTML relies on HTML's implicit closing of one <li> when
+            # the next begins, so explicitly finalize the previous item here.
+            self.finish_item()
             self.in_li = True
-            self.href = None
-            self.parts = []
-            self.plain = []
         elif self.in_li and tag == "a":
             self.href = dict(attrs).get("href")
 
     def handle_endtag(self, tag: str) -> None:
         if self.in_li and tag == "a":
             self.href = None
-        elif tag == "li" and self.in_li:
-            plain = re.sub(r"\s+", " ", "".join(self.plain)).strip()
-            rendered = re.sub(r"\s+", " ", "".join(self.parts)).strip()
-            if plain.lower().startswith("what is"):
-                self.items.append(rendered)
-            self.in_li = False
-            self.href = None
-            self.parts = []
-            self.plain = []
+        elif tag == "li":
+            self.finish_item()
+        elif tag == "ol":
+            self.finish_item()
 
     def handle_data(self, data: str) -> None:
         if not self.in_li:
@@ -85,12 +92,8 @@ def fetch_items() -> list[str]:
         html = response.read().decode("utf-8", errors="replace")
     parser = WhatIsParser()
     parser.feed(html)
+    parser.finish_item()
     if len(parser.items) < 150:
-        for needle in ("Chen-Fliess", "What is", "What Is"):
-            pos = html.find(needle)
-            if pos >= 0:
-                print(f"DIAGNOSTIC around {needle!r}:\n{html[max(0, pos-1200):pos+2400]}")
-                break
         raise RuntimeError(
             f"refusing to overwrite mirror: extracted only {len(parser.items)} entries "
             f"from {len(html)} bytes"
