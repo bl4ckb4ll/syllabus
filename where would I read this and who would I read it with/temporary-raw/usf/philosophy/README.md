@@ -18,6 +18,8 @@ course, instructor, term, public source, capture time, and fixture path.
 The fixture is evidence for parser behavior, not a normalized book record.  In
 particular, the parser keeps the citation wording supplied by the instructor and
 does not infer a canonical author, title, edition, ISBN, or catalog identifier.
+The public page and its displayed course metadata were rechecked when the
+fixture was captured on 2026-09-01.
 
 The fetcher is intentionally polite to USF and Simple Syllabus:
 
