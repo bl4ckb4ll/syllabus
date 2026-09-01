@@ -6,10 +6,12 @@ on:
       - usf-edric-book-parser
     paths:
       - 'where would I read this and who would I read it with/tools/usf-syllabus-books.idric'
+      - 'where would I read this and who would I read it with/temporary-raw/usf/philosophy/**'
       - '.github/workflows/test-usf-edric-book-parser.yml'
   pull_request:
     paths:
       - 'where would I read this and who would I read it with/tools/usf-syllabus-books.idric'
+      - 'where would I read this and who would I read it with/temporary-raw/usf/philosophy/**'
       - '.github/workflows/test-usf-edric-book-parser.yml'
 
 permissions:
@@ -72,12 +74,8 @@ jobs:
           set -euo pipefail
           root='where would I read this and who would I read it with/temporary-raw/usf/philosophy'
           manifest="$root/manifest.tsv"
-          html=$(find "$root/simple-syllabus/html" -type f -name '*.html' -print -quit 2>/dev/null || true)
-
-          if [ -z "$html" ]; then
-            printf 'SKIP\treal-usf-fixture\tno committed captured syllabus HTML on this branch yet\n'
-            exit 0
-          fi
+          html="$root/simple-syllabus/html/sppml7syc.html"
+          test -s "$html"
 
           handle=''
           course=''
@@ -96,4 +94,7 @@ jobs:
             | tee "$RUNNER_TEMP/real-usf-parser.tsv"
           grep -F $'kind\tcourse\tinstructor\tterm\tisbn_hint\traw_text\tsource_url\tsource_file' \
             "$RUNNER_TEMP/real-usf-parser.tsv"
+          grep -F $'required_book_candidate\tEDG 7067\tVonzell Agosto\tSummer 2026\t\tKerry E. Howell (2013). An Introduction to the Philosophy of Methodology. Sage Publications.\thttps://usf.simplesyllabus.com/api2/doc-full-page-get?code=sppml7syc\t' \
+            "$RUNNER_TEMP/real-usf-parser.tsv"
+          test "$(wc -l < "$RUNNER_TEMP/real-usf-parser.tsv")" -eq 2
           printf 'PASS\treal-usf-fixture\t%s\n' "$html"

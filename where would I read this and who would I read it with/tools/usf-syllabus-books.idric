@@ -43,6 +43,25 @@ record Candidate where
 normalize : String → String
 normalize = unwords . words . trim
 
+decode_entity_chars : List Char → List Char
+decode_entity_chars [] = []
+decode_entity_chars ('&' :: 'n' :: 'b' :: 's' :: 'p' :: ';' :: rest) =
+  ' ' :: decode_entity_chars rest
+decode_entity_chars ('&' :: 'a' :: 'm' :: 'p' :: ';' :: rest) =
+  '&' :: decode_entity_chars rest
+decode_entity_chars ('&' :: 'l' :: 't' :: ';' :: rest) =
+  '<' :: decode_entity_chars rest
+decode_entity_chars ('&' :: 'g' :: 't' :: ';' :: rest) =
+  '>' :: decode_entity_chars rest
+decode_entity_chars ('&' :: 'q' :: 'u' :: 'o' :: 't' :: ';' :: rest) =
+  '"' :: decode_entity_chars rest
+decode_entity_chars ('&' :: '#' :: '3' :: '9' :: ';' :: rest) =
+  '\'' :: decode_entity_chars rest
+decode_entity_chars (char :: rest) = char :: decode_entity_chars rest
+
+decode_text_entities : String → String
+decode_text_entities = pack . decode_entity_chars . unpack
+
 safe_tail : String → String
 safe_tail value =
   case unpack value of
@@ -121,7 +140,7 @@ build_blocks current acc (html_text value :: rest) =
   case current of
     Nothing => build_blocks Nothing [] rest
     Just _ =>
-      let value' = normalize value
+      let value' = normalize (decode_text_entities value)
       in if value' == ""
             then build_blocks current acc rest
             else build_blocks current (value' :: acc) rest
@@ -344,6 +363,10 @@ self_test = do
   let nested_fixture =
         "<h2>Required Reading</h2><ul><li>Simone de Beauvoir, " ++
         "<em>The Ethics of Ambiguity</em>, ISBN: 9780806501604</li></ul>"
+  let encoded_fixture =
+        "<h2>Required Texts and/or Readings and Course Materials</h2>" ++
+        "<p>Kerry E. Howell (2013). <em>An Introduction to the Philosophy " ++
+        "of Methodology.&nbsp;</em>Sage Publications.</p>"
 
   a <- run_test "required-section-stops-at-next-heading"
         (raws required_fixture)
@@ -362,8 +385,11 @@ self_test = do
         ["Simone de Beauvoir, The Ethics of Ambiguity , ISBN: 9780806501604"]
   f <- run_test "isbn-hint"
         (isbns nested_fixture) ["9780806501604"]
+  g <- run_test "html-text-entities-are-decoded"
+        (raws encoded_fixture)
+        ["Kerry E. Howell (2013). An Introduction to the Philosophy of Methodology. Sage Publications."]
 
-  if a && b && c && d && e && f
+  if a && b && c && d && e && f && g
      then putStrLn "PASS\tself-test"
      else die "USF syllabus book parser self-test failed"
 
