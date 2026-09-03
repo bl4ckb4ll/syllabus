@@ -26,6 +26,7 @@ PHI 3670 supplies an unusually useful numbered reading schedule from George Sher
 ## Current clusters
 
 - [Electronic music](where-would-i-read-this-and-who-with/electronic-music/README.md) — university courses and syllabi on electronic/electroacoustic music, analog synthesis, Buchla/ARP, computer music, women in electronic music, and related listening traditions. The cluster now also has a [Touch / Touch Radio listening archive](where-would-i-read-this-and-who-with/electronic-music/Touch%20%E2%80%93%20Touch%20Radio%20listening%20archive.md) covering field recording, acoustic ecology, site-specific sound, radio art, spatial audio, and experimental recording practice.
+- [Gresham College lecture index](gresham-college/README.md) — Gresham's free public-lecture archive, organized by subject, series, speaker, and publication surface while preserving the fact that Gresham has no enrolled students, exams, qualifications, or degree curriculum.
 - [Poetry](poetry/README.md) — poetry texts plus a [PennSound listening archive](poetry/PennSound%20%E2%80%93%20poetry%20audio%20archive.md) of historical author recordings, performance poetry, radio, sound poetry, multilingual recordings, and related collections.
 
 ## Reconstructed courses
