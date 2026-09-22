@@ -13,36 +13,45 @@ A differential-geometry text by Gerald Jay Sussman and Jack Wisdom, with Will Fa
 
 This entry is **not** part of `life-changing mathematics/`.
 
-It is here as a pedagogy exemplar: a model of how to write mathematics for a reader who does not already share the author's mathematical culture.
+It is here as a pedagogy exemplar because it takes seriously the difference between **introducing a subject to someone who has no picture yet** and **communicating with someone who already has the picture**.
 
-The authors state the problem unusually plainly in the preface. Experts routinely communicate by relying on shared mathematical idiom and background knowledge; because they themselves share that culture, they may not notice how much has been left implicit for a student new to the subject. The book responds by making the mathematical objects and operations explicit enough that the reader can follow what each expression is doing rather than merely imitate conventional notation.
+The authors state the first problem unusually plainly in the preface. Experts routinely communicate by relying on shared mathematical idiom and background knowledge; because they themselves share that culture, they may not notice how much has been left implicit for a student new to the subject. The book responds by making the mathematical objects and operations explicit enough that a reader without that background can build the picture in the first place.
 
-That is the important lesson for the syllabus. A text for first-time learners should not be written as though the intended reader were the author's colleague.
+That is the important lesson for the syllabus. The first explanation cannot depend on context the learner does not yet possess.
 
-## Reader note on notation
+## Once the picture exists
 
-One useful feature is that notation can remain compact, and even reuse familiar symbols in different local roles, without becoming ambiguous when scope, arguments, bindings, and object types are made explicit. The goal is not to reserve one glyph for one meaning globally. The goal is to leave no doubt about what that glyph means **here**.
+After the reader has the structure in mind, the standards change.
 
-This matters especially in subjects where experienced mathematicians often read through overloaded notation automatically while a new reader cannot yet supply the missing context.
+At that point, compressed notation, omitted reminders, and even reuse of a symbol such as `λ` for different things on the same page can be perfectly clear. A reader who understands the surrounding objects and argument can recover the intended role from context.
+
+So the principle is **not** “never overload notation,” “one symbol must always mean one thing,” or “everything must remain maximally explicit forever.”
+
+The principle is temporal:
+
+- **Before the reader has the picture:** make the roles, objects, operations, and relationships explicit enough to construct it.
+- **After the reader has the picture:** rely on context where context is now genuinely available.
+
+A great deal of bad mathematical pedagogy comes from writing the first explanation at the compression level appropriate for the second situation.
 
 ## Method
 
-The book's best-known device is executable mathematics. Sussman and Wisdom use precise functional notation and Scheme programs so that a formula has to be interpretable as an operation. Programming is not used merely for numerical calculation or pictures; it is used as pressure toward explicit definitions and unambiguous composition.
+The book's best-known device is executable mathematics. Sussman and Wisdom use precise functional notation and Scheme programs so that mathematical operations have to be stated clearly enough to execute. Programming is not used merely for numerical calculation or pictures; it is a way of forcing hidden assumptions about operations and composition into the open.
 
-The book also deliberately avoids much traditional tensor index manipulation in favor of vector fields, differential forms, and functions whose inputs and outputs remain visible.
+The book also avoids much traditional tensor index manipulation in favor of vector fields, differential forms, and functions whose roles are made explicit while the reader is learning the framework.
 
 ## Pedagogical principle extracted for the syllabus
 
-When introducing unfamiliar mathematics:
+When teaching unfamiliar mathematics:
 
-1. Assume the reader does not yet possess the local expert culture.
-2. State what an expression consumes and what it produces.
-3. Make scope and binding recoverable from the page itself.
-4. Do not require the reader to infer an omitted operation merely because experts usually do.
-5. Permit concise or overloaded notation only when local context makes its meaning unambiguous.
-6. Prefer representations that expose mathematical meaning over notation that mainly rewards prior fluency.
+1. Ask whether the reader already has the conceptual picture needed to interpret compressed notation.
+2. If not, supply the missing context instead of assuming it.
+3. Make the objects, operations, and relationships explicit enough for the reader to construct that picture.
+4. Do not mistake conventions that are obvious to an expert for information already available to a beginner.
+5. Once the picture exists, allow ordinary mathematical compression and context-sensitive notation.
+6. Judge ambiguity relative to what the reader can reasonably know at that stage of the exposition.
 
-This is a standard for exposition, not a claim that the book belongs in the separate `life-changing mathematics/` collection.
+This is a standard for first-pass exposition, not a claim that the book belongs in the separate `life-changing mathematics/` collection.
 
 ## Source notes
 
