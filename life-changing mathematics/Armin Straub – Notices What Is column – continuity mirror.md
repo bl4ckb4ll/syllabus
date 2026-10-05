@@ -6,7 +6,8 @@ This mirror preserves bibliographic metadata and links only. It does **not** cop
 
 - Original Straub index: https://arminstraub.com/math/what-is-column
 - Official AMS What Is collection: https://www.ams.org/cgi-bin/notices/nxgnotices.pl?cnt=whatis&fm=gen
-- Last automated refresh: 2026-08-31 13:45 UTC
+- Snapshot captured: 2026-08-31 13:45 UTC
+- This is a dated static snapshot; no automatic refresh is configured.
 - Entries mirrored: 174
 
 ## Straub index snapshot
