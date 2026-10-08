@@ -1,0 +1,15 @@
+# I. B. Singer — *Zlateh the Goat and Other Stories*
+
+- **Group:** Folklore, tale collections and literary retellings
+- **Discussion status:** Suggested in discussion; not claimed to have been read or endorsed
+
+## Reason for inclusion / literary question
+
+Literary tales whose warmth does not rule out poverty, cold, loss or foolishness.
+
+## Provenance and edition status
+
+Discussed in the October 7, 2026 family-literature conversation. The entry is not evidence of a school or university assignment; nor does it claim the book was acquired, read, or approved unless the status states that explicitly.
+
+
+Return to the [family-literature reading shelf](children's-literature/README.md).
