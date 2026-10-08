@@ -29,6 +29,10 @@ PHI 3670 supplies an unusually useful numbered reading schedule from George Sher
 - [Gresham College lecture index](gresham-college/README.md) — Gresham's free public-lecture archive, organized by subject, series, speaker, and publication surface while preserving the fact that Gresham has no enrolled students, exams, qualifications, or degree curriculum.
 - [Poetry](poetry/README.md) — poetry texts plus a [PennSound listening archive](poetry/PennSound%20%E2%80%93%20poetry%20audio%20archive.md) of historical author recordings, performance poetry, radio, sound poetry, multilingual recordings, and related collections.
 
+## Family reading and independent literature
+
+- [Children's literature, folklore, and moral judgment](children's-literature/README.md) — a conversation-derived bookshelf, **not** a documented institutional course: novels, picture books, literary retellings, collected folktales and explicitly labeled critical comparisons.
+
 ## Reconstructed courses
 
 - [Earl Shorris — Clemente Course in the Humanities](clemente-course/README.md)
