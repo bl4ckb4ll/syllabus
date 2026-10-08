@@ -1,6 +1,6 @@
 # Otfried Preußler — *The Little Witch*
 
-- **Group:** Picture books and illustrated forms
+- **Group:** Novels and longer narratives
 - **Discussion status:** Suggested in discussion; not claimed to have been read or endorsed
 
 ## Reason for inclusion / literary question

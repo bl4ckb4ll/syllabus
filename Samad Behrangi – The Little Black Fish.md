@@ -1,6 +1,6 @@
 # Samad Behrangi — *The Little Black Fish*
 
-- **Group:** Novels and longer narratives
+- **Group:** Picture books and illustrated forms
 - **Discussion status:** Suggested in discussion; not claimed to have been read or endorsed
 
 ## Reason for inclusion / literary question

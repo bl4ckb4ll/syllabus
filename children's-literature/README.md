@@ -17,6 +17,7 @@ These are **conversation-derived leads, not a university course's assigned readi
 
 ## Picture books and illustrated forms
 
+- [Samad Behrangi — *The Little Black Fish*](<../Samad Behrangi – The Little Black Fish.md>) — A small creature leaves the familiar to test inherited claims about the world.
 - [Sven Nordqvist — *Pancake Pie (Pancakes for Findus)*](<../Sven Nordqvist – Pancake Pie (Pancakes for Findus).md>) — The household plot is mundane; the pleasure is in language, invention, observational detail and visual subplots.
 - [Sven Nordqvist — *Findus Goes Fishing*](<../Sven Nordqvist – Findus Goes Fishing.md>) — An older man and cat negotiate mood, companionship and taking care of one another without a pronounced moral lesson.
 - [Sven Nordqvist — *The Fox Hunt (Findus and the Fox)*](<../Sven Nordqvist – The Fox Hunt (Findus and the Fox).md>) — A predatory fox, a threatened chicken yard and ingenious nonlethal solutions invite competing views of what protection entails.
@@ -26,8 +27,6 @@ These are **conversation-derived leads, not a university course's assigned readi
 - [Elsa Beskow — *Ollie's Ski Trip*](<../Elsa Beskow – Ollie's Ski Trip.md>) — A seasonal fantasy whose form and image-making may be stronger than any explicit ethical lesson.
 - [Rotraut Susanne Berner — *In the Town All Year 'Round*](<../Rotraut Susanne Berner – In the Town All Year 'Round.md>) — Wordless crowded pages reward close observation of simultaneous lives and the consequences of small actions.
 - [Selina Chönz and Alois Carigiet — *A Bell for Ursli*](<../Selina Chönz and Alois Carigiet – A Bell for Ursli.md>) — An Alpine custom, pride and a dangerous errand; judge the child's motives as well as the celebration.
-- [Otfried Preußler — *The Little Witch*](<../Otfried Preußler – The Little Witch.md>) — A novice is required to be a good witch; the story tests what good should mean and who gets to decide.
-- [Otfried Preußler — *The Robber Hotzenplotz*](<../Otfried Preußler – The Robber Hotzenplotz.md>) — Comic robber adventure: ingenuity, reversals and consequences rather than moral purity.
 - [David McKee — *The Conquerors*](<../David McKee – The Conquerors.md>) — A deceptively light fable about conquest and cultural exchange; compare its neat resolution with more unsettled fiction.
 - [Janet Charters and Michael Foreman — *The General*](<../Janet Charters and Michael Foreman – The General.md>) — A general's encounter with natural beauty shifts his ambitions; unusually explicit in its lesson, useful as a comparison.
 - [Shaun Tan — *The Arrival*](<../Shaun Tan – The Arrival.md>) — Wordless sequential images build a migrant's estrangement without a voice explaining every feeling or inference.
@@ -44,6 +43,8 @@ These are **conversation-derived leads, not a university course's assigned readi
 
 ## Novels and longer narratives
 
+- [Otfried Preußler — *The Robber Hotzenplotz*](<../Otfried Preußler – The Robber Hotzenplotz.md>) — Comic robber adventure: ingenuity, reversals and consequences rather than moral purity.
+- [Otfried Preußler — *The Little Witch*](<../Otfried Preußler – The Little Witch.md>) — A novice is required to be a good witch; the story tests what good should mean and who gets to decide.
 - [Astrid Lindgren — *Ronia the Robber's Daughter (Ronja Rövardotter)*](<../Astrid Lindgren – Ronia the Robber's Daughter (Ronja Rövardotter).md>) — Ronja discovers the inherited practices of her robber family and must decide how to love relatives without excusing everything they do.
 - [Tove Jansson — *Comet in Moominland*](<../Tove Jansson – Comet in Moominland.md>) — A looming catastrophe and a community of distinct temperaments; compare how panic, care and adventure coexist.
 - [Tove Jansson — *Finn Family Moomintroll*](<../Tove Jansson – Finn Family Moomintroll.md>) — Changeable identities and domestic hospitality are explored through comic, magical incidents.
@@ -70,7 +71,6 @@ These are **conversation-derived leads, not a university course's assigned readi
 - [Alan Garner — *The Owl Service*](<../Alan Garner – The Owl Service.md>) — A Welsh myth recurs in a household strained by class, jealousy and inherited conflict.
 - [David Almond — *Skellig*](<../David Almond – Skellig.md>) — An ill baby, an enigmatic stranger and a child's uncertainty let care exist without complete explanation.
 - [Mildred D. Taylor — *Roll of Thunder, Hear My Cry*](<../Mildred D. Taylor – Roll of Thunder, Hear My Cry.md>) — A family must choose when to resist, when to endure and how to protect one another.
-- [Samad Behrangi — *The Little Black Fish*](<../Samad Behrangi – The Little Black Fish.md>) — A small creature leaves the familiar to test inherited claims about the world.
 - [Beverley Naidoo — *Journey to Jo'burg*](<../Beverley Naidoo – Journey to Jo'burg.md>) — Children's attempts to reach their mother expose responsibilities, unequal risk and the realities of a divided society.
 - [Grace Lin — *Where the Mountain Meets the Moon*](<../Grace Lin – Where the Mountain Meets the Moon.md>) — Nested tales change how characters understand poverty, luck, care and what to wish for.
 - [Frances Hardinge — *Fly by Night*](<../Frances Hardinge – Fly by Night.md>) — A child enters a world of printers, lies and divided loyalties; rhetorical skill is not proof of truth.
