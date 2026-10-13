@@ -20,6 +20,10 @@ Collect **what colleges actually teach**, not merely advertised degrees or a per
 
 Recovered starter schools: Florida State, University of South Florida, Miami University (Ohio), Mississippi Valley State, University of Mississippi (Ole Miss), Reed College, University of Chicago. Earlier planning also named Oberlin, Kansas, Yale, Harvard, Princeton, Howard, Spelman, Morehouse, NC A&T, FAMU, Hampton, Tuskegee, Jackson State, Alcorn and Tougaloo. **Being on this list does not mean searched.**
 
+## Other existing syllabus-adjacent collections
+
+Main already also contains an electronic-music university syllabus cluster, a poetry and PennSound archive, Gresham College lectures, the Clemente Course reconstruction, and a family-reading shelf. Preserve and inventory these separately. Gresham public lectures are not enrolled degree courses; family reading is not institutional assignment evidence; Clemente must keep attested 1995–96 readings distinct from later/unknown additions. These contributions do not count as verified coverage of the seven-institution history/philosophy/English/area-studies panel.
+
 ## Coverage
 
 See coverage/starter-institutions.tsv. It enumerates school × discipline cells. Never turn an unsurveyed cell into a negative finding.
