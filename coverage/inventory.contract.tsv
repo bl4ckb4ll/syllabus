@@ -1,0 +1,12 @@
+operation	diagnostic	path	argument_1	argument_2	argument_3
+rows	INV-COURSE-COUNT	coverage/course-instances.tsv	9	unused	unused
+rows	INV-READING-COUNT	coverage/assigned-readings.tsv	29	unused	unused
+rows	INV-CELL-COUNT	coverage/starter-institutions.tsv	28	unused	unused
+git_manifest	INV-SOURCE-MANIFEST	coverage/source-files.tsv	coverage/snapshots.tsv	unused	unused
+column_enum	INV-INVENTED-COMPLETION	coverage/course-instances.tsv	14	PARTIAL	unused
+column_enum	INV-FULL-DOCUMENT-HASH	coverage/course-instances.tsv	13	unknown|fragment_only	unused
+column_count	INV-EDUCATION-COUNT	coverage/course-instances.tsv	3	education	1
+column_count	INV-UNKNOWN-YEAR	coverage/course-instances.tsv	8	unknown	1
+column_enum	INV-FALSE-ABSENCE	coverage/starter-institutions.tsv	3	UNSEARCHED|PARTIAL_READING_EVIDENCE|SEARCH_ATTEMPT_RECORDED	unused
+column_count	INV-UNSEARCHED-COUNT	coverage/starter-institutions.tsv	3	UNSEARCHED	26
+column_enum	INV-MESSAGE-AS-ABSENCE	coverage/discovery-responses.tsv	8	unknown	unused

@@ -1,0 +1,10 @@
+institution_id	discipline	term	year	evidence_strength	documented_course_instances	full_primary_syllabi	recorded_reading_rows	unresolved_reading_titles	unrecovered_whole_schedules	course_denominator	source_type
+BARUCH	electronic music	unknown	2022	REPOSITORY_ATTESTATION	1	0	0	0	0	unknown	repository_note_with_unretained_syllabus_link
+CLEMENTE	multi discipline	1995-96	1995-96	RECONSTRUCTED_ACCOUNT	1	0	0	0	0	unknown	repository_reconstruction_with_account_links
+FSU	philosophy	Fall	2006	REPOSITORY_ATTESTATION	1	0	1	0	1	unknown	repository_note_with_unretained_syllabus_link
+FSU	philosophy	Spring	unknown	REPOSITORY_ATTESTATION	1	0	27	14	0	unknown	repository_note_with_unretained_syllabus_link
+IOWA	electronic music	Fall	1994	REPOSITORY_ATTESTATION	1	0	0	0	0	unknown	repository_note_with_unretained_syllabus_link
+OHIO	electronic music	Fall	2012	REPOSITORY_ATTESTATION	1	0	0	0	0	unknown	repository_note_with_unretained_syllabus_link
+UCSD	electronic music	Fall	2000	REPOSITORY_ATTESTATION	1	0	0	0	0	unknown	repository_note_with_unretained_syllabus_link
+UCSD	electronic music	Fall	2006	REPOSITORY_ATTESTATION	1	0	0	0	0	unknown	repository_note_with_unretained_syllabus_link
+USF	education	Summer	2026	PARTIAL_PRIMARY_FRAGMENT	1	0	1	0	0	unknown	retained_partial_HTML_fragment
