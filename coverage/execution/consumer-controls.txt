@@ -1,0 +1,13 @@
+PASS	actual-source-inventory
+PASS	reject-invented-course-completion
+PASS	reject-education-as-philosophy
+PASS	reject-invented-spring-year
+PASS	reject-false-absence
+PASS	reject-invented-panel-completion
+PASS	reject-retained-search-erased
+PASS	reject-message-as-absence
+PASS	reject-source-inventory-mismatch
+PASS	reject-course-source-binding
+PASS	reject-assigned-reading-source-mismatch
+PASS	reject-count-mismatch
+PASS	reject-synthetic-course-promoted

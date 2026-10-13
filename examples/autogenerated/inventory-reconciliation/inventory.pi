@@ -1,0 +1,362 @@
+"""Source-bound INV-01 authoring and verification; run with checked Ithon."""
+from __future__ import annotations
+from builtins import list, dict, sum, any, sorted, zip, ValueError
+
+import copy
+import csv
+import hashlib
+import io
+import json
+import os
+from pathlib import Path
+import re
+import subprocess
+import sys
+
+ROOT ∈ Path ← Path(__file__).resolve().parent.parent.parent.parent
+COVERAGE ∈ Path ← ROOT.joinpath("coverage")
+SHER ← "George Sher – Moral Philosophy Selected Readings.md"
+POJMAN ← "Louis P. Pojman – Philosophy of Religion An Anthology.md"
+USF_BASE ← "where would I read this and who would I read it with/temporary-raw/usf/philosophy/"
+USF_FRAGMENT ← USF_BASE + "simple-syllabus/html/sppml7syc.html"
+MUSIC ← "where-would-i-read-this-and-who-with/electronic-music/README.md"
+
+def git(arguments ∈ list[str]) → bytes:
+    command ∈ list[str] ← ["git", "-C", str(ROOT)]
+    command.extend(arguments)
+    result ∈ object ← subprocess.run(command, check=True, capture_output=True)
+    return bytes(result.stdout)
+
+def text_at(revision ∈ str, path ∈ str) → str:
+    return git(["show", revision + ":" + path]).decode("utf-8")
+
+def load_table(path ∈ Path) → list[dict[str, str]]:
+    with path.open(encoding="utf-8", newline="") as source:
+        reader ∈ object ← csv.DictReader(source, delimiter="\t")
+        rows ∈ list[dict[str, str]] ← list(reader)
+    raw_lines ∈ list[str] ← path.read_text(encoding="utf-8").splitlines()
+    expected_fields ∈ int ← len(raw_lines[0].split("\t"))
+    for line in raw_lines:
+        if len(line.split("\t")) != expected_fields:
+            raise ValueError("malformed-table:" + str(path))
+    return rows
+
+def save_table(path ∈ Path, header ∈ list[str], rows ∈ list[dict[str, str]]) → None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open("w", encoding="utf-8", newline="") as target:
+        writer ∈ object ← csv.DictWriter(target, fieldnames=header, delimiter="\t", lineterminator="\n", extrasaction="raise")
+        writer.writeheader()
+        writer.writerows(rows)
+
+def snapshots() → dict[str, dict[str, str]]:
+    rows ← load_table(COVERAGE.joinpath("snapshots.tsv"))
+    result ← {row["snapshot_id"]: row for row in rows}
+    if len(result) != len(rows):
+        raise ValueError("duplicate-snapshot")
+    for row in rows:
+        if not re.fullmatch("[0-9a-f]{40}", row["commit"]):
+            raise ValueError("invalid-source-revision")
+        if git(["rev-parse", row["commit"] + "^{commit}"]).decode().strip() != row["commit"]:
+            raise ValueError("source-revision-unavailable")
+    return result
+
+def source_role(path ∈ str, mode ∈ str) → str:
+    if mode == "120000":
+        return "provenance_symlink"
+    if path == USF_FRAGMENT:
+        return "partial_primary_fragment"
+    if "/fixtures/" in path:
+        return "synthetic_fixture"
+    if "/index/" in path and path.endswith(".ndjson"):
+        return "discovery_response"
+    if path.endswith("course-inventory/search.html"):
+        return "catalog_search_form"
+    if path.startswith("syllabi/") and path != "syllabi/README.md":
+        return "unclassified_capture"
+    if "receipt" in path or "crawling log/" in path:
+        return "receipt_or_schema"
+    if "common-crawl-run-history/" in path:
+        return "run_history_template"
+    if path.endswith((".py", ".pi", ".idric", ".grease", ".sh", ".yml")):
+        return "implementation_or_workflow"
+    if "/" not in path and path.endswith(".md") and path not in {"README.md", "AGENTS.md"}:
+        return "root_bookshelf_note"
+    return "metadata_or_note"
+
+def source_inventory(pins ∈ dict[str, dict[str, str]]) → list[dict[str, str]]:
+    rows ∈ list[dict[str, str]] ← []
+    for snapshot_id, pin in pins.items():
+        entries ← git(["ls-tree", "-rz", pin["commit"]]).split(b"\0")
+        paths ← {entry.split(b"\t", 1)[1].decode() for entry in entries if entry}
+        for entry in entries:
+            if not entry:
+                continue
+            metadata, path_bytes ← entry.split(b"\t", 1)
+            mode, kind, blob ← metadata.decode().split()
+            path ← path_bytes.decode()
+            if kind != "blob":
+                raise ValueError("unsupported-tree-entry:" + path)
+            body ← git(["cat-file", "blob", blob])
+            target ← "not_a_symlink"
+            target_state ← "not_a_symlink"
+            if mode == "120000":
+                target ← body.decode()
+                resolved ← os.path.normpath(os.path.join(os.path.dirname(path), target))
+                target_state ← "resolved" if resolved in paths else "broken"
+                if os.path.isabs(target) or resolved.startswith("../"):
+                    target_state ← "outside_snapshot"
+            rows.append({"snapshot_id": snapshot_id, "commit": pin["commit"], "path": path,
+                         "git_mode": mode, "git_blob": blob, "sha256": hashlib.sha256(body).hexdigest(),
+                         "bytes": str(len(body)), "evidence_role": source_role(path, mode),
+                         "symlink_target": target, "target_state": target_state})
+    return rows
+
+def course_instances(pins ∈ dict[str, dict[str, str]]) → list[dict[str, str]]:
+    core ← [
+        ("FSU-PHI3670-spring-year-unknown", "FSU", "Florida State University", "philosophy", "PHI 3670", "Ethical Theory", "unknown", "Spring", "unknown", "David McNaughton", "main", SHER, "REPOSITORY_ATTESTATION", "unknown", "PARTIAL", "original_document_acquisition", "year_and_10_chapter_titles_and_2_Blackboard_titles_unknown"),
+        ("FSU-PHI3700-fall-2006", "FSU", "Florida State University", "philosophy", "PHI 3700", "Philosophy of Religion", "01-02_combined", "Fall", "2006", "David McNaughton", "main", POJMAN, "REPOSITORY_ATTESTATION", "unknown", "PARTIAL", "original_document_acquisition", "schedule_selections_unrecovered; combined_sections_not_separate_denominator"),
+        ("USF-EDG7067-summer-2026-002", "USF", "University of South Florida", "education", "EDG 7067", "Philosophies of Inquiry", "002", "Summer", "2026", "Vonzell Agosto", "usf_parser", USF_FRAGMENT, "PARTIAL_PRIMARY_FRAGMENT", "fragment_only", "PARTIAL", "full_document_retention", "page_chrome_and_policy_and_schedule_omitted; not_philosophy_department"),
+        ("UCSD-MUSIC6-fall-2000", "UCSD", "University of California San Diego", "electronic music", "Music 6", "Electronic Music", "unknown", "Fall", "2000", "Miller Puckette", "main", MUSIC, "REPOSITORY_ATTESTATION", "unknown", "PARTIAL", "original_document_acquisition", "reading_notes_combine_two_terms; per_term_assignment_extraction_incomplete"),
+        ("UCSD-MUSIC6-fall-2006", "UCSD", "University of California San Diego", "electronic music", "Music 6", "Electronic Music", "unknown", "Fall", "2006", "Miller Puckette", "main", MUSIC, "REPOSITORY_ATTESTATION", "unknown", "PARTIAL", "original_document_acquisition", "reading_notes_combine_two_terms; per_term_assignment_extraction_incomplete"),
+        ("OHIO-MUS4130-5130-fall-2012", "OHIO", "Ohio University", "electronic music", "MUS 4130/5130", "The History and Practice of Electronic Music", "cross_list_combined", "Fall", "2012", "Mark Phillips", "main", MUSIC, "REPOSITORY_ATTESTATION", "unknown", "PARTIAL", "original_document_acquisition", "cross_list_not_two_independently_observed_courses"),
+        ("IOWA-electronic-media-fall-1994", "IOWA", "University of Iowa", "electronic music", "unknown", "Composition: Electronic Media I", "unknown", "Fall", "1994", "Larry Fritts", "main", MUSIC, "REPOSITORY_ATTESTATION", "unknown", "PARTIAL", "original_document_acquisition", "course_code_and_full_assignment_extraction_unknown"),
+        ("BARUCH-MSC3032-2022", "BARUCH", "Baruch College / CUNY", "electronic music", "MSC 3032", "Electronic Music", "unknown", "unknown", "2022", "Ted Gordon", "main", MUSIC, "REPOSITORY_ATTESTATION", "unknown", "PARTIAL", "original_document_acquisition", "term_and_reading_normalization_unknown"),
+        ("CLEMENTE-humanities-1995-96", "CLEMENTE", "Original Clemente Course", "multi discipline", "unknown", "Course in the Humanities", "unknown", "1995-96", "1995-96", "multiple_named_in_source", "main", "clemente-course/original-1995-96-course.md", "RECONSTRUCTED_ACCOUNT", "unknown", "PARTIAL", "original_handout_acquisition", "plans_contemporary_attestation_and_retrospective_evidence_remain_distinct"),
+    ]
+    fields ← ["course_instance_id", "institution_id", "institution", "discipline", "course_code", "course_title", "section", "term", "year", "instructor", "source_snapshot", "source_path", "evidence_strength", "complete_document_sha256", "status", "first_incomplete_stage", "missingness"]
+    rows ∈ list[dict[str, str]] ← []
+    for values in core:
+        row ← dict(zip(fields, values))
+        body ← git(["show", pins[row["source_snapshot"]]["commit"] + ":" + row["source_path"]])
+        row["source_revision"] ← pins[row["source_snapshot"]]["commit"]
+        row["source_sha256"] ← hashlib.sha256(body).hexdigest()
+        row["source_claim_citation"] ← "https://github.com/bl4ckb4ll/syllabus/blob/" + row["source_revision"] + "/" + row["source_path"].replace(" ", "%20")
+        row["panel_included"] ← "yes" if row["institution_id"] == "FSU" else "no"
+        rows.append(row)
+    return rows
+
+def assigned_readings(pins ∈ dict[str, dict[str, str]]) → list[dict[str, str]]:
+    source ← text_at(pins["main"]["commit"], SHER)
+    schedule ← re.search(r"Required anthology selections, in course order:\s*`([0-9, ()–p. \-]+)`", source)
+    if schedule is None:
+        raise ValueError("FSU-required-schedule-missing")
+    required ← [piece.strip() for piece in schedule.group(1).split(",")]
+    mappings ← {number: title.strip().split(" — ")[0] for number, title in re.findall(r"^- (\d+) — (.+)$", source, re.M)}
+    rows ∈ list[dict[str, str]] ← []
+    def add(course ∈ str, source_path ∈ str, snapshot_id ∈ str, item ∈ str, reading ∈ str, kind ∈ str, mapping ∈ str, canonical ∈ str) → None:
+        rows.append({"course_instance_id": course, "item_id": item, "reading": reading,
+                     "assignment_kind": kind, "title_resolution": mapping, "source_snapshot": snapshot_id,
+                     "source_path": source_path, "source_revision": pins[snapshot_id]["commit"],
+                     "source_span": "required_schedule" if item.startswith("chapter-") else "assigned_materials_note",
+                     "canonical_root_entry": canonical})
+    fsu ← "FSU-PHI3670-spring-year-unknown"
+    add(fsu, SHER, "main", "anthology", "George Sher (editor), Moral Philosophy: Selected Readings, second edition; syllabus note Wadsworth 2001; bibliographic discrepancy retained", "required", "documented", SHER)
+    for selection in required:
+        number ← selection.split()[0]
+        title ← mappings.get(number, "unknown")
+        canonical ← "unknown"
+        if title != "unknown":
+            for candidate in git(["ls-tree", "--name-only", "-z", pins["main"]["commit"]]).decode().split("\0"):
+                if candidate.endswith(".md") and text_at(pins["main"]["commit"], candidate).startswith("#") and ("selection " + number + " " in text_at(pins["main"]["commit"], candidate)):
+                    canonical ← candidate
+                    break
+        add(fsu, SHER, "main", "chapter-" + number, title, "required", "second_edition_mapping" if title != "unknown" else "unknown", canonical)
+        rows[-1]["source_span"] ← "schedule selection " + selection
+    for number in ["31", "32"]:
+        add(fsu, SHER, "main", "chapter-" + number, "unknown", "supplementary", "unknown", "unknown")
+    for author in ["Adams", "Frankena"]:
+        add(fsu, SHER, "main", "Blackboard-" + author, author + ": exact title unknown", "required", "unknown", "unknown")
+    add("FSU-PHI3700-fall-2006", POJMAN, "main", "anthology", "Louis P. Pojman (editor), Philosophy of Religion: An Anthology, fourth edition, Wadsworth 2003, ISBN 9780534543648", "required", "documented", POJMAN)
+    fragment ← text_at(pins["usf_parser"]["commit"], USF_FRAGMENT)
+    if "Kerry E. Howell (2013)" not in fragment or "Supplementary (Optional)" not in fragment:
+        raise ValueError("USF-fragment-boundary-missing")
+    add("USF-EDG7067-summer-2026-002", USF_FRAGMENT, "usf_parser", "required-book", "Kerry E. Howell (2013), An Introduction to the Philosophy of Methodology, Sage Publications", "required", "partial_primary_fragment", "not_yet_canonical")
+    return rows
+
+def discovery(pins ∈ dict[str, dict[str, str]]) → list[dict[str, str]]:
+    prefix ← "common crawl results pertinent to universities/usf/philosophy/index/"
+    files ← git(["ls-tree", "-r", "--name-only", pins["usf_discovery"]["commit"], prefix]).decode().splitlines()
+    rows ∈ list[dict[str, str]] ← []
+    for path in files:
+        body ← text_at(pins["usf_discovery"]["commit"], path)
+        captures ← 0
+        messages ← 0
+        for line in body.splitlines():
+            value ← json.loads(line)
+            if set(["url", "timestamp", "filename", "offset", "length"]).issubset(value):
+                captures += 1
+            elif "message" in value:
+                messages += 1
+            else:
+                raise ValueError("unclassified-CDX-response:" + path)
+        rows.append({"path": path, "source_revision": pins["usf_discovery"]["commit"], "sha256": hashlib.sha256(body.encode()).hexdigest(),
+                     "valid_capture_records": str(captures), "message_records": str(messages), "http_status": "unknown",
+                     "evidence_state": "MESSAGE_NOT_CAPTURE" if messages else "CAPTURE_POINTERS",
+                     "first_incomplete_stage": "index_response_semantics_and_HTTP_status",
+                     "absence_claim": "unknown"})
+    return rows
+
+def starter_coverage(pins ∈ dict[str, dict[str, str]]) → list[dict[str, str]]:
+    source ← text_at(pins["campaign"]["commit"], "coverage/starter-institutions.tsv")
+    originals ← list(csv.DictReader(io.StringIO(source), delimiter="\t"))
+    rows ∈ list[dict[str, str]] ← []
+    for old in originals:
+        row ← {"institution_id": old["institution_id"], "institution": old["institution"], "field": old["field"],
+               "status": "UNSEARCHED", "documented_course_instances": "unknown", "complete_course_instances": "0",
+               "course_denominator": "unknown", "evidence_source": "no_bounded_recorded_search", "next_evidence_action": old["next_evidence_action"]}
+        if old["institution_id"] == "FSU" and old["field"] == "philosophy":
+            row.update(status="PARTIAL_READING_EVIDENCE", documented_course_instances="2", evidence_source="course-instances.tsv; source-rechecks.tsv; main source notes")
+        if old["institution_id"] == "USF" and old["field"] == "philosophy":
+            row.update(status="SEARCH_ATTEMPT_RECORDED", documented_course_instances="0", evidence_source="discovery-responses.tsv; usf_discovery snapshot; no observed reading-bearing PHI course", next_evidence_action="Qualify 48 CDX response semantics/status; query real syllabus URLs using ICU; keep EDG 7067 excluded")
+        rows.append(row)
+    return rows
+
+def summarize(courses ∈ list[dict[str, str]], readings ∈ list[dict[str, str]]) → list[dict[str, str]]:
+    groups ∈ dict[tuple[str, str, str, str, str], list[dict[str, str]]] ← {}
+    for course in courses:
+        key ← (course["institution_id"], course["discipline"], course["term"], course["year"], course["evidence_strength"])
+        groups.setdefault(key, []).append(course)
+    rows ∈ list[dict[str, str]] ← []
+    for key, members in sorted(groups.items()):
+        identities ← {course["course_instance_id"] for course in members}
+        assignments ← [row for row in readings if row["course_instance_id"] in identities]
+        rows.append(dict(zip(["institution_id", "discipline", "term", "year", "evidence_strength"], key)) | {
+            "documented_course_instances": str(len(members)), "full_primary_syllabi": "0",
+            "recorded_reading_rows": str(len(assignments)), "unresolved_reading_titles": str(sum([row["title_resolution"] == "unknown" for row in assignments])),
+            "unrecovered_whole_schedules": str(sum([course["course_code"] == "PHI 3700" for course in members])),
+            "course_denominator": "unknown"})
+    return rows
+
+def build() → None:
+    pins ← snapshots()
+    sources ← source_inventory(pins)
+    courses ← course_instances(pins)
+    readings ← assigned_readings(pins)
+    outputs ← {"source-files.tsv": sources, "course-instances.tsv": courses, "assigned-readings.tsv": readings,
+               "discovery-responses.tsv": discovery(pins), "starter-institutions.tsv": starter_coverage(pins),
+               "summary.tsv": summarize(courses, readings)}
+    for name, rows in outputs.items():
+        if not rows:
+            raise ValueError("empty-required-output:" + name)
+        save_table(COVERAGE.joinpath(name), list(rows[0]), rows)
+    metrics ← [("source_snapshot_count", len(pins)), ("source_file_observations", len(sources)),
+               ("main_root_book_notes", sum([row["snapshot_id"] == "main" and row["evidence_role"] == "root_bookshelf_note" for row in sources])),
+               ("main_symlinks", sum([row["snapshot_id"] == "main" and row["git_mode"] == "120000" for row in sources])),
+               ("documented_course_instances", len(courses)), ("partial_real_course_fragments", sum([row["evidence_strength"] == "PARTIAL_PRIMARY_FRAGMENT" for row in courses])),
+               ("full_primary_syllabi", 0), ("recorded_reading_rows", len(readings)),
+               ("required_FSU3670_chapter_slots", sum([row["course_instance_id"].startswith("FSU-PHI3670") and row["item_id"].startswith("chapter-") and row["assignment_kind"] == "required" for row in readings])),
+               ("unresolved_required_FSU3670_chapter_titles", sum([row["course_instance_id"].startswith("FSU-PHI3670") and row["item_id"].startswith("chapter-") and row["assignment_kind"] == "required" and row["title_resolution"] == "unknown" for row in readings])),
+               ("unresolved_required_Blackboard_titles", sum([row["item_id"].startswith("Blackboard-") for row in readings])),
+               ("starter_cells", len(outputs["starter-institutions.tsv"])),
+               ("starter_unsearched_cells", sum([row["status"] == "UNSEARCHED" for row in outputs["starter-institutions.tsv"]])),
+               ("recorded_CDX_attempts", len(outputs["discovery-responses.tsv"])),
+               ("valid_CDX_capture_records", sum([int(row["valid_capture_records"]) for row in outputs["discovery-responses.tsv"]]))]
+    save_table(COVERAGE.joinpath("counts.tsv"), ["metric", "value"], [{"metric": key, "value": str(value)} for key, value in metrics])
+
+def verify_tables(directory ∈ Path) → None:
+    pins ← snapshots()
+    sources ← load_table(directory.joinpath("source-files.tsv"))
+    observed ← {(row["snapshot_id"], row["path"]): row for row in sources}
+    expected ← source_inventory(pins)
+    if len(observed) != len(sources) or observed != {(row["snapshot_id"], row["path"]): row for row in expected}:
+        raise ValueError("source-inventory-mismatch")
+    if any([row["target_state"] in {"broken", "outside_snapshot"} for row in sources]):
+        raise ValueError("invalid-symlink")
+    courses ← load_table(directory.joinpath("course-instances.tsv"))
+    identities ← {row["course_instance_id"] for row in courses}
+    if len(identities) != len(courses):
+        raise ValueError("duplicate-course-instance")
+    for course in courses:
+        source ← observed[(course["source_snapshot"], course["source_path"])]
+        if source["sha256"] != course["source_sha256"] or source["commit"] != course["source_revision"]:
+            raise ValueError("course-source-binding")
+        if source["evidence_role"] == "synthetic_fixture":
+            raise ValueError("synthetic-course-promoted")
+        if course["status"] != "PARTIAL" or course["complete_document_sha256"] not in {"unknown", "fragment_only"}:
+            raise ValueError("invented-course-completion")
+        if course["course_code"] == "EDG 7067" and (course["discipline"] != "education" or course["panel_included"] != "no"):
+            raise ValueError("education-as-philosophy")
+    fsu ← [row for row in courses if row["institution_id"] == "FSU"]
+    if sorted([row["course_code"] for row in fsu]) != ["PHI 3670", "PHI 3700"]:
+        raise ValueError("FSU-instance-recovery")
+    if fsu[0]["year"] != "unknown":
+        raise ValueError("invented-spring-year")
+    readings ← load_table(directory.joinpath("assigned-readings.tsv"))
+    if readings != assigned_readings(pins):
+        raise ValueError("assigned-reading-source-mismatch")
+    if any([row["course_instance_id"] not in identities for row in readings]):
+        raise ValueError("reading-without-course")
+    cells ← load_table(directory.joinpath("starter-institutions.tsv"))
+    if len(cells) != 28 or len({(row["institution_id"], row["field"]) for row in cells}) != 28:
+        raise ValueError("starter-denominator")
+    for cell in cells:
+        if cell["course_denominator"] != "unknown" or cell["complete_course_instances"] != "0":
+            raise ValueError("invented-panel-completion")
+        if cell["status"] not in {"UNSEARCHED", "PARTIAL_READING_EVIDENCE", "SEARCH_ATTEMPT_RECORDED"}:
+            raise ValueError("false-absence")
+        if cell["institution_id"] == "USF" and cell["field"] == "philosophy" and cell["status"] != "SEARCH_ATTEMPT_RECORDED":
+            raise ValueError("retained-search-erased")
+    if cells != starter_coverage(pins):
+        raise ValueError("starter-evidence-mismatch")
+    attempts ← load_table(directory.joinpath("discovery-responses.tsv"))
+    if any([row["absence_claim"] != "unknown" for row in attempts]):
+        raise ValueError("message-as-absence")
+    if attempts != discovery(pins):
+        raise ValueError("CDX-source-mismatch")
+    if load_table(directory.joinpath("summary.tsv")) != summarize(courses, readings):
+        raise ValueError("summary-source-mismatch")
+    metrics ← {row["metric"]: row["value"] for row in load_table(directory.joinpath("counts.tsv"))}
+    checks ← {"source_snapshot_count": len(pins), "source_file_observations": len(expected),
+              "documented_course_instances": len(identities), "partial_real_course_fragments": sum([row["evidence_role"] == "partial_primary_fragment" for row in sources]),
+              "full_primary_syllabi": 0, "recorded_reading_rows": len(readings), "starter_cells": len(cells),
+              "starter_unsearched_cells": sum([row["status"] == "UNSEARCHED" for row in cells]),
+              "recorded_CDX_attempts": len(attempts), "valid_CDX_capture_records": sum([int(row["valid_capture_records"]) for row in attempts])}
+    for key, number in checks.items():
+        if metrics[key] != str(number):
+            raise ValueError("count-mismatch:" + key)
+
+def controls() → None:
+    import tempfile
+    import shutil
+    verify_tables(COVERAGE)
+    print("PASS\tactual-source-inventory")
+    mutations ← [("invented-course-completion", "course-instances.tsv", "status", "COMPLETE", 0),
+                 ("education-as-philosophy", "course-instances.tsv", "discipline", "philosophy", 2),
+                 ("invented-spring-year", "course-instances.tsv", "year", "2006", 0),
+                 ("false-absence", "starter-institutions.tsv", "status", "NO_SYLLABUS_EXISTS", 1),
+                 ("invented-panel-completion", "starter-institutions.tsv", "complete_course_instances", "2", 0),
+                 ("retained-search-erased", "starter-institutions.tsv", "status", "UNSEARCHED", 4),
+                 ("message-as-absence", "discovery-responses.tsv", "absence_claim", "no_syllabi_exist", 0),
+                 ("source-inventory-mismatch", "source-files.tsv", "sha256", "0" * 64, 0),
+                 ("course-source-binding", "course-instances.tsv", "source_sha256", "0" * 64, 0)]
+    for diagnostic, filename, field, changed, index in mutations:
+        with tempfile.TemporaryDirectory() as scratch:
+            candidate ← Path(scratch)
+            files ∈ list[Path] ← list(COVERAGE.glob("*.tsv"))
+            for file in files:
+                shutil.copyfile(file, candidate.joinpath(file.name))
+            rows ← load_table(candidate.joinpath(filename))
+            rows[index][field] ← changed
+            save_table(candidate.joinpath(filename), list(rows[0]), rows)
+            try:
+                verify_tables(candidate)
+            except ValueError as error:
+                if str(error) != diagnostic:
+                    raise ValueError("wrong-control-diagnostic:" + diagnostic + ":" + str(error))
+                print("PASS\treject-" + diagnostic)
+            else:
+                raise ValueError("control-accepted:" + diagnostic)
+
+def main() → None:
+    if sys.argv[1:] == ["build"]:
+        build()
+        print("PASS\tbuild-source-derived-inventory")
+    elif sys.argv[1:] == ["check"]:
+        verify_tables(COVERAGE)
+        print("PASS\tverify-source-derived-inventory")
+    elif sys.argv[1:] == ["controls"]:
+        controls()
+    else:
+        raise SystemExit("usage: ithon inventory.pi build|check|controls")
+
+main()

@@ -2,6 +2,8 @@
 
 What do people with degrees actually read?
 
+[The revision-stamped course/evidence inventory](coverage/README.md) separates documented assignments, partial captures, synthetic fixtures, branch-only work, failed stages and unsearched coverage.
+
 The repository is a bookshelf. Canonical books, papers, and other assigned readings live at the repository root.
 
 `where would I read this and who would I read it with/` is a provenance and navigation view. Institutions, departments, courses, instructors, and terms point back to those canonical entries with symbolic links instead of duplicated files.
