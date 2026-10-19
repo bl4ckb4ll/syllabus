@@ -30,7 +30,7 @@ module fails without a receipt. It is not a WARC parser or a source-acquisition
 fallback. The inherited Ithon configure/make bootstrap is unchanged; this change
 does not claim new compiler/toolchain qualification.
 
-## Executed boundary
+## Historical development boundary (superseded by native acceptance below)
 
 Pinned Ithon: `d6e83969f82512e920fb17b44326cb54f31d015c`.
 Locally, the actual checked **host** entrypoint passed the repaired reader's
@@ -49,3 +49,7 @@ Next executable requirement: run the exact-head hosted native job, then feed an
 authentic ICU-acquired range and its CDX record into this same reader and compare
 the recovered bytes with the independent WARC oracle. No fixture may be promoted
 to an observed university course.
+
+## Executed authentic/native acceptance, 2026-10-19
+
+The historical next step above has run. Exact replay head `d52ce603c8c116f5827a8939441b50f96bbddb3e` passed native Ithon, 39 replay rejection controls, authentic ICU-acquired compressed bytes, warcio 1.7.5 and jwarc 0.37.0 byte equality, and independent AICI `c9cd9bb0e8e1ad91af5ad45cf1ae8e5df376b9e5`, including killed-after-publication retry. Run: https://github.com/bl4ckb4ll/syllabus/actions/runs/39335695601. The artifact retains exact-source frontend receipts, native executable/source hashes, independent stdout and both oracle hashes. The integrated source campaign must produce its own acceptance. No Reed assignment is inferred from its homepage.
