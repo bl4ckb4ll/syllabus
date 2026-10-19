@@ -1,0 +1,3 @@
+source_id	checked_utc	url	result	first_failed_or_incomplete_stage	retained_original_bytes	meaning
+fsu_phi3670	2026-10-13	https://philosophy.fsu.edu/sites/g/files/imported/storage/original/application/9069e23b480dab77c016dcf0d4789cae.pdf	FETCH_UNAVAILABLE	original_document_acquisition	no	public_source_reader_could_not_retrieve; no_HTTP_status_inferred
+fsu_phi3700	2026-10-13	https://philosophy.fsu.edu/sites/g/files/imported/storage/original/application/6bada3c0d1243a63cf917563d5d03e18.pdf	HTTP_404	original_document_acquisition	no	public_source_reader_reported_404; prior_assignment_notes_preserved

@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "name": "syllabus-inventory-acceptance",
+  "parameters": {
+    "node": {"required": true},
+    "inventory": {"required": true},
+    "ithon": {"required": true},
+    "aici": {"required": true}
+  },
+  "required_stages": ["source-and-semantic-controls", "independent-aici-controls"],
+  "stages": [
+    {"kind": "command", "name": "source-and-semantic-controls", "argv": ["{{node}}", "{{inventory}}", "controls"]},
+    {"kind": "command", "name": "independent-aici-controls", "argv": ["{{node}}", "{{inventory}}", "aici-controls", "{{ithon}}", "{{aici}}"]}
+  ]
+}

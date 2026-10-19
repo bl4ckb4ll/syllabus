@@ -1,33 +1,56 @@
-# syllabi
+# syllabus
 
-What do colleges actually make you read?
+What do people with degrees actually read?
 
-The repository root is still the bookshelf: each canonical book is a top-level Markdown file, with no `books/` wrapper and no directory per book. Five reserved top-level work areas keep acquisition and parsing separate so every book/course claim can be traced back to bytes and replayed.
+[The revision-stamped course/evidence inventory](coverage/README.md) separates documented assignments, partial captures, synthetic fixtures, branch-only work, failed stages and unsearched coverage.
 
-- `syllabi/` — public syllabus metadata and HTML provenance captures. Do not mirror syllabus PDFs.
-- `parsers/` — Grease/shell/Ithon parsers, replay programs, and toolchain pins.
-- `course information/` — machine-oriented parser output. It is allowed to be messy.
-- `common crawl results pertinent to universities/` — Common Crawl result sets, WARC pointers, and bounded search outputs relevant to universities.
-- `crawling log/` — append-only receipts describing every acquisition/parse/replay run.
+The repository is a bookshelf. Canonical books, papers, and other assigned readings live at the repository root.
 
-The intended evidence chain is:
+`where would I read this and who would I read it with/` is a provenance and navigation view. Institutions, departments, courses, instructors, and terms point back to those canonical entries with symbolic links instead of duplicated files.
 
-`URL or Common Crawl record -> captured bytes/WARC -> receipt -> pinned parser -> course information -> book record`
+## First corpus: philosophy at Florida State University
 
-A derived fact is not complete unless its record names the direct input, the input SHA-256, the parser path/blob, and the repository/tool commits used to produce it. Offline replay from the captured WARC/bytes is the validation path; a CI replay must not need the live university site.
+The first target is the reading corpus represented by an FSU philosophy degree: the books, papers, and other texts actually assigned in FSU philosophy courses that make up a plausible complete philosophy-major path.
 
-## Tool policy
+This is **not** a degree audit. Credit counts and course requirements are used only to define which course paths still need evidence. The object being collected is the reading.
 
-There is no silent fallback between implementations.
+Primary evidence should be public FSU syllabi. A catalog description can tell us that a course exists; it does not establish that a particular text was assigned.
 
-- HTTP acquisition uses ICU, pinned in `parsers/toolchain.lock.json`. If ICU cannot do a required operation, the run fails or explicitly records `SKIP`; it does not silently call curl.
-- Shell-side orchestration is Grease where practical, pinned in the same lock file.
-- Python-compatible parser programs are executed by the pinned Ithon build. CI builds that Ithon source and invokes its native executable as `ithon`; it does not substitute the runner's stock Python.
+### Current state of the FSU pass
 
-The current ICU streams final response bodies but does not expose the final response status/headers to the caller. Receipts therefore record `http_status: null` rather than inventing one. That is sufficient for body capture plus content validation, but a full HTTP-response WARC receipt remains a known ICU boundary.
+The first surviving public syllabi recovered are:
 
-## GitHub storage boundary
+- PHI 3670 — Ethical Theory — David McNaughton — Spring, year not stated in the surviving syllabus.
+- PHI 3700 — Philosophy of Religion — David McNaughton — Fall 2006.
 
-Keeping bounded public HTML provenance here is fine for now, but raw evidence is sharded by university/term/subject instead of collected in one directory. Syllabus PDFs remain at their public source URLs rather than being mirrored. GitHub warns for ordinary Git files over 50 MiB and blocks files over 100 MiB. Its repository guidance recommends no more than 3,000 entries in one directory and an on-disk repository size no larger than 10 GB. If captures approach those boundaries, move large raw bodies to WARC/LFS/object storage while retaining checksums and replay metadata here.
+PHI 3670 supplies an unusually useful numbered reading schedule from George Sher's anthology. Where a second independent source using the same second edition identifies a chapter number unambiguously, the individual reading gets its own canonical root entry. Ambiguous chapter-number mappings stay unresolved rather than being guessed.
 
-Book filenames and records remain human-readable. The naming contract lives at `parsers/book-filename.grease`. Missing evidence stays missing; the acquisition/parsing machinery must not manufacture it.
+## Current clusters
+
+- [Electronic music](where-would-i-read-this-and-who-with/electronic-music/README.md) — university courses and syllabi on electronic/electroacoustic music, analog synthesis, Buchla/ARP, computer music, women in electronic music, and related listening traditions. The cluster now also has a [Touch / Touch Radio listening archive](where-would-i-read-this-and-who-with/electronic-music/Touch%20%E2%80%93%20Touch%20Radio%20listening%20archive.md) covering field recording, acoustic ecology, site-specific sound, radio art, spatial audio, and experimental recording practice.
+- [Gresham College lecture index](gresham-college/README.md) — Gresham's free public-lecture archive, organized by subject, series, speaker, and publication surface while preserving the fact that Gresham has no enrolled students, exams, qualifications, or degree curriculum.
+- [Poetry](poetry/README.md) — poetry texts plus a [PennSound listening archive](poetry/PennSound%20%E2%80%93%20poetry%20audio%20archive.md) of historical author recordings, performance poetry, radio, sound poetry, multilingual recordings, and related collections.
+
+## Family reading and independent literature
+
+- [Children's literature, folklore, and moral judgment](children's-literature/README.md) — a conversation-derived bookshelf, **not** a documented institutional course: novels, picture books, literary retellings, collected folktales and explicitly labeled critical comparisons.
+
+## Reconstructed courses
+
+- [Earl Shorris — Clemente Course in the Humanities](clemente-course/README.md)
+
+## Collection and replay
+
+The acquisition work continues alongside this bookshelf: `syllabi/` holds public
+metadata and bounded HTML provenance, `parsers/` holds the ingestion programs,
+`course information/` holds derived output, `common crawl results pertinent to
+universities/` holds index records and WARC pointers, and `crawling log/` holds
+append-only stage receipts. PDFs remain at their public sources; their exact
+hashes and archive pointers belong in provenance records.
+
+Each reading claim needs its source bytes/hash, parser identity and tool pins.
+ICU owns network acquisition; Grease owns shell orchestration; Ithon source must
+pass its actual frontend before execution. Missing capabilities produce a failed
+or blocked receipt. The older `.py` parsers are retained migration debt and do
+not establish checked-Ithon acceptance. See [the parser documentation](parsers/README.md)
+and [the Common Crawl replay boundary](parsers/COMMON-CRAWL-WARC.md).
