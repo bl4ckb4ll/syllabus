@@ -13,6 +13,8 @@ import io
 import json
 import os
 import re
+import subprocess
+import sys
 import tempfile
 from pathlib import Path
 
@@ -213,6 +215,38 @@ def self_test():
         assert error.stage == 'decompression'
     else:
         raise AssertionError('decompression limit bypassed')
+    # Exercise real Ithon subprocess publication, not merely in-memory extract().
+    with tempfile.TemporaryDirectory() as directory:
+        base ← Path(directory)
+        index ← base / 'index.json'
+        capture ← base / 'range.warc.gz'
+        output ← base / 'response.body'
+        report ← base / 'receipt.json'
+        index.write_text(json.dumps(row) + '\n', encoding='utf-8')
+        capture.write_bytes(zipped)
+        output.write_bytes(b'stale-from-earlier-run')
+        report.write_text('{"status":"PASS"}\n', encoding='utf-8')
+        command ← [sys.executable, str(Path(__file__).resolve()),
+                   '--index-row', str(index), '--range-file', str(capture),
+                   '--output', str(output), '--receipt', str(report)]
+        good ← subprocess.run(command, capture_output=True, text=True)
+        assert good.returncode == 0, good.stderr
+        published ← json.loads(report.read_text(encoding='utf-8'))
+        assert output.read_bytes() == body
+        assert published['status'] == 'PASS' and published['output_sha256'] == sha256(body)
+        index.write_text(json.dumps(dict(row, digest='bad')) + '\n', encoding='utf-8')
+        bad ← subprocess.run(command, capture_output=True, text=True)
+        assert bad.returncode != 0 and not output.exists()
+        failed ← json.loads(report.read_text(encoding='utf-8'))
+        assert failed['status'] == 'FAIL' and failed['failed_stage'] == 'index'
+        # Conflicting output paths must not delete or overwrite the input files.
+        alias ← subprocess.run([sys.executable, str(Path(__file__).resolve()),
+                                '--index-row', str(index), '--range-file', str(capture),
+                                '--output', str(index), '--receipt', str(report)],
+                               capture_output=True, text=True)
+        assert alias.returncode != 0 and index.exists() and capture.exists()
+        assert json.loads(index.read_text(encoding='utf-8'))['digest'] == 'bad'
+    print('PASS: Ithon CLI publishes output/receipt, rejects stale results and protects inputs')
     print('PASS: valid gzip WARC/CDX replay and ' + str(len(failures) + 1) +
           ' rejection controls (synthetic fixture only)')
 
@@ -236,12 +270,14 @@ def main():
     output ← Path(args.output)
     receipt_path ← Path(args.receipt)
     pending ← None
+    paths_safe ← False
     try:
         # Never erase an input, even when the caller accidentally aliases paths.
         input_paths ← (Path(args.index_row).resolve(), Path(args.range_file).resolve())
         check(output.resolve() != receipt_path.resolve() and
               output.resolve() not in input_paths and receipt_path.resolve() not in input_paths,
               'output', 'output/receipt paths collide with each other or source inputs')
+        paths_safe ← True
         # A failed retry must not leave a previously accepted body or PASS receipt.
         for public_path in (output, receipt_path):
             if public_path.is_file() or public_path.is_symlink():
@@ -265,19 +301,22 @@ def main():
         receipt_path.write_text(json.dumps(receipt, indent=2, sort_keys=True) + '\n',
                                 encoding='utf-8')
     except (ReplayFailure, OSError, UnicodeError) as error:
-        stage ← error.stage if isinstance(error, ReplayFailure) else 'filesystem'
+        stage ← error.stage if isinstance(error, ReplayFailure) else 'index' if isinstance(error, UnicodeError) else 'filesystem'
         # Normal caught failures remove any body; consumers also check the receipt hash.
         if pending is not None and (Path(pending).is_file() or Path(pending).is_symlink()):
             Path(pending).unlink()
-        if output.is_file() or output.is_symlink():
+        if paths_safe and (output.is_file() or output.is_symlink()):
             output.unlink()
         receipt ← {'schema': 'common-crawl-range-replay-v1', 'status': 'FAIL',
                    'failed_stage': stage, 'error': str(error), 'output_untrusted': True,
                    'source_index': str(args.index_row), 'range_file': str(args.range_file),
                    'compressed_sha256': sha256(compressed) if compressed else None}
-        receipt_path.parent.mkdir(parents=True, exist_ok=True)
-        receipt_path.write_text(json.dumps(receipt, indent=2, sort_keys=True) + '\n',
-                                encoding='utf-8')
+        if paths_safe:
+            receipt_path.parent.mkdir(parents=True, exist_ok=True)
+            receipt_path.write_text(json.dumps(receipt, indent=2, sort_keys=True) + '\n',
+                                    encoding='utf-8')
+        else:
+            print('FAIL output and receipt paths must not alias source inputs', file=sys.stderr)
         raise SystemExit(1)
     print('PASS bounded WARC extraction; syllabus discovery/classification NOT_VERIFIED')
 
