@@ -63,7 +63,10 @@ def header_block(data ∈ bytes, stage ∈ str) → tuple[bytes, dict[str, str],
         check(bool(matched),
               stage, 'invalid header name')
         field_names ∈ list[str] ← list(fields)
-        check(not (key in field_names), stage, 'duplicate header: ' + key)
+        repeated_metadata ∈ bool ← stage == 'warc' and key in ('warc-protocol', 'warc-concurrent-to')
+        check(not (key in field_names) or repeated_metadata, stage, 'duplicate header: ' + key)
+        if key in field_names:
+            decoded ← fields[key] + ', ' + decoded
         fields.__setitem__(key, decoded)
     return lines[0], fields, data[pos + len(marker):]
 

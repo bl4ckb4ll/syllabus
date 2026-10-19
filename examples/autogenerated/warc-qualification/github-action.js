@@ -40,13 +40,35 @@ const rejected = spawnSync(launcher, [bad], {env, cwd:root, encoding:'utf8', tim
 fs.writeFileSync(path.join(out, 'frontend-rejection.stderr'), rejected.stderr || '');
 if (rejected.error || rejected.status === 0 || !String(rejected.stderr).includes("parameter 'value' needs a static type") ||
     !fs.readFileSync(checkReceipt).equals(before)) throw Error('frontend rejection control failed');
+const fixture = path.join(root, 'parsers/fixtures/common-crawl/reed-20260906235851');
+const archive = path.join(fixture, 'range.warc.gz');
+if (digest(fs.readFileSync(archive)) !== 'f9652a22cff1d6b5649b6bf9420b9c7c6c7058019348e8d201cb03ed42cf5d58')
+  throw Error('authentic compressed source bytes changed');
+const bodyPath = path.join(out, 'reed-homepage.html');
+const receiptPath = path.join(out, 'reed-replay.json');
+const real = spawnSync(launcher, [source, '--index-row', path.join(fixture, 'index-row.json'),
+  '--range-file', archive, '--output', bodyPath, '--receipt', receiptPath],
+  {env, cwd:root, encoding:'utf8', timeout:30000});
+fs.writeFileSync(path.join(out, 'real-replay.stdout'), real.stdout || '');
+fs.writeFileSync(path.join(out, 'real-replay.stderr'), real.stderr || '');
+if (real.error || real.status !== 0 || digest(fs.readFileSync(bodyPath)) !==
+    '1c7f0300f3ed38ba847dace7cb95443c6a865f12396e561f37ba5166a619f894')
+  throw Error('authentic Common Crawl checked replay failed');
+const realReceipt = JSON.parse(fs.readFileSync(receiptPath, 'utf8'));
+if (realReceipt.status !== 'PASS' || realReceipt.record.payload_digest_check !== 'VERIFIED_SHA1' ||
+    realReceipt.record.http_status !== 200 || realReceipt.source.url !== 'https://www.reed.edu/')
+  throw Error('authentic replay provenance mismatch');
+const realChecks = fs.readFileSync(checkReceipt, 'utf8').trim().split('\n').map(line=>JSON.parse(line));
+if (realChecks.length !== 5 || realChecks.at(-1).source_sha256 !== sourceHash)
+  throw Error('authentic replay needs its own exact-source frontend receipt');
 const candidate = execFileSync('git', ['-C', root, 'rev-parse', 'HEAD'], {encoding:'utf8'}).trim();
 const rows = [
   ['field','value'], ['candidate',candidate], ['ithon_pin',observedPin],
   ['native_sha256',digest(nativeBytes)], ['reader_sha256',sourceHash],
   ['frontend_receipts',String(entries.length)], ['checked_native_synthetic_replay','PASS'],
-  ['untyped_frontend_rejection','PASS'], ['real_common_crawl_capture','NOT_RUN'],
-  ['icu_range_acquisition','NOT_RUN'], ['independent_aici_acceptance','NOT_RUN']
+  ['untyped_frontend_rejection','PASS'], ['real_common_crawl_capture','PASS_REED_HOMEPAGE_NOT_SYLLABUS'],
+  ['real_frontend_receipts','1'],
+  ['icu_range_acquisition','RETAINED_LOCAL_CANDIDATE_RECEIPT'], ['independent_aici_acceptance','NOT_RUN']
 ];
 fs.writeFileSync(path.join(out, 'receipt.tsv'), rows.map(row=>row.join('\t')).join('\n')+'\n');
 console.log('PASS native Ithon frontend, exact source receipts and untyped-source rejection');
