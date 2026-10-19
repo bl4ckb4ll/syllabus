@@ -1,0 +1,39 @@
+name: Qualify Ithon WARC replay
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  ithon-warc-replay:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 50
+    steps:
+      - name: Check out the exact candidate commit
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 1
+      - name: Record the candidate revision
+        run: |
+          echo "Candidate commit: $(git rev-parse HEAD)"
+          test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+      - name: Check out pinned Ithon
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          repository: dilapidated-shed/ithon
+          ref: d6e83969f82512e920fb17b44326cb54f31d015c
+          path: .tooling/ithon
+      - name: Build pinned Ithon
+        working-directory: .tooling/ithon
+        run: |
+          ./configure --without-ensurepip
+          make -j2
+      - name: Execute synthetic positive, hostile negative, and file-retry controls in Ithon
+        env:
+          ITHON_CHECK_RECEIPT: ${{ runner.temp }}/ithon-warc-check.ndjson
+        run: |
+          .tooling/ithon/python parsers/common_crawl_record.pi --self-test
+          test -s "$ITHON_CHECK_RECEIPT"
+          echo "PASS checked source receipt produced (not live Common Crawl acquisition)"
