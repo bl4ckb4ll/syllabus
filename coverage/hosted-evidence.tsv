@@ -1,0 +1,4 @@
+observation	source_head	state	workflow_or_job	pins	boundary
+2026-10-13T15:24:05Z-pr	138eed05c976870139598dd8da65a1988d0d12b5	PASS	https://github.com/bl4ckb4ll/syllabus/actions/runs/38421658537/job/115380265448	AICI=e60a207624aef5d3d972dc65b2d9a7dca3521a80; Ithon=d6e83969f82512e920fb17b44326cb54f31d015c	logs_show_explicit_PR_head_checkout_and_all_23_rejections
+2026-10-13T15:24:05Z-push	138eed05c976870139598dd8da65a1988d0d12b5	PASS	https://github.com/bl4ckb4ll/syllabus/actions/runs/38421657408/job/115380263486	AICI=e60a207624aef5d3d972dc65b2d9a7dca3521a80; Ithon=d6e83969f82512e920fb17b44326cb54f31d015c	separate_push_head_run; no_new_source_acquisition
+2026-10-13-aici-checks	e60a207624aef5d3d972dc65b2d9a7dca3521a80	PASS	https://github.com/isomorphisms/ai-ci/pull/260	31_check_runs_success_when_observed	shared_existing_checks; new_verifier_execution_proven_by_consumer_jobs_above

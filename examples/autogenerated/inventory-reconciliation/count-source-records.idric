@@ -1,0 +1,19 @@
+module Main
+
+import Data.Text
+import System
+import System.File
+
+count_data_rows : Text → Number
+count_data_rows text = length (filter (\row ⇒ not (trim row ≟ "")) (drop 1 (lines text)))
+
+covering
+main : IO ()
+main = do
+  arguments ← getArgs
+  case drop 1 arguments of
+    [source_path] ⇒ do
+      Right source_text ← readFile source_path
+        | Left _ ⇒ die ("could not read source ledger: " ++ source_path)
+      putStrLn ("data_rows\t" ++ show (count_data_rows source_text))
+    _ ⇒ die "usage: count-source-records SOURCE_TSV"
