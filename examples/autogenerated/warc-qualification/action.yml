@@ -1,0 +1,5 @@
+name: Checked native Ithon replay
+description: Execute the reader through the pinned native Ithon frontend and verify source-bound receipts.
+runs:
+  using: node20
+  main: github-action.js

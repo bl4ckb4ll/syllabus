@@ -1,0 +1,8 @@
+http_status	206
+content_type	binary/octet-stream
+content_encoding	identity
+content_range	bytes 843666201-843675567/952222438
+declared_length	9367
+received_length	9367
+transfer_decoding	identity
+utf8	invalid

@@ -11,130 +11,235 @@ import gzip
 import hashlib
 import io
 import json
+import os
+import re
+import subprocess
+import sys
+import tempfile
+import zlib
 from pathlib import Path
+from builtins import dict, list, tuple, isinstance, ord, globals, Exception, ValueError, TypeError, OverflowError, OSError, EOFError, UnicodeError, AssertionError, SystemExit
 
 
 class ReplayFailure(Exception):
-    def __init__(self, stage, reason):
-        self.stage ← stage
-        self.reason ← reason
-        super().__init__(stage + ': ' + reason)
+    pass
 
 
-def check(condition, stage, reason):
+def failure_stage(error ∈ object) → str:
+    arguments ∈ tuple[str, str] ← error.args
+    return arguments[0]
+
+
+def check(condition ∈ bool, stage ∈ str, reason ∈ str) → None:
     if not condition:
         raise ReplayFailure(stage, reason)
 
 
-def header_block(data, stage):
+def header_block(data ∈ bytes, stage ∈ str) → tuple[bytes, dict[str, str], bytes]:
     marker ← b'\r\n\r\n'
-    pos ← data.find(marker)
+    pos ∈ int ← data.find(marker)
     if pos < 0:
         marker ← b'\n\n'
         pos ← data.find(marker)
     check(pos >= 0, stage, 'missing header terminator')
-    lines ← data[:pos].replace(b'\r\n', b'\n').split(b'\n')
+    check(pos <= 65536, stage, 'header exceeds 64 KiB limit')
+    lines ∈ list[bytes] ← data[:pos].replace(b'\r\n', b'\n').split(b'\n')
     check(bool(lines[0]), stage, 'empty start line')
-    fields ← {}
+    fields ∈ dict[str, str] ← {}
     for line in lines[1:]:
         check(b':' in line, stage, 'malformed header')
-        name, value ← line.split(b':', 1)
+        pieces ∈ list[bytes] ← line.split(b':', 1)
+        name ∈ bytes ← pieces[0]
+        value ∈ bytes ← pieces[1]
+        value_codes ∈ list[int] ← list(value)
+        for code in value_codes:
+            check(code == 9 or code >= 32 and code != 127, stage, 'control character in header value')
         try:
-            key ← name.decode('ascii').strip().lower()
-            decoded ← value.decode('latin-1').strip()
+            key ∈ str ← name.decode('ascii').lower()
+            decoded ∈ str ← value.decode('latin-1').strip()
         except UnicodeError:
             raise ReplayFailure(stage, 'invalid header name')
-        check(bool(key) and key not in fields, stage, 'missing or duplicate header: ' + key)
-        fields[key] ← decoded
+        matched ∈ object ← re.fullmatch(r"[!#$%&'*+.^_`|~0-9A-Za-z-]+", key)
+        check(bool(matched),
+              stage, 'invalid header name')
+        field_names ∈ list[str] ← list(fields)
+        repeated_metadata ∈ bool ← stage == 'warc' and key in ('warc-protocol', 'warc-concurrent-to')
+        check(not (key in field_names) or repeated_metadata, stage, 'duplicate header: ' + key)
+        if key in field_names:
+            decoded ← fields[key] + ', ' + decoded
+        fields.__setitem__(key, decoded)
     return lines[0], fields, data[pos + len(marker):]
 
 
-def index_row(path):
-    line ← Path(path).read_text(encoding='utf-8').strip()
-    check(bool(line) and '\n' not in line, 'index', 'expected exactly one CDX JSON/CDXJ row')
+def unique_object(pairs ∈ list[tuple[str, object]]) → dict[str, object]:
+    result ∈ dict[str, object] ← {}
+    for pair in pairs:
+        key ∈ str ← pair[0]
+        keys ∈ list[str] ← list(result)
+        check(not (key in keys), 'index', 'duplicate JSON key: ' + key)
+        result.__setitem__(key, pair[1])
+    return result
+
+
+def index_row(path ∈ str) → dict[str, object]:
+    input_size ∈ int ← Path(path).stat().st_size
+    check(input_size <= 1048576, 'index', 'CDX row exceeds 1 MiB')
+    line ∈ str ← Path(path).read_text(encoding='utf-8').strip()
+    check(bool(line) and not ('\n' in line), 'index', 'expected exactly one CDX JSON/CDXJ row')
     if not line.startswith('{'):
-        start ← line.find('{')
+        start ∈ int ← line.find('{')
         check(start >= 0, 'index', 'CDXJ JSON object missing')
+        prefix ∈ list[str] ← line[:start].split()
+        check(len(prefix) == 2, 'index', 'CDXJ requires URL key and timestamp')
+        timestamp_match ∈ object ← re.fullmatch(r'[0-9]{14}', prefix[1])
+        check(bool(timestamp_match), 'index', 'invalid CDXJ timestamp')
         line ← line[start:]
     try:
-        row ← json.loads(line)
+        row ∈ dict[str, object] ← json.loads(line, object_pairs_hook=unique_object)
     except (ValueError, TypeError) as error:
         raise ReplayFailure('index', 'invalid JSON: ' + str(error))
     check(isinstance(row, dict), 'index', 'row must be an object')
-    for name in ('url', 'filename', 'offset', 'length'):
-        check(name in row, 'index', 'missing ' + name)
+    names ∈ list[str] ← list(row)
+    for name in ('url', 'filename', 'offset', 'length', 'digest', 'status'):
+        check(name in names, 'index', 'missing ' + name)
     return row
 
 
-def number(value, field):
+def number(value ∈ object, field ∈ str, stage ∈ str = 'index') → int:
     try:
-        n ← int(value)
+        n ∈ int ← int(value)
     except (ValueError, TypeError, OverflowError):
-        raise ReplayFailure('index', 'invalid ' + field)
-    check(str(value) == str(n), 'index', 'noncanonical ' + field)
-    check(n >= 0, 'index', 'negative ' + field)
+        raise ReplayFailure(stage, 'invalid ' + field)
+    check(str(value) == str(n), stage, 'noncanonical ' + field)
+    check(n >= 0, stage, 'negative ' + field)
     return n
 
 
-def sha256(data):
+def sha256(data ∈ bytes) → str:
     return hashlib.sha256(data).hexdigest()
 
 
-def sha1_base32(data):
+def sha1_base32(data ∈ bytes) → str:
     return base64.b32encode(hashlib.sha1(data).digest()).decode('ascii').rstrip('=')
 
 
-def extract(row, compressed, max_decompressed=67108864):
-    filename ← row['filename']
-    check(isinstance(filename, str) and filename.startswith('crawl-data/') and filename.endswith('.warc.gz'),
+def source_text(row ∈ dict[str, object], name ∈ str) → str:
+    value ∈ object ← row.get(name)
+    check(isinstance(value, str), 'index', 'missing or non-text ' + name)
+    return str(value)
+
+
+def extract(row ∈ dict[str, object], compressed ∈ bytes, max_decompressed ∈ int = 67108864) → tuple[bytes, dict[str, object]]:
+    filename ∈ str ← source_text(row, 'filename')
+    check(filename.startswith('crawl-data/') and filename.endswith('.warc.gz'),
           'index', 'unexpected Common Crawl WARC filename')
-    check('..' not in filename.split('/'), 'index', 'WARC filename path traversal')
-    offset ← number(row['offset'], 'offset')
-    length ← number(row['length'], 'length')
+    safe_path ∈ bool ← True
+    parts ∈ list[str] ← filename.split('/')
+    for part in parts:
+        if part in ('', '.', '..'):
+            safe_path ← False
+    path_characters ∈ list[str] ← list(filename)
+    for character in path_characters:
+        codepoint ∈ int ← ord(character)
+        if codepoint < 32 or codepoint > 126:
+            safe_path ← False
+    check(len(filename) <= 4096 and not ('\\' in filename) and safe_path,
+          'index', 'unsafe WARC filename')
+    target ∈ str ← source_text(row, 'url')
+    safe_target ∈ bool ← target.startswith(('http://', 'https://'))
+    target_characters ∈ list[str] ← list(target)
+    for character in target_characters:
+        codepoint ∈ int ← ord(character)
+        if codepoint < 32:
+            safe_target ← False
+    check(safe_target, 'index', 'invalid target URL')
+    offset ∈ int ← number(row.get('offset'), 'offset', 'index')
+    length ∈ int ← number(row.get('length'), 'length', 'index')
     check(length > 0 and len(compressed) == length, 'range', 'compressed range length mismatch')
     check(compressed.startswith(b'\x1f\x8b'), 'decompression', 'range does not begin with gzip')
     try:
-        with gzip.GzipFile(fileobj=io.BytesIO(compressed)) as gz:
-            raw ← gz.read(max_decompressed + 1)
-    except (OSError, EOFError, ValueError) as error:
+        decoder ∈ object ← zlib.decompressobj(31)
+        raw ∈ bytes ← decoder.decompress(compressed, max_decompressed + 1)
+    except (OSError, EOFError, ValueError, zlib.error) as error:
         raise ReplayFailure('decompression', 'invalid or truncated gzip: ' + str(error))
     check(len(raw) <= max_decompressed, 'decompression', 'decompressed byte limit exceeded')
-    start, warc, content ← header_block(raw, 'warc')
+    complete ∈ bool ← decoder.eof
+    unused ∈ bytes ← decoder.unused_data
+    unconsumed ∈ bytes ← decoder.unconsumed_tail
+    check(complete and len(unused) == 0 and len(unconsumed) == 0,
+          'decompression', 'truncated gzip or extra compressed member/trailing bytes')
+    parsed ∈ tuple[bytes, dict[str, str], bytes] ← header_block(raw, 'warc')
+    start ∈ bytes ← parsed[0]
+    warc ∈ dict[str, str] ← parsed[1]
+    content ∈ bytes ← parsed[2]
     check(start in (b'WARC/1.0', b'WARC/1.1'), 'warc', 'unsupported WARC version')
-    check(warc.get('warc-type') == 'response', 'warc', 'WARC record is not an HTTP response')
-    check(warc.get('warc-target-uri') == row['url'], 'warc', 'index URL differs from WARC target')
-    check('warc-truncated' not in warc, 'warc', 'source record is marked truncated')
-    declared ← number(warc.get('content-length'), 'WARC Content-Length')
+    record_type ∈ str ← warc.get('warc-type', '')
+    record_target ∈ str ← warc.get('warc-target-uri', '')
+    warc_names ∈ list[str] ← list(warc)
+    check(record_type == 'response', 'warc', 'WARC record is not an HTTP response')
+    record_content_type ∈ str ← warc.get('content-type', '')
+    normalized_content_type ∈ str ← record_content_type.lower()
+    check(normalized_content_type == 'application/http; msgtype=response',
+          'warc', 'WARC response must declare application/http; msgtype=response')
+    check(record_target == target, 'warc', 'index URL differs from WARC target')
+    check(not ('warc-truncated' in warc_names), 'warc', 'source record is marked truncated')
+    declared ∈ int ← number(warc.get('content-length'), 'WARC Content-Length', 'warc')
     check(len(content) >= declared, 'warc', 'truncated WARC Content-Length')
-    check(content[declared:].strip(b'\r\n') == b'', 'warc', 'unexpected bytes after WARC record')
-    http_start, http, body ← header_block(content[:declared], 'http')
-    words ← http_start.split()
-    check(len(words) >= 2 and words[0].startswith(b'HTTP/'), 'http', 'invalid HTTP status line')
+    trailing ∈ bytes ← content[declared:]
+    check(trailing == b'\r\n\r\n', 'warc', 'WARC record must end with exactly two CRLFs')
+    if 'warc-block-digest' in warc_names:
+        block_digest ∈ str ← warc['warc-block-digest']
+        block_format ∈ object ← re.fullmatch(r'(?i)sha1:[A-Z2-7]{32}', block_digest)
+        check(bool(block_format), 'digest', 'unsupported or malformed WARC block digest')
+        expected_block_digest ∈ str ← block_digest[5:].upper()
+        check(sha1_base32(content[:declared]) == expected_block_digest,
+              'digest', 'WARC block digest mismatch')
+    response ∈ tuple[bytes, dict[str, str], bytes] ← header_block(content[:declared], 'http')
+    http_start ∈ bytes ← response[0]
+    http ∈ dict[str, str] ← response[1]
+    body ∈ bytes ← response[2]
+    words ∈ list[bytes] ← http_start.split()
+    check(len(words) >= 2 and words[0] in (b'HTTP/1.0', b'HTTP/1.1'), 'http', 'invalid HTTP status line')
+    status_format ∈ object ← re.fullmatch(rb'[0-9]{3}', words[1])
+    check(bool(status_format), 'http', 'invalid HTTP status code')
     try:
-        status ← int(words[1])
+        status ∈ int ← int(words[1])
     except ValueError:
         raise ReplayFailure('http', 'invalid HTTP status')
     check(100 <= status <= 599, 'http', 'HTTP status outside 100..599')
-    if row.get('status') is not None:
+    check(status == 200, 'http', 'source HTTP response must be 200')
+    row_names ∈ list[str] ← list(row)
+    if 'status' in row_names:
         check(str(status) == str(row['status']), 'http', 'HTTP status differs from CDX status')
-    check(http.get('transfer-encoding', 'identity').lower() in ('', 'identity'),
+    transfer_encoding ∈ str ← http.get('transfer-encoding', 'identity').lower()
+    check(transfer_encoding in ('', 'identity'),
           'http', 'chunked/other transfer encoding requires separate decoding')
-    declared_body ← http.get('content-length')
-    if declared_body is not None:
-        check(len(body) == number(declared_body, 'HTTP Content-Length'),
+    declared_body ∈ str ← http.get('content-length', '')
+    http_names ∈ list[str] ← list(http)
+    if 'content-length' in http_names:
+        check(len(body) == number(declared_body, 'HTTP Content-Length', 'http'),
               'http', 'HTTP body length mismatch')
-    content_encoding ← http.get('content-encoding', 'identity').lower()
-    digest ← row.get('digest')
-    warc_digest ← warc.get('warc-payload-digest')
-    if digest and warc_digest and warc_digest.lower().startswith('sha1:'):
-        check(digest.upper() == warc_digest[5:].upper(), 'digest', 'CDX and WARC payload digests disagree')
+    content_encoding ∈ str ← http.get('content-encoding', 'identity').lower()
+    check(content_encoding in ('', 'identity'), 'http', 'unsupported content encoding')
+    digest ∈ str ← ''
+    digest ← source_text(row, 'digest')
+    matched_digest ∈ object ← re.fullmatch(r'[A-Za-z2-7]{32}', digest)
+    check(bool(matched_digest), 'index', 'unsupported or malformed CDX SHA-1 digest')
+    warc_digest ∈ str ← warc.get('warc-payload-digest', '')
+    digest_format ∈ object ← re.fullmatch(r'(?i)sha1:[A-Z2-7]{32}', warc_digest)
+    check(bool(digest_format), 'digest', 'missing, unsupported or malformed WARC payload digest')
+    if bool(digest) and bool(warc_digest):
+        indexed_digest ∈ str ← digest.upper()
+        archived_digest ∈ str ← warc_digest[5:].upper()
+        check(indexed_digest == archived_digest, 'digest', 'CDX and WARC payload digests disagree')
     digest_state ← 'NOT_CHECKED_CONTENT_ENCODING'
     if content_encoding in ('', 'identity') and digest:
-        check(sha1_base32(body) == digest.upper(), 'digest', 'CDX SHA-1 does not match HTTP entity bytes')
+        expected_digest ∈ str ← digest.upper()
+        check(sha1_base32(body) == expected_digest, 'digest', 'CDX SHA-1 does not match HTTP entity bytes')
         digest_state ← 'VERIFIED_SHA1'
     elif content_encoding in ('', 'identity'):
         digest_state ← 'NOT_SUPPLIED'
-    receipt ← {
+    receipt ∈ dict[str, object] ← {
         'schema': 'common-crawl-range-replay-v1', 'status': 'PASS',
         'meaning': 'one bounded compressed record extracted; not a completed syllabus search',
         'source': {'filename': filename, 'offset': offset, 'length': length,
@@ -151,84 +256,256 @@ def extract(row, compressed, max_decompressed=67108864):
     return body, receipt
 
 
-def self_test():
+def altered_row(row ∈ dict[str, object], field ∈ str, value ∈ object) → dict[str, object]:
+    changed ∈ dict[str, object] ← dict(row)
+    changed.__setitem__(field, value)
+    return changed
+
+
+def json_line(record ∈ dict[str, object]) → str:
+    encoded ∈ str ← json.dumps(record, sort_keys=True)
+    return encoded + '\n'
+
+
+def replace_bytes(data ∈ bytes, old ∈ bytes, new ∈ bytes) → bytes:
+    return data.replace(old, new)
+
+
+def self_test() → None:
     body ← b'<html><title>Syllabus</title></html>'
     digest ← sha1_base32(body)
     http ← b'HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n\r\n' + body
+    digest_bytes ∈ bytes ← digest.encode('ascii')
+    length_bytes ∈ bytes ← str(len(http)).encode('ascii')
     warc ← (b'WARC/1.1\r\nWARC-Type: response\r\nWARC-Target-URI: https://school.edu/phi101\r\n'
+            + b'Content-Type: application/http; msgtype=response\r\n'
             + b'WARC-Record-ID: <urn:uuid:example>\r\nWARC-Payload-Digest: sha1:'
-            + digest.encode('ascii') + b'\r\nContent-Length: ' + str(len(http)).encode('ascii')
+            + digest_bytes + b'\r\nContent-Length: ' + length_bytes
             + b'\r\n\r\n' + http + b'\r\n\r\n')
-    zipped ← gzip.compress(warc, mtime=0)
-    row ← {'url': 'https://school.edu/phi101', 'filename': 'crawl-data/CC-MAIN-fixture/sample.warc.gz',
+    zipped ∈ bytes ← gzip.compress(warc, mtime=0)
+    row ∈ dict[str, object] ← {'url': 'https://school.edu/phi101', 'filename': 'crawl-data/CC-MAIN-fixture/sample.warc.gz',
            'offset': '12', 'length': str(len(zipped)), 'status': '200', 'digest': digest}
-    extracted, receipt ← extract(row, zipped)
-    assert extracted == body and receipt['record']['payload_digest_check'] == 'VERIFIED_SHA1'
-    failures ← [
-        (dict(row, url='https://school.edu/other'), zipped, 'warc'),
-        (dict(row, length='1'), zipped, 'range'),
-        (dict(row, status='404'), zipped, 'http'),
-        (dict(row, digest='AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA'), zipped, 'digest'),
+    extracted ∈ tuple[bytes, dict[str, object]] ← extract(row, zipped, 67108864)
+    record ∈ dict[str, object] ← extracted[1].get('record')
+    digest_check ∈ str ← str(record['payload_digest_check'])
+    assert extracted[0] == body and digest_check == 'VERIFIED_SHA1'
+    failures ∈ list[tuple[dict[str, object], bytes, str]] ← [
+        (altered_row(row, 'url', 'https://school.edu/other'), zipped, 'warc'),
+        (altered_row(row, 'length', '1'), zipped, 'range'),
+        (altered_row(row, 'status', '404'), zipped, 'http'),
+        (altered_row(row, 'digest', 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA'), zipped, 'digest'),
         (row, zipped[:-8], 'range'),
-        (dict(row, length=str(len(zipped[:-8]))), zipped[:-8], 'decompression'),
-        (dict(row, filename='crawl-data/../bad.warc.gz'), zipped, 'index'),
-        (dict(row, length='-1'), zipped, 'index'),
+        (altered_row(row, 'length', str(len(zipped[:-8]))), zipped[:-8], 'decompression'),
+        (altered_row(row, 'filename', 'crawl-data/../bad.warc.gz'), zipped, 'index'),
+        (altered_row(row, 'length', '-1'), zipped, 'index'),
+        (altered_row(row, 'digest', 'bad'), zipped, 'index'),
+        (altered_row(row, 'digest', 123), zipped, 'index'),
+        (altered_row(row, 'filename', 'crawl-data//sample.warc.gz'), zipped, 'index'),
+        (altered_row(row, 'filename', 'crawl-data/CC-MAIN-fixture\\bad.warc.gz'), zipped, 'index'),
     ]
-    for altered, capture, expected_stage in failures:
+    duplicate ∈ bytes ← warc.replace(b'WARC-Type: response',
+                             b'WARC-Type: response\r\nWARC-Type: response')
+    oversized_header ∈ bytes ← bytes(65536)
+    overlong ∈ bytes ← warc.replace(b'WARC-Type: response',
+                            b'WARC-Type: response\r\nX-Large: ' + oversized_header)
+    for modified in (duplicate, overlong):
+        archive ∈ bytes ← gzip.compress(modified, mtime=0)
+        failures.append((altered_row(row, 'length', str(len(archive))), archive, 'warc'))
+    hostile_records ∈ list[tuple[bytes, str]] ← [
+        (warc[:-2], 'warc'),
+        (warc + b'\r\n', 'warc'),
+        (replace_bytes(warc, b'Content-Type: application/http; msgtype=response', b'Content-Type: text/plain'), 'warc'),
+        (replace_bytes(warc, b'WARC-Type: response', b'WARC-Type: response\r\nWARC-Block-Digest: sha1:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA'), 'digest'),
+        (replace_bytes(warc, b'WARC-Type: response', b'WARC-Type: response\r\nBad Name: bad'), 'warc'),
+        (replace_bytes(warc, b'WARC-Type: response', b'WARC-Type: response\r\nX-Test: bad\x00value'), 'warc'),
+        (replace_bytes(warc, b'WARC-Type: response', b'WARC-Type: response\r\nContent-Length: 1'), 'warc'),
+        (replace_bytes(warc, b'WARC-Type: response', b'WARC-Type: response\r\nWARC-Truncated: length'), 'warc'),
+        (replace_bytes(warc, b'WARC-Type: response', b'WARC-Type: request'), 'warc'),
+        (replace_bytes(warc, b'WARC/1.1', b'WARC/9.9'), 'warc'),
+        (warc + warc, 'warc'),
+        (warc + b'unrelated bytes', 'warc'),
+        (replace_bytes(warc, b'sha1:', b'md5:'), 'digest'),
+        (replace_bytes(warc, b'HTTP/1.1 200', b'HTTP/9.9 200'), 'http'),
+    ]
+    for hostile in hostile_records:
+        archive ∈ bytes ← gzip.compress(hostile[0], mtime=0)
+        failures.append((altered_row(row, 'length', str(len(archive))), archive, hostile[1]))
+    empty_member ∈ bytes ← gzip.compress(b'', mtime=0)
+    for suffix in (b'trailing', empty_member):
+        extra ∈ bytes ← zipped + suffix
+        failures.append((altered_row(row, 'length', str(len(extra))), extra, 'decompression'))
+    # Keep WARC Content-Length valid so each HTTP control reaches HTTP parsing.
+    hostile_http ∈ list[bytes] ← [
+        b'HTTP/1.1 0200 Invalid\r\n\r\n',
+        b'HTTP/1.1 500 Error\r\n\r\n',
+        b'HTTP/1.1 200 OK\r\nTransfer-Encoding: chunked\r\n\r\n',
+        b'HTTP/1.1 200 OK\r\nContent-Encoding: gzip\r\n\r\n',
+        b'HTTP/1.1 200 OK\r\nContent-Length: 999\r\n\r\n',
+        b'HTTP/1.1 200 OK\r\nContent-Length: -1\r\n\r\n',
+        b'HTTP/1.1 200 OK\r\nContent-Length: 0\r\nContent-Length: 0\r\n\r\n',
+        b'HTTP/1.1 200 OK\r\nBad Name: invalid\r\n\r\n',
+    ]
+    for head in hostile_http:
+        altered_http ∈ bytes ← head + body
+        replacement_length ∈ bytes ← str(len(altered_http)).encode('ascii')
+        original_length ∈ bytes ← b'Content-Length: ' + length_bytes
+        new_length ∈ bytes ← b'Content-Length: ' + replacement_length
+        modified ∈ bytes ← warc.replace(http, altered_http).replace(original_length, new_length, 1)
+        archive ∈ bytes ← gzip.compress(modified, mtime=0)
+        failures.append((altered_row(row, 'length', str(len(archive))), archive, 'http'))
+    for failure in failures:
+        altered ∈ dict[str, object] ← failure[0]
+        capture ∈ bytes ← failure[1]
+        expected_stage ∈ str ← failure[2]
         try:
-            extract(altered, capture)
+            extract(altered, capture, 67108864)
         except ReplayFailure as error:
-            assert error.stage == expected_stage, (error.stage, expected_stage)
+            assert failure_stage(error) == expected_stage, (failure_stage(error), expected_stage)
         else:
             raise AssertionError('bad capture was accepted')
     try:
-        extract(row, zipped, max_decompressed=10)
+        extract(row, zipped, 10)
     except ReplayFailure as error:
-        assert error.stage == 'decompression'
+        assert failure_stage(error) == 'decompression'
     else:
         raise AssertionError('decompression limit bypassed')
-    print('PASS: valid gzip WARC/CDX replay and nine rejection controls (synthetic fixture only)')
+    # Exercise real Ithon subprocess publication, not merely in-memory extract().
+    with tempfile.TemporaryDirectory() as directory:
+        base ∈ Path ← Path(directory)
+        index ∈ Path ← base.joinpath('index.json')
+        capture_file ∈ Path ← base.joinpath('range.warc.gz')
+        output ∈ Path ← base.joinpath('response.body')
+        report ∈ Path ← base.joinpath('receipt.json')
+        index.write_text(json_line(row), encoding='utf-8')
+        capture_file.write_bytes(zipped)
+        output.write_bytes(b'stale-from-earlier-run')
+        report.write_text('{"status":"PASS"}\n', encoding='utf-8')
+        # Invoke the checked entrypoint in child processes too. sys.executable
+        # alone would silently skip the frontend when backed by the host runtime.
+        launcher ∈ str ← os.environ.get('ITHON_EXECUTABLE', '')
+        check(bool(launcher), 'runtime', 'set ITHON_EXECUTABLE to the checked Ithon entrypoint')
+        command ∈ list[str] ← [launcher, str(Path(__file__).resolve()),
+                   '--index-row', str(index), '--range-file', str(capture_file),
+                   '--output', str(output), '--receipt', str(report)]
+        good ∈ object ← subprocess.run(command, capture_output=True, text=True)
+        good_status ∈ int ← good.returncode
+        assert good_status == 0, good.stderr
+        published ∈ dict[str, object] ← json.loads(report.read_text(encoding='utf-8'))
+        published_body ∈ bytes ← output.read_bytes()
+        assert published_body == body
+        assert published['status'] == 'PASS' and published['output_sha256'] == sha256(body)
+        index.write_text(json_line(altered_row(row, 'digest', 'bad')), encoding='utf-8')
+        bad ∈ object ← subprocess.run(command, capture_output=True, text=True)
+        bad_status ∈ int ← bad.returncode
+        assert bad_status != 0 and not output.exists()
+        failed ∈ dict[str, object] ← json.loads(report.read_text(encoding='utf-8'))
+        assert failed['status'] == 'FAIL' and failed['failed_stage'] == 'index'
+        # Conflicting output paths must not delete or overwrite the input files.
+        alias ∈ object ← subprocess.run([launcher, str(Path(__file__).resolve()),
+                                '--index-row', str(index), '--range-file', str(capture_file),
+                                '--output', str(index), '--receipt', str(report)],
+                               capture_output=True, text=True)
+        alias_status ∈ int ← alias.returncode
+        assert alias_status != 0 and index.exists() and capture_file.exists()
+        protected ∈ dict[str, object] ← json.loads(index.read_text(encoding='utf-8'))
+        assert protected['digest'] == 'bad'
+        for malformed in ('{"message":"No captures found"}', '[]', '{',
+                          '{"url":"one","url":"two"}', 'prefix {}',
+                          'key 20261019 {}', '{}\n{}'):
+            index.write_text(malformed, encoding='utf-8')
+            try:
+                index_row(str(index))
+            except ReplayFailure as error:
+                assert failure_stage(error) == 'index'
+            else:
+                raise AssertionError('malformed/error-object index accepted')
+    print('PASS: Ithon CLI publishes output/receipt, rejects stale results and protects inputs')
+    print('PASS: valid gzip WARC/CDX replay and ' + str(len(failures) + 1) +
+          ' rejection controls (synthetic fixture only)')
 
 
-def main():
-    parser ← argparse.ArgumentParser(description=__doc__)
+def main() → None:
+    parser ∈ object ← argparse.ArgumentParser(description='Bounded Common Crawl replay')
     parser.add_argument('--index-row')
     parser.add_argument('--range-file')
     parser.add_argument('--output')
     parser.add_argument('--receipt')
     parser.add_argument('--max-uncompressed', type=int, default=67108864)
     parser.add_argument('--self-test', action='store_true')
-    args ← parser.parse_args()
+    args ∈ object ← parser.parse_args()
     if args.self_test:
         self_test()
         return
     if not (args.index_row and args.range_file and args.output and args.receipt):
         parser.error('all four --index-row/--range-file/--output/--receipt arguments are required')
-    row ← None
+    row ∈ dict[str, object] ← {}
     compressed ← b''
+    output ∈ Path ← Path(args.output)
+    receipt_path ∈ Path ← Path(args.receipt)
+    pending ∈ str | None ← None
+    paths_safe ← False
     try:
+        # Never erase an input, even when the caller accidentally aliases paths.
+        resolved_index ∈ Path ← Path(args.index_row).resolve()
+        resolved_range ∈ Path ← Path(args.range_file).resolve()
+        input_paths ∈ tuple[Path, Path] ← (resolved_index, resolved_range)
+        resolved_output ∈ Path ← output.resolve()
+        resolved_receipt ∈ Path ← receipt_path.resolve()
+        check(resolved_output != resolved_receipt and
+              not (resolved_output in input_paths) and not (resolved_receipt in input_paths),
+              'output', 'output/receipt paths collide with each other or source inputs')
+        paths_safe ← True
+        # A failed retry must not leave a previously accepted body or PASS receipt.
+        for public_path in (output, receipt_path):
+            if public_path.is_file() or public_path.is_symlink():
+                public_path.unlink()
         row ← index_row(args.index_row)
+        compressed_size ∈ int ← Path(args.range_file).stat().st_size
+        check(compressed_size <= 67108864, 'range', 'compressed byte limit exceeded')
         compressed ← Path(args.range_file).read_bytes()
-        check(0 < args.max_uncompressed <= 268435456, 'limits', 'max-uncompressed outside 1..268435456')
+        maximum ∈ int ← args.max_uncompressed
+        check(0 < maximum <= 268435456, 'limits', 'max-uncompressed outside 1..268435456')
         check(len(compressed) <= 67108864, 'range', 'compressed byte limit exceeded')
-        body, receipt ← extract(row, compressed, max_decompressed=args.max_uncompressed)
-        output ← Path(args.output)
+        result ∈ tuple[bytes, dict[str, object]] ← extract(row, compressed, maximum)
+        body ∈ bytes ← result[0]
+        receipt ∈ dict[str, object] ← result[1]
         output.parent.mkdir(parents=True, exist_ok=True)
-        output.write_bytes(body)
-        receipt['output_path'] ← str(output)
-    except (ReplayFailure, OSError) as error:
-        stage ← error.stage if isinstance(error, ReplayFailure) else 'filesystem'
+        receipt_path.parent.mkdir(parents=True, exist_ok=True)
+        # Stage in the destination directory, then atomically publish the body.
+        output_name ∈ str ← output.name
+        temporary ∈ tuple[int, str] ← tempfile.mkstemp(prefix='.' + output_name + '.',
+                                                      suffix='.pending', dir=str(output.parent))
+        descriptor ∈ int ← temporary[0]
+        pending ← temporary[1]
+        with os.fdopen(descriptor, 'wb') as staged:
+            staged.write(body)
+        Path(pending).replace(output)
+        pending ← None
+        receipt.__setitem__('output_path', str(output))
+        receipt.__setitem__('output_sha256', sha256(body))
+        receipt_path.write_text(json_line(receipt),
+                                encoding='utf-8')
+    except (ReplayFailure, OSError, UnicodeError) as error:
+        stage ∈ str ← failure_stage(error) if isinstance(error, ReplayFailure) else 'index' if isinstance(error, UnicodeError) else 'filesystem'
+        # Normal caught failures remove any body; consumers also check the receipt hash.
+        if pending != None and (Path(pending).is_file() or Path(pending).is_symlink()):
+            Path(pending).unlink()
+        if paths_safe and (output.is_file() or output.is_symlink()):
+            output.unlink()
         receipt ← {'schema': 'common-crawl-range-replay-v1', 'status': 'FAIL',
                    'failed_stage': stage, 'error': str(error), 'output_untrusted': True,
                    'source_index': str(args.index_row), 'range_file': str(args.range_file),
-                   'compressed_sha256': sha256(compressed) if compressed else None}
-        Path(args.receipt).parent.mkdir(parents=True, exist_ok=True)
-        Path(args.receipt).write_text(json.dumps(receipt, indent=2, sort_keys=True) + '\n', encoding='utf-8')
+                   'compressed_sha256': sha256(compressed) if len(compressed) > 0 else None}
+        if paths_safe:
+            receipt_path.parent.mkdir(parents=True, exist_ok=True)
+            receipt_path.write_text(json_line(receipt),
+                                    encoding='utf-8')
+        else:
+            print('FAIL output and receipt paths must not alias source inputs', file=sys.stderr)
         raise SystemExit(1)
-    Path(args.receipt).parent.mkdir(parents=True, exist_ok=True)
-    Path(args.receipt).write_text(json.dumps(receipt, indent=2, sort_keys=True) + '\n', encoding='utf-8')
     print('PASS bounded WARC extraction; syllabus discovery/classification NOT_VERIFIED')
 
 
-if __name__ == '__main__':
+module_name ∈ str ← globals().get('__name__', '')
+if module_name == '__main__':
     main()
