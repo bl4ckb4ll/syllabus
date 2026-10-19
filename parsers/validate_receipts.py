@@ -34,7 +34,7 @@ def validate_record(path, line_no, record):
         fail(path, line_no, "bad status")
 
     repository = record["repository"]
-    if repository.get("name") != "isomorphisms/syllabi":
+    if repository.get("name") not in {"bl4ckb4ll/syllabus", "isomorphisms/syllabi"}:
         fail(path, line_no, "wrong repository name")
     if not SHA40.fullmatch(repository.get("commit", "")):
         fail(path, line_no, "repository commit is not a full SHA")

@@ -15,3 +15,19 @@ Rules:
 7. A missing implementation is FAIL/SKIP, never an implicit switch to an oracle or another client.
 
 The checked fixture deliberately separates WARC extraction from USF interpretation. That lets CI distinguish a broken archive reader from a broken course parser.
+# October 19 bounded source recovery
+
+The retained live workflow now captures one original document per USF discipline
+and uploads raw HTML, vendor metadata, derived candidates and failure receipts.
+It no longer treats 464 as an accepted acquired population or automatically
+commits its output. Observed vendor metadata totals remain discovery counts.
+The existing parser is foreign `.py` migration debt, executed on the pinned
+native runtime; it does not supply checked-Ithon frontend acceptance.
+
+The first real hosted attempt fetched PHM 6267 section 901, Fall 2026, then
+failed when the Grease Python 2 `PYTHONHOME` reached Ithon (`argparse` could not
+be imported). The parser and receipt-check invocations now remove that foreign
+environment locally, preserving Grease's own runtime environment. Source bytes
+and partial evidence are retained even when a later stage fails. Inspect the
+actual original before promoting a candidate title to an assigned reading.
+

@@ -9,6 +9,7 @@ set -o pipefail
 WAIT_SECONDS=${USF_WAIT_SECONDS:-5}
 PAGE_SIZE=${USF_PAGE_SIZE:-500}
 FETCH_TIMEOUT_SECONDS=${USF_FETCH_TIMEOUT_SECONDS:-90}
+MAX_DOCUMENTS_PER_DEPARTMENT=${USF_MAX_DOCUMENTS_PER_DEPARTMENT:-0}
 ICU=${ICU:-icu}
 ITHON=${ITHON:-ithon}
 
@@ -73,7 +74,7 @@ run_event() {
     --arg script_path "$SCRIPT_PATH" --arg script_blob "$SCRIPT_BLOB" \
     --arg message "$message" \
     '{schema:1,run_id:$run_id,event:$event,status:$status,recorded_at:$recorded_at,
-      repository:{name:"isomorphisms/syllabi",commit:$repo_commit},
+      repository:{name:"bl4ckb4ll/syllabus",commit:$repo_commit},
       tool:{name:"grease",repository:$tool_repo,commit:$tool_commit,argv:[]},
       script:{path:$script_path,blob:$script_blob},message:$message}')"
 }
@@ -101,7 +102,7 @@ fetch_receipt() {
     --arg wait "$WAIT_SECONDS" \
     '{schema:1,run_id:$run_id,event:"fetch",status:$status,recorded_at:$recorded_at,
       started_at:$started_at,
-      repository:{name:"isomorphisms/syllabi",commit:$repo_commit},
+      repository:{name:"bl4ckb4ll/syllabus",commit:$repo_commit},
       tool:{name:"icu",repository:$tool_repo,commit:$tool_commit,argv:["get",$url],binary_sha256:$binary_sha},
       script:{path:$script_path,blob:$script_blob},
       url:$url,http_status:null,
@@ -140,7 +141,7 @@ parse_receipt() {
     --arg tool_commit "$ITHON_COMMIT" --arg binary_sha "$ITHON_BINARY_SHA256" \
     '{schema:1,run_id:$run_id,event:"parse",status:$status,recorded_at:$recorded_at,
       started_at:$started_at,
-      repository:{name:"isomorphisms/syllabi",commit:$repo_commit},
+      repository:{name:"bl4ckb4ll/syllabus",commit:$repo_commit},
       tool:{name:"ithon",repository:$tool_repo,commit:$tool_commit,
         argv:[$parser_path,"--input",$input_path,"--metadata",$metadata_path,"--source-uri",$source_uri,"--public-uri",$public_uri,"--output",$output_path],
         binary_sha256:$binary_sha},
@@ -232,7 +233,7 @@ parse_course() {
   started=$(utc_now)
 
   set +o errexit
-  "$ITHON" "$PARSER_PATH" \
+  env -u PYTHONHOME -u PYTHONPATH "$ITHON" "$PARSER_PATH" \
     --input "$input_path" \
     --metadata "$metadata_path" \
     --source-uri "$source_uri" \
@@ -316,11 +317,12 @@ crawl_department() {
     run_event coverage_assertion FAIL "$department expected $expected_count public Fall 2026 syllabi, found $count"
     return 65
   fi
-  run_event coverage_assertion PASS "$department exact public Fall 2026 syllabus count: $count"
+  run_event coverage_assertion PASS "$department observed Fall 2026 library metadata items: $count; not a course-population denominator"
 
   printf 'document_code\tcourse\tcourse_title\tterm\tinstructors\tpublic_syllabus\tcaptured_html\tparsed_course_json\n' > "$manifest"
 
-  jq -c '.[]' "$items" | while IFS= read -r item; do
+  jq -c --argjson limit "$MAX_DOCUMENTS_PER_DEPARTMENT" \
+    'if $limit == 0 then .[] else .[:$limit][] end' "$items" | while IFS= read -r item; do
     code=$(printf '%s' "$item" | jq -r '.code // empty')
     test -n "$code" || continue
     safe_code=$(printf '%s' "$code" | tr -cd 'A-Za-z0-9._-')
@@ -350,5 +352,5 @@ run_event run_start PASS 'USF philosophy, English, and history Fall 2026 public-
 crawl_department philosophy AC.PHI 70
 crawl_department english AC.ENG 312
 crawl_department history AC.HTY 82
-run_event run_end PASS "USF Fall 2026 acquisition finished: 464 public syllabi; receipt=$RECEIPT"
+run_event run_end PASS "USF Fall 2026 bounded acquisition finished; maximum documents per department=$MAX_DOCUMENTS_PER_DEPARTMENT (0 means no additional cap); no whole-course population completion claimed; receipt=$RECEIPT"
 printf 'receipt: %s\n' "$RECEIPT"

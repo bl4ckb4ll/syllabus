@@ -1,4 +1,4 @@
-name: USF Fall 2026 live acquisition
+name: USF bounded acquisition (legacy parser)
 
 on:
   pull_request:
@@ -77,10 +77,11 @@ jobs:
             bash -lc 'build/py.sh minimal && runtime=/workspace/.tooling/python2-runtime && mkdir -p "$runtime/bin" "$runtime/lib" && cp /usr/local/bin/python2.7 "$runtime/bin/" && cp /usr/local/lib/libpython2.7.so.1.0 "$runtime/lib/" && cp -a /usr/local/lib/python2.7 "$runtime/lib/" && ln -s python2.7 "$runtime/bin/python2"'
           test -x "$GITHUB_WORKSPACE/.tooling/python2-runtime/bin/python2"
 
-      - name: Acquire all public Fall 2026 department syllabi
+      - name: Capture one source per discipline with the retained legacy parser
         env:
           ICU: .tooling/icu/build/exec/icu
           ITHON: .tooling/ithon/python
+          USF_MAX_DOCUMENTS_PER_DEPARTMENT: '1'
         run: |
           export PATH="$GITHUB_WORKSPACE/.tooling/python2-runtime/bin:$PATH"
           export LD_LIBRARY_PATH="$GITHUB_WORKSPACE/.tooling/python2-runtime/lib"
@@ -94,22 +95,22 @@ jobs:
             exit 1
           fi
 
-      - name: Validate receipts and exact coverage
+      - name: Validate retained receipts and bounded sample
         run: |
-          .tooling/ithon/python parsers/validate_receipts.py 'crawling log'
-          test "$(find 'course information/usf/fall-2026' -path '*/documents/*.json' -type f | wc -l)" -eq 464
+          env -u PYTHONHOME -u PYTHONPATH .tooling/ithon/python parsers/validate_receipts.py 'crawling log'
+          test "$(find 'course information/usf/fall-2026' -path '*/documents/*.json' -type f | wc -l)" -eq 3
           if find syllabi/usf/fall-2026 -type f -iname '*.pdf' | grep -q .; then
             echo 'FAIL: syllabus PDF mirror found'
             exit 1
           fi
 
-      - name: Commit acquisition receipts to this branch
-        env:
-          TARGET_BRANCH: ${{ github.head_ref || github.ref_name }}
-        run: |
-          git config user.name 'github-actions[bot]'
-          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add 'syllabi/usf/fall-2026' 'course information/usf/fall-2026' 'crawling log/usf/fall-2026'
-          git diff --cached --quiet && exit 0
-          git commit -m 'Capture public USF Fall 2026 syllabus provenance'
-          git push origin "HEAD:${TARGET_BRANCH}"
+      - name: Retain original bodies, metadata, derived candidates and failure receipts
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: usf-bounded-source-evidence
+          path: |
+            syllabi/usf/fall-2026/
+            course information/usf/fall-2026/
+            crawling log/usf/fall-2026/
+          if-no-files-found: error
