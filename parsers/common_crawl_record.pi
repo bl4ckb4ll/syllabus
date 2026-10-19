@@ -177,12 +177,23 @@ def extract(row ∈ dict[str, object], compressed ∈ bytes, max_decompressed �
     record_target ∈ str ← warc.get('warc-target-uri', '')
     warc_names ∈ list[str] ← list(warc)
     check(record_type == 'response', 'warc', 'WARC record is not an HTTP response')
+    record_content_type ∈ str ← warc.get('content-type', '')
+    normalized_content_type ∈ str ← record_content_type.lower()
+    check(normalized_content_type == 'application/http; msgtype=response',
+          'warc', 'WARC response must declare application/http; msgtype=response')
     check(record_target == target, 'warc', 'index URL differs from WARC target')
     check(not ('warc-truncated' in warc_names), 'warc', 'source record is marked truncated')
     declared ∈ int ← number(warc.get('content-length'), 'WARC Content-Length', 'warc')
     check(len(content) >= declared, 'warc', 'truncated WARC Content-Length')
-    trailing ∈ bytes ← content[declared:].strip(b'\r\n')
-    check(trailing == b'', 'warc', 'unexpected bytes after WARC record')
+    trailing ∈ bytes ← content[declared:]
+    check(trailing == b'\r\n\r\n', 'warc', 'WARC record must end with exactly two CRLFs')
+    if 'warc-block-digest' in warc_names:
+        block_digest ∈ str ← warc['warc-block-digest']
+        block_format ∈ object ← re.fullmatch(r'(?i)sha1:[A-Z2-7]{32}', block_digest)
+        check(bool(block_format), 'digest', 'unsupported or malformed WARC block digest')
+        expected_block_digest ∈ str ← block_digest[5:].upper()
+        check(sha1_base32(content[:declared]) == expected_block_digest,
+              'digest', 'WARC block digest mismatch')
     response ∈ tuple[bytes, dict[str, str], bytes] ← header_block(content[:declared], 'http')
     http_start ∈ bytes ← response[0]
     http ∈ dict[str, str] ← response[1]
@@ -267,6 +278,7 @@ def self_test() → None:
     digest_bytes ∈ bytes ← digest.encode('ascii')
     length_bytes ∈ bytes ← str(len(http)).encode('ascii')
     warc ← (b'WARC/1.1\r\nWARC-Type: response\r\nWARC-Target-URI: https://school.edu/phi101\r\n'
+            + b'Content-Type: application/http; msgtype=response\r\n'
             + b'WARC-Record-ID: <urn:uuid:example>\r\nWARC-Payload-Digest: sha1:'
             + digest_bytes + b'\r\nContent-Length: ' + length_bytes
             + b'\r\n\r\n' + http + b'\r\n\r\n')
@@ -300,6 +312,10 @@ def self_test() → None:
         archive ∈ bytes ← gzip.compress(modified, mtime=0)
         failures.append((altered_row(row, 'length', str(len(archive))), archive, 'warc'))
     hostile_records ∈ list[tuple[bytes, str]] ← [
+        (warc[:-2], 'warc'),
+        (warc + b'\r\n', 'warc'),
+        (replace_bytes(warc, b'Content-Type: application/http; msgtype=response', b'Content-Type: text/plain'), 'warc'),
+        (replace_bytes(warc, b'WARC-Type: response', b'WARC-Type: response\r\nWARC-Block-Digest: sha1:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA'), 'digest'),
         (replace_bytes(warc, b'WARC-Type: response', b'WARC-Type: response\r\nBad Name: bad'), 'warc'),
         (replace_bytes(warc, b'WARC-Type: response', b'WARC-Type: response\r\nX-Test: bad\x00value'), 'warc'),
         (replace_bytes(warc, b'WARC-Type: response', b'WARC-Type: response\r\nContent-Length: 1'), 'warc'),
