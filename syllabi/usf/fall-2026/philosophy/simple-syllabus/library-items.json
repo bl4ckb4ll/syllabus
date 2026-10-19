@@ -1,0 +1,1850 @@
+[
+  {
+    "code": "10e8ekbh6",
+    "title": "PHM 6267 (AC.PHI) 901",
+    "total": 89,
+    "editors": [
+      {
+        "entity_id": "8c8979a9-eba4-43cd-8853-78139072400d",
+        "full_name": "Joshua Rayman",
+        "last_name": "Rayman",
+        "first_name": "Joshua",
+        "has_headshot": false
+      }
+    ],
+    "term_id": "39cbf616-b092-4b22-a29e-7c5f610742dc",
+    "entity_id": "a5bc7b6c-9227-4bb3-9c55-13f41a3904c4",
+    "following": false,
+    "sub_title": "Continental Philosophy III:  Struc/Deconstruc",
+    "term_name": "Fall 2026",
+    "is_student": false,
+    "visibility": "general_public",
+    "entity_type": "section",
+    "family_name": "syllabus",
+    "has_upload_thumbnail": false,
+    "has_published_uploads": false
+  },
+  {
+    "code": "11mo36kyu",
+    "title": "PHI 1103 (AC.PHI) 002",
+    "total": 89,
+    "editors": [
+      {
+        "entity_id": "59a97366-293e-4cd7-a24e-a12575e922ae",
+        "full_name": "Dolores Morris",
+        "last_name": "Morris",
+        "first_name": "Dolores",
+        "has_headshot": false
+      }
+    ],
+    "term_id": "39cbf616-b092-4b22-a29e-7c5f610742dc",
+    "entity_id": "df343896-4967-4701-ada4-5e93fb1b86f3",
+    "following": false,
+    "sub_title": "Critical Thinking",
+    "term_name": "Fall 2026",
+    "is_student": false,
+    "visibility": "general_public",
+    "entity_type": "section",
+    "family_name": "syllabus",
+    "has_upload_thumbnail": false,
+    "has_published_uploads": false
+  },
+  {
+    "code": "1amzix0s2",
+    "title": "PHH 6930 (AC.PHI) 901",
+    "total": 89,
+    "editors": [
+      {
+        "entity_id": "fbbd2199-131a-427f-ac21-fd54fa502db8",
+        "full_name": "Wei Zhang",
+        "last_name": "Zhang",
+        "first_name": "Wei",
+        "has_headshot": false
+      }
+    ],
+    "term_id": "39cbf616-b092-4b22-a29e-7c5f610742dc",
+    "entity_id": "3dd0c84f-b940-4b92-bf09-21de4ad5b5df",
+    "following": false,
+    "sub_title": "Seminar in Chinese Philosophy",
+    "term_name": "Fall 2026",
+    "is_student": false,
+    "visibility": "general_public",
+    "entity_type": "section",
+    "family_name": "syllabus",
+    "has_upload_thumbnail": false,
+    "has_published_uploads": false
+  },
+  {
+    "code": "2r17e3e8d",
+    "title": "PHH 3420 (AC.PHI) 002",
+    "total": 89,
+    "editors": [
+      {
+        "entity_id": "36c73a37-e44d-4d3c-ad84-e4c15b8b78ec",
+        "full_name": "Patrick Leland",
+        "last_name": "Leland",
+        "first_name": "Patrick",
+        "has_headshot": false
+      }
+    ],
+    "term_id": "39cbf616-b092-4b22-a29e-7c5f610742dc",
+    "entity_id": "107a5962-da28-404c-9d20-e51522f9b9d0",
+    "following": false,
+    "sub_title": "Early Modern Philosophy",
+    "term_name": "Fall 2026",
+    "is_student": false,
+    "visibility": "general_public",
+    "entity_type": "section",
+    "family_name": "syllabus",
+    "has_upload_thumbnail": false,
+    "has_published_uploads": false
+  },
+  {
+    "code": "34bj7fbuh",
+    "title": "PHI 4930 (AC.PHI) 002",
+    "total": 89,
+    "editors": [
+      {
+        "entity_id": "feab5d57-eb0e-4374-afcc-a910f6e8165d",
+        "full_name": "Roger Ariew",
+        "last_name": "Ariew",
+        "first_name": "Roger",
+        "has_headshot": false
+      }
+    ],
+    "term_id": "39cbf616-b092-4b22-a29e-7c5f610742dc",
+    "entity_id": "c604d429-4178-497a-969e-78656940dfd1",
+    "following": false,
+    "sub_title": "Descartes",
+    "term_name": "Fall 2026",
+    "is_student": false,
+    "visibility": "general_public",
+    "entity_type": "section",
+    "family_name": "syllabus",
+    "has_upload_thumbnail": false,
+    "has_published_uploads": false
+  },
+  {
+    "code": "3blv4u7oe",
+    "title": "PHI 2010 (AC.PHI) 005",
+    "total": 89,
+    "editors": [
+      {
+        "entity_id": "273fa3a9-c63a-4ea6-b1b3-eb23606cd192",
+        "full_name": "Thomas Slabon",
+        "last_name": "Slabon",
+        "first_name": "Thomas",
+        "has_headshot": false
+      },
+      {
+        "entity_id": "7b135cda-21c4-4edc-adf8-41b2392ed8f2",
+        "full_name": "Jake Burger",
+        "last_name": "Burger",
+        "first_name": "Jake",
+        "has_headshot": false
+      }
+    ],
+    "term_id": "39cbf616-b092-4b22-a29e-7c5f610742dc",
+    "entity_id": "1da9599a-ecd8-4ff7-9d98-58ed972d2339",
+    "following": false,
+    "sub_title": "Introduction to Philosophy",
+    "term_name": "Fall 2026",
+    "is_student": false,
+    "visibility": "general_public",
+    "entity_type": "section",
+    "family_name": "syllabus",
+    "has_upload_thumbnail": false,
+    "has_published_uploads": false
+  },
+  {
+    "code": "3gvo0mit1",
+    "title": "PHI 4930 (AC.PHI) 901",
+    "total": 89,
+    "editors": [
+      {
+        "entity_id": "8c8979a9-eba4-43cd-8853-78139072400d",
+        "full_name": "Joshua Rayman",
+        "last_name": "Rayman",
+        "first_name": "Joshua",
+        "has_headshot": false
+      }
+    ],
+    "term_id": "39cbf616-b092-4b22-a29e-7c5f610742dc",
+    "entity_id": "47a2c531-f101-4aac-8291-578fd7f1ba9a",
+    "following": false,
+    "sub_title": "Selected Topics",
+    "term_name": "Fall 2026",
+    "is_student": false,
+    "visibility": "general_public",
+    "entity_type": "section",
+    "family_name": "syllabus",
+    "has_upload_thumbnail": false,
+    "has_published_uploads": false
+  },
+  {
+    "code": "40xx165hc",
+    "title": "PHI 2622 (AC.PHI) 010",
+    "total": 89,
+    "editors": [
+      {
+        "entity_id": "f36219bd-cd15-4ea7-b445-1d8cde94a10b",
+        "full_name": "Samuel Badger",
+        "last_name": "Badger",
+        "first_name": "Samuel",
+        "has_headshot": false
+      }
+    ],
+    "term_id": "39cbf616-b092-4b22-a29e-7c5f610742dc",
+    "entity_id": "44e46089-181e-4ce6-8927-fc390f830432",
+    "following": false,
+    "sub_title": "Biomedical Ethics",
+    "term_name": "Fall 2026",
+    "is_student": false,
+    "visibility": "general_public",
+    "entity_type": "section",
+    "family_name": "syllabus",
+    "has_upload_thumbnail": false,
+    "has_published_uploads": false
+  },
+  {
+    "code": "432oki2p4",
+    "title": "PHH 6310 (AC.PHI) 001",
+    "total": 89,
+    "editors": [
+      {
+        "entity_id": "077b8a74-22a0-4256-95a8-86f4bd1091fc",
+        "full_name": "Jack Stetter",
+        "last_name": "Stetter",
+        "first_name": "Jack",
+        "has_headshot": false
+      }
+    ],
+    "term_id": "39cbf616-b092-4b22-a29e-7c5f610742dc",
+    "entity_id": "7e67288e-9db6-4c1d-89ff-1826a9438629",
+    "following": false,
+    "sub_title": "Seminar in Seventeenth Century Philosophy",
+    "term_name": "Fall 2026",
+    "is_student": false,
+    "visibility": "general_public",
+    "entity_type": "section",
+    "family_name": "syllabus",
+    "has_upload_thumbnail": false,
+    "has_published_uploads": false
+  },
+  {
+    "code": "5bkw4qrvu",
+    "title": "PHI 2010 (AC.PHI) 003",
+    "total": 89,
+    "editors": [
+      {
+        "entity_id": "273fa3a9-c63a-4ea6-b1b3-eb23606cd192",
+        "full_name": "Thomas Slabon",
+        "last_name": "Slabon",
+        "first_name": "Thomas",
+        "has_headshot": false
+      },
+      {
+        "entity_id": "db37fb97-9024-4361-8d09-432516562deb",
+        "full_name": "Aidan Berry",
+        "last_name": "Berry",
+        "first_name": "Aidan",
+        "has_headshot": false
+      }
+    ],
+    "term_id": "39cbf616-b092-4b22-a29e-7c5f610742dc",
+    "entity_id": "d7694ccf-b111-43b8-a9fd-710d1223afee",
+    "following": false,
+    "sub_title": "Introduction to Philosophy",
+    "term_name": "Fall 2026",
+    "is_student": false,
+    "visibility": "general_public",
+    "entity_type": "section",
+    "family_name": "syllabus",
+    "has_upload_thumbnail": false,
+    "has_published_uploads": false
+  },
+  {
+    "code": "6bqnguov6",
+    "title": "PHI 1600 (AC.PHI) 006",
+    "total": 89,
+    "editors": [
+      {
+        "entity_id": "afd1686c-bd90-4a92-baaa-57db5f0f4b36",
+        "full_name": "Madeline Martin-Seaver",
+        "last_name": "Martin-Seaver",
+        "first_name": "Madeline",
+        "has_headshot": false
+      },
+      {
+        "entity_id": "9ebff893-9ab5-4be8-becd-a809c39c160a",
+        "full_name": "Sean Dillard",
+        "last_name": "Dillard",
+        "first_name": "Sean",
+        "has_headshot": false
+      }
+    ],
+    "term_id": "39cbf616-b092-4b22-a29e-7c5f610742dc",
+    "entity_id": "1144678d-8853-467b-931d-d34f895a5aa8",
+    "following": false,
+    "sub_title": "Introduction to Ethics",
+    "term_name": "Fall 2026",
+    "is_student": false,
+    "visibility": "general_public",
+    "entity_type": "section",
+    "family_name": "syllabus",
+    "has_upload_thumbnail": false,
+    "has_published_uploads": false
+  },
+  {
+    "code": "7ifb1hbj2",
+    "title": "PHP 3786 (AC.PHI) 001",
+    "total": 89,
+    "editors": [
+      {
+        "entity_id": "a7ba106a-614d-4f22-b24c-6981875564dc",
+        "full_name": "Greg McCreery",
+        "last_name": "McCreery",
+        "first_name": "Greg",
+        "has_headshot": false
+      }
+    ],
+    "term_id": "39cbf616-b092-4b22-a29e-7c5f610742dc",
+    "entity_id": "87188f52-d39a-4647-bb8f-406ed37a861a",
+    "following": false,
+    "sub_title": "Existentialism",
+    "term_name": "Fall 2026",
+    "is_student": false,
+    "visibility": "general_public",
+    "entity_type": "section",
+    "family_name": "syllabus",
+    "has_upload_thumbnail": false,
+    "has_published_uploads": false
+  },
+  {
+    "code": "8gl70g485",
+    "title": "PHI 2010 (AC.PHI) 009",
+    "total": 89,
+    "editors": [
+      {
+        "entity_id": "273fa3a9-c63a-4ea6-b1b3-eb23606cd192",
+        "full_name": "Thomas Slabon",
+        "last_name": "Slabon",
+        "first_name": "Thomas",
+        "has_headshot": false
+      },
+      {
+        "entity_id": "995fc206-aa78-465a-aa3c-fed5c1c19c10",
+        "full_name": "Nick Van Atta",
+        "last_name": "Van Atta",
+        "first_name": "Nick",
+        "has_headshot": false
+      }
+    ],
+    "term_id": "39cbf616-b092-4b22-a29e-7c5f610742dc",
+    "entity_id": "2f6f724d-5c6e-4c45-816b-5e205df2750d",
+    "following": false,
+    "sub_title": "Introduction to Philosophy",
+    "term_name": "Fall 2026",
+    "is_student": false,
+    "visibility": "general_public",
+    "entity_type": "section",
+    "family_name": "syllabus",
+    "has_upload_thumbnail": false,
+    "has_published_uploads": false
+  },
+  {
+    "code": "8rwncrywl",
+    "title": "PHI 2622 (AC.PHI) 004",
+    "total": 89,
+    "editors": [
+      {
+        "entity_id": "51fa66f7-482c-488c-9a69-d652d0d309ba",
+        "full_name": "Romario De La Hoz",
+        "last_name": "De La Hoz",
+        "first_name": "Romario",
+        "has_headshot": false
+      }
+    ],
+    "term_id": "39cbf616-b092-4b22-a29e-7c5f610742dc",
+    "entity_id": "3964f44a-a7b0-4db1-9aca-bb9665dd995a",
+    "following": false,
+    "sub_title": "Biomedical Ethics",
+    "term_name": "Fall 2026",
+    "is_student": false,
+    "visibility": "general_public",
+    "entity_type": "section",
+    "family_name": "syllabus",
+    "has_upload_thumbnail": false,
+    "has_published_uploads": false
+  },
+  {
+    "code": "apmnsh1h9",
+    "title": "PHH 6105 (AC.PHI) 901",
+    "total": 89,
+    "editors": [
+      {
+        "entity_id": "273fa3a9-c63a-4ea6-b1b3-eb23606cd192",
+        "full_name": "Thomas Slabon",
+        "last_name": "Slabon",
+        "first_name": "Thomas",
+        "has_headshot": false
+      }
+    ],
+    "term_id": "39cbf616-b092-4b22-a29e-7c5f610742dc",
+    "entity_id": "1101a6c9-ccc2-4d5c-b396-d675d22a1a6b",
+    "following": false,
+    "sub_title": "Seminar in Ancient & Medieval Philosophy",
+    "term_name": "Fall 2026",
+    "is_student": false,
+    "visibility": "general_public",
+    "entity_type": "section",
+    "family_name": "syllabus",
+    "has_upload_thumbnail": false,
+    "has_published_uploads": false
+  },
+  {
+    "code": "asinprz1e",
+    "title": "PHH 6938 (AC.PHI) 001",
+    "total": 89,
+    "editors": [
+      {
+        "entity_id": "feab5d57-eb0e-4374-afcc-a910f6e8165d",
+        "full_name": "Roger Ariew",
+        "last_name": "Ariew",
+        "first_name": "Roger",
+        "has_headshot": false
+      }
+    ],
+    "term_id": "39cbf616-b092-4b22-a29e-7c5f610742dc",
+    "entity_id": "d23ad97d-0ee8-417f-8f25-86424faca052",
+    "following": false,
+    "sub_title": "Seminar in the History of Philosophy",
+    "term_name": "Fall 2026",
+    "is_student": false,
+    "visibility": "general_public",
+    "entity_type": "section",
+    "family_name": "syllabus",
+    "has_upload_thumbnail": false,
+    "has_published_uploads": false
+  },
+  {
+    "code": "bqp32vbtt",
+    "title": "PHI 2010 (AC.PHI) 004",
+    "total": 89,
+    "editors": [
+      {
+        "entity_id": "273fa3a9-c63a-4ea6-b1b3-eb23606cd192",
+        "full_name": "Thomas Slabon",
+        "last_name": "Slabon",
+        "first_name": "Thomas",
+        "has_headshot": false
+      },
+      {
+        "entity_id": "db37fb97-9024-4361-8d09-432516562deb",
+        "full_name": "Aidan Berry",
+        "last_name": "Berry",
+        "first_name": "Aidan",
+        "has_headshot": false
+      }
+    ],
+    "term_id": "39cbf616-b092-4b22-a29e-7c5f610742dc",
+    "entity_id": "a9970fd8-ee11-4755-9b18-4c4489506b63",
+    "following": false,
+    "sub_title": "Introduction to Philosophy",
+    "term_name": "Fall 2026",
+    "is_student": false,
+    "visibility": "general_public",
+    "entity_type": "section",
+    "family_name": "syllabus",
+    "has_upload_thumbnail": false,
+    "has_published_uploads": false
+  },
+  {
+    "code": "bspwi0b37",
+    "title": "PHI 3640 (AC.PHI) 002",
+    "total": 89,
+    "editors": [
+      {
+        "entity_id": "1b2a68b3-eb23-49ba-9f25-7dee7ba27817",
+        "full_name": "Ethan Linehan",
+        "last_name": "Linehan",
+        "first_name": "Ethan",
+        "has_headshot": false
+      }
+    ],
+    "term_id": "39cbf616-b092-4b22-a29e-7c5f610742dc",
+    "entity_id": "b784c095-6d98-4781-8e4c-b39ede7e4a68",
+    "following": false,
+    "sub_title": "Environmental Ethics",
+    "term_name": "Fall 2026",
+    "is_student": false,
+    "visibility": "general_public",
+    "entity_type": "section",
+    "family_name": "syllabus",
+    "has_upload_thumbnail": false,
+    "has_published_uploads": false
+  },
+  {
+    "code": "bx18j5chm",
+    "title": "PHI 2010 (AC.PHI) 007",
+    "total": 89,
+    "editors": [
+      {
+        "entity_id": "273fa3a9-c63a-4ea6-b1b3-eb23606cd192",
+        "full_name": "Thomas Slabon",
+        "last_name": "Slabon",
+        "first_name": "Thomas",
+        "has_headshot": false
+      },
+      {
+        "entity_id": "26698739-fc06-46ed-9c21-082ea8b42ff8",
+        "full_name": "Jana El-Boustani",
+        "last_name": "El-Boustani",
+        "first_name": "Jana",
+        "has_headshot": false
+      }
+    ],
+    "term_id": "39cbf616-b092-4b22-a29e-7c5f610742dc",
+    "entity_id": "447ce903-6ad7-42a2-a47d-1d4d1fe030b0",
+    "following": false,
+    "sub_title": "Introduction to Philosophy",
+    "term_name": "Fall 2026",
+    "is_student": false,
+    "visibility": "general_public",
+    "entity_type": "section",
+    "family_name": "syllabus",
+    "has_upload_thumbnail": false,
+    "has_published_uploads": false
+  },
+  {
+    "code": "bxjckzr5f",
+    "title": "PHI 2622 (AC.PHI) 009",
+    "total": 89,
+    "editors": [
+      {
+        "entity_id": "d7506e5f-4fed-4e32-9486-dca394702a83",
+        "full_name": "David Odom",
+        "last_name": "Odom",
+        "first_name": "David",
+        "has_headshot": false
+      }
+    ],
+    "term_id": "39cbf616-b092-4b22-a29e-7c5f610742dc",
+    "entity_id": "6de2cdc5-1b9b-4e4d-911d-8029f1151cfc",
+    "following": false,
+    "sub_title": "Biomedical Ethics",
+    "term_name": "Fall 2026",
+    "is_student": false,
+    "visibility": "general_public",
+    "entity_type": "section",
+    "family_name": "syllabus",
+    "has_upload_thumbnail": false,
+    "has_published_uploads": false
+  },
+  {
+    "code": "c0dbd7bex",
+    "title": "PHI 2010 (AC.PHI) 011",
+    "total": 89,
+    "editors": [
+      {
+        "entity_id": "273fa3a9-c63a-4ea6-b1b3-eb23606cd192",
+        "full_name": "Thomas Slabon",
+        "last_name": "Slabon",
+        "first_name": "Thomas",
+        "has_headshot": false
+      },
+      {
+        "entity_id": "539b25f8-a2ad-4795-84f6-925964b1cd22",
+        "full_name": "Kira Nerys Walker",
+        "last_name": "Walker",
+        "first_name": "Kira Nerys",
+        "has_headshot": false
+      }
+    ],
+    "term_id": "39cbf616-b092-4b22-a29e-7c5f610742dc",
+    "entity_id": "867e4f71-fab4-48f6-8f11-34fb1f272509",
+    "following": false,
+    "sub_title": "Introduction to Philosophy",
+    "term_name": "Fall 2026",
+    "is_student": false,
+    "visibility": "general_public",
+    "entity_type": "section",
+    "family_name": "syllabus",
+    "has_upload_thumbnail": false,
+    "has_published_uploads": false
+  },
+  {
+    "code": "cjrut6ufb",
+    "title": "PHI 2622 (AC.PHI) 007",
+    "total": 89,
+    "editors": [
+      {
+        "entity_id": "893866a0-de07-4eee-be75-c7ccc70278e5",
+        "full_name": "Yvonne Candelario",
+        "last_name": "Candelario",
+        "first_name": "Yvonne",
+        "has_headshot": false
+      }
+    ],
+    "term_id": "39cbf616-b092-4b22-a29e-7c5f610742dc",
+    "entity_id": "05801af1-4ff5-49f1-8e97-f432d11c5469",
+    "following": false,
+    "sub_title": "Biomedical Ethics",
+    "term_name": "Fall 2026",
+    "is_student": false,
+    "visibility": "general_public",
+    "entity_type": "section",
+    "family_name": "syllabus",
+    "has_upload_thumbnail": false,
+    "has_published_uploads": false
+  },
+  {
+    "code": "cjvd0ctvd",
+    "title": "PHI 4670 (AC.PHI) 901",
+    "total": 89,
+    "editors": [
+      {
+        "entity_id": "fbbd2199-131a-427f-ac21-fd54fa502db8",
+        "full_name": "Wei Zhang",
+        "last_name": "Zhang",
+        "first_name": "Wei",
+        "has_headshot": false
+      }
+    ],
+    "term_id": "39cbf616-b092-4b22-a29e-7c5f610742dc",
+    "entity_id": "708a8257-5f65-47d3-8bfe-9da9243eadbe",
+    "following": false,
+    "sub_title": "Contemporary Ethical Theory",
+    "term_name": "Fall 2026",
+    "is_student": false,
+    "visibility": "general_public",
+    "entity_type": "section",
+    "family_name": "syllabus",
+    "has_upload_thumbnail": false,
+    "has_published_uploads": false
+  },
+  {
+    "code": "cnv31fupm",
+    "title": "PHI 1600 (AC.PHI) 010",
+    "total": 89,
+    "editors": [
+      {
+        "entity_id": "98e8cc52-5bf4-4090-8766-0ff35f002c8e",
+        "full_name": "Parjanya Preshit Joshi",
+        "last_name": "Joshi",
+        "first_name": "Parjanya Preshit",
+        "has_headshot": false
+      }
+    ],
+    "term_id": "39cbf616-b092-4b22-a29e-7c5f610742dc",
+    "entity_id": "547dc3eb-65ea-4959-b260-d3fa6b86520b",
+    "following": false,
+    "sub_title": "Introduction to Ethics",
+    "term_name": "Fall 2026",
+    "is_student": false,
+    "visibility": "general_public",
+    "entity_type": "section",
+    "family_name": "syllabus",
+    "has_upload_thumbnail": false,
+    "has_published_uploads": false
+  },
+  {
+    "code": "d7p2pvw65",
+    "title": "PHI 1103 (AC.PHI) 602",
+    "total": 89,
+    "editors": [
+      {
+        "entity_id": "60e85285-68af-47f3-9e40-eca339027b60",
+        "full_name": "Jessica Williams",
+        "last_name": "Williams",
+        "first_name": "Jessica",
+        "has_headshot": false
+      }
+    ],
+    "term_id": "39cbf616-b092-4b22-a29e-7c5f610742dc",
+    "entity_id": "da1b47b3-a2bf-4c85-824f-ce3af669b4b0",
+    "following": false,
+    "sub_title": "Critical Thinking",
+    "term_name": "Fall 2026",
+    "is_student": false,
+    "visibility": "general_public",
+    "entity_type": "section",
+    "family_name": "syllabus",
+    "has_upload_thumbnail": false,
+    "has_published_uploads": false
+  },
+  {
+    "code": "dr6uu9vfo",
+    "title": "PHI 2010 (AC.PHI) 008",
+    "total": 89,
+    "editors": [
+      {
+        "entity_id": "273fa3a9-c63a-4ea6-b1b3-eb23606cd192",
+        "full_name": "Thomas Slabon",
+        "last_name": "Slabon",
+        "first_name": "Thomas",
+        "has_headshot": false
+      },
+      {
+        "entity_id": "26698739-fc06-46ed-9c21-082ea8b42ff8",
+        "full_name": "Jana El-Boustani",
+        "last_name": "El-Boustani",
+        "first_name": "Jana",
+        "has_headshot": false
+      }
+    ],
+    "term_id": "39cbf616-b092-4b22-a29e-7c5f610742dc",
+    "entity_id": "4d6c14eb-5312-44bd-8330-0d685175aef5",
+    "following": false,
+    "sub_title": "Introduction to Philosophy",
+    "term_name": "Fall 2026",
+    "is_student": false,
+    "visibility": "general_public",
+    "entity_type": "section",
+    "family_name": "syllabus",
+    "has_upload_thumbnail": false,
+    "has_published_uploads": false
+  },
+  {
+    "code": "dw1nmxbzd",
+    "title": "PHI 6934 (AC.PHI) 001",
+    "total": 89,
+    "editors": [
+      {
+        "entity_id": "273fa3a9-c63a-4ea6-b1b3-eb23606cd192",
+        "full_name": "Thomas Slabon",
+        "last_name": "Slabon",
+        "first_name": "Thomas",
+        "has_headshot": false
+      }
+    ],
+    "term_id": "39cbf616-b092-4b22-a29e-7c5f610742dc",
+    "entity_id": "104dd5e9-7337-4ea3-83c7-de44d16cfb5d",
+    "following": false,
+    "sub_title": "American Transcendentalism",
+    "term_name": "Fall 2026",
+    "is_student": false,
+    "visibility": "general_public",
+    "entity_type": "section",
+    "family_name": "syllabus",
+    "has_upload_thumbnail": false,
+    "has_published_uploads": false
+  },
+  {
+    "code": "ehft7ol6d",
+    "title": "PHI 4930 (AC.PHI) 001",
+    "total": 89,
+    "editors": [
+      {
+        "entity_id": "0ad6db9e-0eeb-47c1-951b-c4224ab30f42",
+        "full_name": "Colin Heydt",
+        "last_name": "Heydt",
+        "first_name": "Colin",
+        "has_headshot": false
+      }
+    ],
+    "term_id": "39cbf616-b092-4b22-a29e-7c5f610742dc",
+    "entity_id": "ffe85876-4656-4ed4-b15a-3219376c5d39",
+    "following": false,
+    "sub_title": "Hierarchy and Equality",
+    "term_name": "Fall 2026",
+    "is_student": false,
+    "visibility": "general_public",
+    "entity_type": "section",
+    "family_name": "syllabus",
+    "has_upload_thumbnail": false,
+    "has_published_uploads": false
+  },
+  {
+    "code": "irjp3gxfk",
+    "title": "PHI 4938 (AC.PHI) 001",
+    "total": 89,
+    "editors": [
+      {
+        "entity_id": "4b6a1b64-7a2e-4c67-80bb-da99e6674085",
+        "full_name": "Mor Segev",
+        "last_name": "Segev",
+        "first_name": "Mor",
+        "has_headshot": false
+      }
+    ],
+    "term_id": "39cbf616-b092-4b22-a29e-7c5f610742dc",
+    "entity_id": "16b5cd9d-f808-4e2c-a73b-bc4484bf047c",
+    "following": false,
+    "sub_title": "Philosophy Capstone Seminar",
+    "term_name": "Fall 2026",
+    "is_student": false,
+    "visibility": "general_public",
+    "entity_type": "section",
+    "family_name": "syllabus",
+    "has_upload_thumbnail": false,
+    "has_published_uploads": false
+  },
+  {
+    "code": "ixuosvaf1",
+    "title": "PHI 6934 (AC.PHI) 901",
+    "total": 89,
+    "editors": [
+      {
+        "entity_id": "fbbd2199-131a-427f-ac21-fd54fa502db8",
+        "full_name": "Wei Zhang",
+        "last_name": "Zhang",
+        "first_name": "Wei",
+        "has_headshot": false
+      }
+    ],
+    "term_id": "39cbf616-b092-4b22-a29e-7c5f610742dc",
+    "entity_id": "95f78c4f-b495-452e-9c93-fb0b3706eb9c",
+    "following": false,
+    "sub_title": "Continental Ph. of Medicine",
+    "term_name": "Fall 2026",
+    "is_student": false,
+    "visibility": "general_public",
+    "entity_type": "section",
+    "family_name": "syllabus",
+    "has_upload_thumbnail": false,
+    "has_published_uploads": false
+  },
+  {
+    "code": "jeb87u2ox",
+    "title": "PHI 2101 (AC.PHI) 001",
+    "total": 89,
+    "editors": [
+      {
+        "entity_id": "f36219bd-cd15-4ea7-b445-1d8cde94a10b",
+        "full_name": "Samuel Badger",
+        "last_name": "Badger",
+        "first_name": "Samuel",
+        "has_headshot": false
+      }
+    ],
+    "term_id": "39cbf616-b092-4b22-a29e-7c5f610742dc",
+    "entity_id": "c528c859-66cb-4d65-b15b-0a5ae867d1da",
+    "following": false,
+    "sub_title": "Formal Logic",
+    "term_name": "Fall 2026",
+    "is_student": false,
+    "visibility": "general_public",
+    "entity_type": "section",
+    "family_name": "syllabus",
+    "has_upload_thumbnail": false,
+    "has_published_uploads": false
+  },
+  {
+    "code": "jo5sjwpjm",
+    "title": "PHI 1600 (AC.PHI) 003",
+    "total": 89,
+    "editors": [
+      {
+        "entity_id": "3276c195-4354-4753-b732-9be1ae2405db",
+        "full_name": "Cheyne Joslin",
+        "last_name": "Joslin",
+        "first_name": "Cheyne",
+        "has_headshot": false
+      }
+    ],
+    "term_id": "39cbf616-b092-4b22-a29e-7c5f610742dc",
+    "entity_id": "d7fe859a-c57c-4843-81a3-a457604bea29",
+    "following": false,
+    "sub_title": "Introduction to Ethics",
+    "term_name": "Fall 2026",
+    "is_student": false,
+    "visibility": "general_public",
+    "entity_type": "section",
+    "family_name": "syllabus",
+    "has_upload_thumbnail": false,
+    "has_published_uploads": false
+  },
+  {
+    "code": "jrbblj7ge",
+    "title": "PHI 4632 (AC.PHI) 001",
+    "total": 89,
+    "editors": [
+      {
+        "entity_id": "8270d497-4259-4a10-ad77-98df758bfae5",
+        "full_name": "Alex Levine",
+        "last_name": "Levine",
+        "first_name": "Alex",
+        "has_headshot": false
+      },
+      {
+        "entity_id": "afd1686c-bd90-4a92-baaa-57db5f0f4b36",
+        "full_name": "Madeline Martin-Seaver",
+        "last_name": "Martin-Seaver",
+        "first_name": "Madeline",
+        "has_headshot": false
+      }
+    ],
+    "term_id": "39cbf616-b092-4b22-a29e-7c5f610742dc",
+    "entity_id": "1473a48d-0754-4264-90f7-b86073a08423",
+    "following": false,
+    "sub_title": "Feminist Ethics",
+    "term_name": "Fall 2026",
+    "is_student": false,
+    "visibility": "general_public",
+    "entity_type": "section",
+    "family_name": "syllabus",
+    "has_upload_thumbnail": false,
+    "has_published_uploads": false
+  },
+  {
+    "code": "kdsvyitdg",
+    "title": "PHI 4930 (AC.PHI) 004",
+    "total": 89,
+    "editors": [
+      {
+        "entity_id": "077b8a74-22a0-4256-95a8-86f4bd1091fc",
+        "full_name": "Jack Stetter",
+        "last_name": "Stetter",
+        "first_name": "Jack",
+        "has_headshot": false
+      }
+    ],
+    "term_id": "39cbf616-b092-4b22-a29e-7c5f610742dc",
+    "entity_id": "85feb5ed-bdf0-4673-ab10-0b62a0a2afb9",
+    "following": false,
+    "sub_title": "Early Modern Seminar",
+    "term_name": "Fall 2026",
+    "is_student": false,
+    "visibility": "general_public",
+    "entity_type": "section",
+    "family_name": "syllabus",
+    "has_upload_thumbnail": false,
+    "has_published_uploads": false
+  },
+  {
+    "code": "kenefkuk7",
+    "title": "PHI 2622 (AC.PHI) 013",
+    "total": 89,
+    "editors": [
+      {
+        "entity_id": "baf013a8-fec9-4482-884e-8712936ec399",
+        "full_name": "John Tuskey",
+        "last_name": "Tuskey",
+        "first_name": "John",
+        "has_headshot": false
+      }
+    ],
+    "term_id": "39cbf616-b092-4b22-a29e-7c5f610742dc",
+    "entity_id": "9876d205-25f2-4cad-adc5-60d041abc496",
+    "following": false,
+    "sub_title": "Biomedical Ethics",
+    "term_name": "Fall 2026",
+    "is_student": false,
+    "visibility": "general_public",
+    "entity_type": "section",
+    "family_name": "syllabus",
+    "has_upload_thumbnail": false,
+    "has_published_uploads": false
+  },
+  {
+    "code": "kp0fqjf1o",
+    "title": "PHI 1103 (AC.PHI) 601",
+    "total": 89,
+    "editors": [
+      {
+        "entity_id": "60e85285-68af-47f3-9e40-eca339027b60",
+        "full_name": "Jessica Williams",
+        "last_name": "Williams",
+        "first_name": "Jessica",
+        "has_headshot": false
+      }
+    ],
+    "term_id": "39cbf616-b092-4b22-a29e-7c5f610742dc",
+    "entity_id": "19726e13-e4d9-43ca-a30b-39c58d35c4a2",
+    "following": false,
+    "sub_title": "Critical Thinking",
+    "term_name": "Fall 2026",
+    "is_student": false,
+    "visibility": "general_public",
+    "entity_type": "section",
+    "family_name": "syllabus",
+    "has_upload_thumbnail": false,
+    "has_published_uploads": false
+  },
+  {
+    "code": "l3th27oyy",
+    "title": "PHI 1600 (AC.PHI) 004",
+    "total": 89,
+    "editors": [
+      {
+        "entity_id": "0ad6db9e-0eeb-47c1-951b-c4224ab30f42",
+        "full_name": "Colin Heydt",
+        "last_name": "Heydt",
+        "first_name": "Colin",
+        "has_headshot": false
+      }
+    ],
+    "term_id": "39cbf616-b092-4b22-a29e-7c5f610742dc",
+    "entity_id": "8999026c-a5c8-494e-aecf-51fa859b6987",
+    "following": false,
+    "sub_title": "Introduction to Ethics",
+    "term_name": "Fall 2026",
+    "is_student": false,
+    "visibility": "general_public",
+    "entity_type": "section",
+    "family_name": "syllabus",
+    "has_upload_thumbnail": false,
+    "has_published_uploads": false
+  },
+  {
+    "code": "l4r5to8ie",
+    "title": "PHI 4320 (AC.PHI) 002",
+    "total": 89,
+    "editors": [
+      {
+        "entity_id": "59a97366-293e-4cd7-a24e-a12575e922ae",
+        "full_name": "Dolores Morris",
+        "last_name": "Morris",
+        "first_name": "Dolores",
+        "has_headshot": false
+      }
+    ],
+    "term_id": "39cbf616-b092-4b22-a29e-7c5f610742dc",
+    "entity_id": "26319b37-e50b-4ea9-9ca5-6fbda630941f",
+    "following": false,
+    "sub_title": "Philosophy of Mind",
+    "term_name": "Fall 2026",
+    "is_student": false,
+    "visibility": "general_public",
+    "entity_type": "section",
+    "family_name": "syllabus",
+    "has_upload_thumbnail": false,
+    "has_published_uploads": false
+  },
+  {
+    "code": "lnh6nqnlc",
+    "title": "PHH 4820 (AC.PHI) 901",
+    "total": 89,
+    "editors": [
+      {
+        "entity_id": "fbbd2199-131a-427f-ac21-fd54fa502db8",
+        "full_name": "Wei Zhang",
+        "last_name": "Zhang",
+        "first_name": "Wei",
+        "has_headshot": false
+      }
+    ],
+    "term_id": "39cbf616-b092-4b22-a29e-7c5f610742dc",
+    "entity_id": "270e2476-1ba4-4bd8-b6c9-c4169ae23020",
+    "following": false,
+    "sub_title": "Chinese Philosophy",
+    "term_name": "Fall 2026",
+    "is_student": false,
+    "visibility": "general_public",
+    "entity_type": "section",
+    "family_name": "syllabus",
+    "has_upload_thumbnail": false,
+    "has_published_uploads": false
+  },
+  {
+    "code": "lprppndo5",
+    "title": "PHI 1600 (AC.PHI) 001",
+    "total": 89,
+    "editors": [
+      {
+        "entity_id": "3276c195-4354-4753-b732-9be1ae2405db",
+        "full_name": "Cheyne Joslin",
+        "last_name": "Joslin",
+        "first_name": "Cheyne",
+        "has_headshot": false
+      }
+    ],
+    "term_id": "39cbf616-b092-4b22-a29e-7c5f610742dc",
+    "entity_id": "1e26bebf-e79e-4ebe-89ad-08c9f8204964",
+    "following": false,
+    "sub_title": "Introduction to Ethics",
+    "term_name": "Fall 2026",
+    "is_student": false,
+    "visibility": "general_public",
+    "entity_type": "section",
+    "family_name": "syllabus",
+    "has_upload_thumbnail": false,
+    "has_published_uploads": false
+  },
+  {
+    "code": "lzy78v9rq",
+    "title": "PHI 1103 (AC.PHI) 005",
+    "total": 89,
+    "editors": [
+      {
+        "entity_id": "36c73a37-e44d-4d3c-ad84-e4c15b8b78ec",
+        "full_name": "Patrick Leland",
+        "last_name": "Leland",
+        "first_name": "Patrick",
+        "has_headshot": false
+      }
+    ],
+    "term_id": "39cbf616-b092-4b22-a29e-7c5f610742dc",
+    "entity_id": "7a4249b5-67d0-483c-8755-4fa5a47e4336",
+    "following": false,
+    "sub_title": "Critical Thinking",
+    "term_name": "Fall 2026",
+    "is_student": false,
+    "visibility": "general_public",
+    "entity_type": "section",
+    "family_name": "syllabus",
+    "has_upload_thumbnail": false,
+    "has_published_uploads": false
+  },
+  {
+    "code": "m603v9rlw",
+    "title": "PHI 2010 (AC.PHI) 006",
+    "total": 89,
+    "editors": [
+      {
+        "entity_id": "273fa3a9-c63a-4ea6-b1b3-eb23606cd192",
+        "full_name": "Thomas Slabon",
+        "last_name": "Slabon",
+        "first_name": "Thomas",
+        "has_headshot": false
+      },
+      {
+        "entity_id": "7b135cda-21c4-4edc-adf8-41b2392ed8f2",
+        "full_name": "Jake Burger",
+        "last_name": "Burger",
+        "first_name": "Jake",
+        "has_headshot": false
+      }
+    ],
+    "term_id": "39cbf616-b092-4b22-a29e-7c5f610742dc",
+    "entity_id": "a046c5fa-51b4-47c7-b379-6ac4e67f2558",
+    "following": false,
+    "sub_title": "Introduction to Philosophy",
+    "term_name": "Fall 2026",
+    "is_student": false,
+    "visibility": "general_public",
+    "entity_type": "section",
+    "family_name": "syllabus",
+    "has_upload_thumbnail": false,
+    "has_published_uploads": false
+  },
+  {
+    "code": "nddbheic2",
+    "title": "PHI 1600 (AC.PHI) 007",
+    "total": 89,
+    "editors": [
+      {
+        "entity_id": "9913b807-322b-4cce-a9fe-810def64d150",
+        "full_name": "Gunnar Footh",
+        "last_name": "Footh",
+        "first_name": "Gunnar",
+        "has_headshot": false
+      }
+    ],
+    "term_id": "39cbf616-b092-4b22-a29e-7c5f610742dc",
+    "entity_id": "855765fe-a3a2-43a1-98b5-caa4bcbbee9b",
+    "following": false,
+    "sub_title": "Introduction to Ethics",
+    "term_name": "Fall 2026",
+    "is_student": false,
+    "visibility": "general_public",
+    "entity_type": "section",
+    "family_name": "syllabus",
+    "has_upload_thumbnail": false,
+    "has_published_uploads": false
+  },
+  {
+    "code": "o0vkdx7dj",
+    "title": "PHI 2622 (AC.PHI) 011",
+    "total": 89,
+    "editors": [
+      {
+        "entity_id": "f36219bd-cd15-4ea7-b445-1d8cde94a10b",
+        "full_name": "Samuel Badger",
+        "last_name": "Badger",
+        "first_name": "Samuel",
+        "has_headshot": false
+      }
+    ],
+    "term_id": "39cbf616-b092-4b22-a29e-7c5f610742dc",
+    "entity_id": "ece9d885-0eb9-4ca2-baa1-4d680d324692",
+    "following": false,
+    "sub_title": "Biomedical Ethics",
+    "term_name": "Fall 2026",
+    "is_student": false,
+    "visibility": "general_public",
+    "entity_type": "section",
+    "family_name": "syllabus",
+    "has_upload_thumbnail": false,
+    "has_published_uploads": false
+  },
+  {
+    "code": "o5tot4mcj",
+    "title": "PHI 1103 (AC.PHI) 001",
+    "total": 89,
+    "editors": [
+      {
+        "entity_id": "f255ce7e-42c0-43aa-8137-9848345facb6",
+        "full_name": "Justin Spain",
+        "last_name": "Spain",
+        "first_name": "Justin",
+        "has_headshot": false
+      }
+    ],
+    "term_id": "39cbf616-b092-4b22-a29e-7c5f610742dc",
+    "entity_id": "9e2ee2f1-3146-43b5-9ad0-d5de75f8695d",
+    "following": false,
+    "sub_title": "Critical Thinking",
+    "term_name": "Fall 2026",
+    "is_student": false,
+    "visibility": "general_public",
+    "entity_type": "section",
+    "family_name": "syllabus",
+    "has_upload_thumbnail": false,
+    "has_published_uploads": false
+  },
+  {
+    "code": "onwqkkk8q",
+    "title": "PHI 2010 (AC.PHI) 021",
+    "total": 89,
+    "editors": [
+      {
+        "entity_id": "74cf322a-8f98-4a7d-9290-7de5046b7614",
+        "full_name": "Robert Claflin",
+        "last_name": "Claflin",
+        "first_name": "Robert",
+        "has_headshot": false
+      }
+    ],
+    "term_id": "39cbf616-b092-4b22-a29e-7c5f610742dc",
+    "entity_id": "b3b91bd0-f9cb-48fd-a281-4605457bdc4b",
+    "following": false,
+    "sub_title": "Introduction to Philosophy",
+    "term_name": "Fall 2026",
+    "is_student": false,
+    "visibility": "general_public",
+    "entity_type": "section",
+    "family_name": "syllabus",
+    "has_upload_thumbnail": false,
+    "has_published_uploads": false
+  },
+  {
+    "code": "p2gc0zy1o",
+    "title": "PHI 2010 (AC.PHI) 013",
+    "total": 89,
+    "editors": [
+      {
+        "entity_id": "418a80aa-e2aa-423d-ac03-bedfd8714a29",
+        "full_name": "Jacob Hogan",
+        "last_name": "Hogan",
+        "first_name": "Jacob",
+        "has_headshot": false
+      }
+    ],
+    "term_id": "39cbf616-b092-4b22-a29e-7c5f610742dc",
+    "entity_id": "44eb82bb-4181-4538-8264-f0d48d30caf5",
+    "following": false,
+    "sub_title": "Introduction to Philosophy",
+    "term_name": "Fall 2026",
+    "is_student": false,
+    "visibility": "general_public",
+    "entity_type": "section",
+    "family_name": "syllabus",
+    "has_upload_thumbnail": false,
+    "has_published_uploads": false
+  },
+  {
+    "code": "p8zrp16f0",
+    "title": "PHH 4440 (AC.PHI) 002",
+    "total": 89,
+    "editors": [
+      {
+        "entity_id": "8c8979a9-eba4-43cd-8853-78139072400d",
+        "full_name": "Joshua Rayman",
+        "last_name": "Rayman",
+        "first_name": "Joshua",
+        "has_headshot": false
+      }
+    ],
+    "term_id": "39cbf616-b092-4b22-a29e-7c5f610742dc",
+    "entity_id": "80624bea-116b-4f3c-b0e5-5144c47def41",
+    "following": false,
+    "sub_title": "Continental Philosophy",
+    "term_name": "Fall 2026",
+    "is_student": false,
+    "visibility": "general_public",
+    "entity_type": "section",
+    "family_name": "syllabus",
+    "has_upload_thumbnail": false,
+    "has_published_uploads": false
+  },
+  {
+    "code": "pbpxdvzqc",
+    "title": "PHI 2010 (AC.PHI) 017",
+    "total": 89,
+    "editors": [
+      {
+        "entity_id": "225f0504-e2c3-4621-b924-def8cc034a09",
+        "full_name": "Christopher Barber",
+        "last_name": "Barber",
+        "first_name": "Christopher",
+        "has_headshot": false
+      }
+    ],
+    "term_id": "39cbf616-b092-4b22-a29e-7c5f610742dc",
+    "entity_id": "67b9c885-abb4-43d8-8add-f5b403344513",
+    "following": false,
+    "sub_title": "Introduction to Philosophy",
+    "term_name": "Fall 2026",
+    "is_student": false,
+    "visibility": "general_public",
+    "entity_type": "section",
+    "family_name": "syllabus",
+    "has_upload_thumbnail": false,
+    "has_published_uploads": false
+  },
+  {
+    "code": "qdyrubetd",
+    "title": "PHI 2010 (AC.PHI) 019",
+    "total": 89,
+    "editors": [
+      {
+        "entity_id": "d549145a-1c8d-4f5b-9853-4cfe849dd7be",
+        "full_name": "Matthew Hopps",
+        "last_name": "Hopps",
+        "first_name": "Matthew",
+        "has_headshot": false
+      }
+    ],
+    "term_id": "39cbf616-b092-4b22-a29e-7c5f610742dc",
+    "entity_id": "f70d695e-231d-41f1-b79d-60c3e11461ad",
+    "following": false,
+    "sub_title": "Introduction to Philosophy",
+    "term_name": "Fall 2026",
+    "is_student": false,
+    "visibility": "general_public",
+    "entity_type": "section",
+    "family_name": "syllabus",
+    "has_upload_thumbnail": false,
+    "has_published_uploads": false
+  },
+  {
+    "code": "qr8qikxrx",
+    "title": "PHH 3062 (AC.PHI) 001",
+    "total": 89,
+    "editors": [
+      {
+        "entity_id": "4b6a1b64-7a2e-4c67-80bb-da99e6674085",
+        "full_name": "Mor Segev",
+        "last_name": "Segev",
+        "first_name": "Mor",
+        "has_headshot": false
+      }
+    ],
+    "term_id": "39cbf616-b092-4b22-a29e-7c5f610742dc",
+    "entity_id": "721fdb9c-8248-40c6-9c6c-a527ce3d23fb",
+    "following": false,
+    "sub_title": "History of Western Philosophy: Ancient Philosophy",
+    "term_name": "Fall 2026",
+    "is_student": false,
+    "visibility": "general_public",
+    "entity_type": "section",
+    "family_name": "syllabus",
+    "has_upload_thumbnail": false,
+    "has_published_uploads": false
+  },
+  {
+    "code": "rbewy4w41",
+    "title": "PHI 2622 (AC.PHI) 008",
+    "total": 89,
+    "editors": [
+      {
+        "entity_id": "893866a0-de07-4eee-be75-c7ccc70278e5",
+        "full_name": "Yvonne Candelario",
+        "last_name": "Candelario",
+        "first_name": "Yvonne",
+        "has_headshot": false
+      }
+    ],
+    "term_id": "39cbf616-b092-4b22-a29e-7c5f610742dc",
+    "entity_id": "cad21d09-f5cb-46c1-aa54-c24e791fcbd5",
+    "following": false,
+    "sub_title": "Biomedical Ethics",
+    "term_name": "Fall 2026",
+    "is_student": false,
+    "visibility": "general_public",
+    "entity_type": "section",
+    "family_name": "syllabus",
+    "has_upload_thumbnail": false,
+    "has_published_uploads": false
+  },
+  {
+    "code": "rjbdzs4ag",
+    "title": "PHI 2622 (AC.PHI) 001",
+    "total": 89,
+    "editors": [
+      {
+        "entity_id": "6d12be14-f887-4103-8253-19796898559a",
+        "full_name": "Benedito Da Conceicao Monteiro Neto",
+        "last_name": "Da Conceicao Monteiro Neto",
+        "first_name": "Benedito",
+        "has_headshot": false
+      }
+    ],
+    "term_id": "39cbf616-b092-4b22-a29e-7c5f610742dc",
+    "entity_id": "90cb767e-94d6-4cda-9152-46a5084414e3",
+    "following": false,
+    "sub_title": "Biomedical Ethics",
+    "term_name": "Fall 2026",
+    "is_student": false,
+    "visibility": "general_public",
+    "entity_type": "section",
+    "family_name": "syllabus",
+    "has_upload_thumbnail": false,
+    "has_published_uploads": false
+  },
+  {
+    "code": "s5kvg336v",
+    "title": "PHI 2010 (AC.PHI) 012",
+    "total": 89,
+    "editors": [
+      {
+        "entity_id": "273fa3a9-c63a-4ea6-b1b3-eb23606cd192",
+        "full_name": "Thomas Slabon",
+        "last_name": "Slabon",
+        "first_name": "Thomas",
+        "has_headshot": false
+      },
+      {
+        "entity_id": "539b25f8-a2ad-4795-84f6-925964b1cd22",
+        "full_name": "Kira Nerys Walker",
+        "last_name": "Walker",
+        "first_name": "Kira Nerys",
+        "has_headshot": false
+      }
+    ],
+    "term_id": "39cbf616-b092-4b22-a29e-7c5f610742dc",
+    "entity_id": "dd17b78b-a5c2-42d1-aaeb-cb44297a2a7c",
+    "following": false,
+    "sub_title": "Introduction to Philosophy",
+    "term_name": "Fall 2026",
+    "is_student": false,
+    "visibility": "general_public",
+    "entity_type": "section",
+    "family_name": "syllabus",
+    "has_upload_thumbnail": false,
+    "has_published_uploads": false
+  },
+  {
+    "code": "scghkje81",
+    "title": "PHI 2010 (AC.PHI) 020",
+    "total": 89,
+    "editors": [
+      {
+        "entity_id": "12a2c1e3-e5c2-43d5-84ae-b9229171f4a2",
+        "full_name": "Hyder Arastu",
+        "last_name": "Arastu",
+        "first_name": "Hyder",
+        "has_headshot": false
+      }
+    ],
+    "term_id": "39cbf616-b092-4b22-a29e-7c5f610742dc",
+    "entity_id": "16cf661a-bf64-4410-bf83-bdf7a2a442a4",
+    "following": false,
+    "sub_title": "Introduction to Philosophy",
+    "term_name": "Fall 2026",
+    "is_student": false,
+    "visibility": "general_public",
+    "entity_type": "section",
+    "family_name": "syllabus",
+    "has_upload_thumbnail": false,
+    "has_published_uploads": false
+  },
+  {
+    "code": "szxz5ucsg",
+    "title": "PHI 1600 (AC.PHI) 008",
+    "total": 89,
+    "editors": [
+      {
+        "entity_id": "893866a0-de07-4eee-be75-c7ccc70278e5",
+        "full_name": "Yvonne Candelario",
+        "last_name": "Candelario",
+        "first_name": "Yvonne",
+        "has_headshot": false
+      }
+    ],
+    "term_id": "39cbf616-b092-4b22-a29e-7c5f610742dc",
+    "entity_id": "8209bd1d-8535-4f69-a195-250095652f06",
+    "following": false,
+    "sub_title": "Introduction to Ethics",
+    "term_name": "Fall 2026",
+    "is_student": false,
+    "visibility": "general_public",
+    "entity_type": "section",
+    "family_name": "syllabus",
+    "has_upload_thumbnail": false,
+    "has_published_uploads": false
+  },
+  {
+    "code": "t4dfl1sg3",
+    "title": "PHI 1103 (AC.PHI) 003",
+    "total": 89,
+    "editors": [
+      {
+        "entity_id": "59a97366-293e-4cd7-a24e-a12575e922ae",
+        "full_name": "Dolores Morris",
+        "last_name": "Morris",
+        "first_name": "Dolores",
+        "has_headshot": false
+      }
+    ],
+    "term_id": "39cbf616-b092-4b22-a29e-7c5f610742dc",
+    "entity_id": "3c944777-968b-4e86-b815-0018c4c24dec",
+    "following": false,
+    "sub_title": "Critical Thinking",
+    "term_name": "Fall 2026",
+    "is_student": false,
+    "visibility": "general_public",
+    "entity_type": "section",
+    "family_name": "syllabus",
+    "has_upload_thumbnail": false,
+    "has_published_uploads": false
+  },
+  {
+    "code": "th7zghecf",
+    "title": "PHI 2010 (AC.PHI) 010",
+    "total": 89,
+    "editors": [
+      {
+        "entity_id": "273fa3a9-c63a-4ea6-b1b3-eb23606cd192",
+        "full_name": "Thomas Slabon",
+        "last_name": "Slabon",
+        "first_name": "Thomas",
+        "has_headshot": false
+      },
+      {
+        "entity_id": "995fc206-aa78-465a-aa3c-fed5c1c19c10",
+        "full_name": "Nick Van Atta",
+        "last_name": "Van Atta",
+        "first_name": "Nick",
+        "has_headshot": false
+      }
+    ],
+    "term_id": "39cbf616-b092-4b22-a29e-7c5f610742dc",
+    "entity_id": "e8d5e159-6607-451f-861b-7bae92caacda",
+    "following": false,
+    "sub_title": "Introduction to Philosophy",
+    "term_name": "Fall 2026",
+    "is_student": false,
+    "visibility": "general_public",
+    "entity_type": "section",
+    "family_name": "syllabus",
+    "has_upload_thumbnail": false,
+    "has_published_uploads": false
+  },
+  {
+    "code": "tte4t1dc9",
+    "title": "PHI 3636 (AC.PHI) 001",
+    "total": 89,
+    "editors": [
+      {
+        "entity_id": "ca7f4922-cc20-49af-8e05-a0369e064761",
+        "full_name": "Zachary Purdue",
+        "last_name": "Purdue",
+        "first_name": "Zachary",
+        "has_headshot": false
+      }
+    ],
+    "term_id": "39cbf616-b092-4b22-a29e-7c5f610742dc",
+    "entity_id": "c8e7faf1-9b85-4e59-87ed-eefaaf2b5c6e",
+    "following": false,
+    "sub_title": "Professional Ethics",
+    "term_name": "Fall 2026",
+    "is_student": false,
+    "visibility": "general_public",
+    "entity_type": "section",
+    "family_name": "syllabus",
+    "has_upload_thumbnail": false,
+    "has_published_uploads": false
+  },
+  {
+    "code": "tyrem8yux",
+    "title": "PHI 1600 (AC.PHI) 002",
+    "total": 89,
+    "editors": [
+      {
+        "entity_id": "0ce0b069-7830-49ba-832e-dc27796188f6",
+        "full_name": "Tomas Bardi",
+        "last_name": "Bardi",
+        "first_name": "Tomas",
+        "has_headshot": false
+      }
+    ],
+    "term_id": "39cbf616-b092-4b22-a29e-7c5f610742dc",
+    "entity_id": "69b204a5-79ea-49cf-82c4-41ec95805168",
+    "following": false,
+    "sub_title": "Introduction to Ethics",
+    "term_name": "Fall 2026",
+    "is_student": false,
+    "visibility": "general_public",
+    "entity_type": "section",
+    "family_name": "syllabus",
+    "has_upload_thumbnail": false,
+    "has_published_uploads": false
+  },
+  {
+    "code": "u4upbtmke",
+    "title": "PHI 6605 (AC.PHI) 001",
+    "total": 89,
+    "editors": [
+      {
+        "entity_id": "0ad6db9e-0eeb-47c1-951b-c4224ab30f42",
+        "full_name": "Colin Heydt",
+        "last_name": "Heydt",
+        "first_name": "Colin",
+        "has_headshot": false
+      }
+    ],
+    "term_id": "39cbf616-b092-4b22-a29e-7c5f610742dc",
+    "entity_id": "61a7ac52-fdec-4226-b08c-97ab54bbdb2a",
+    "following": false,
+    "sub_title": "Seminar in Ethics",
+    "term_name": "Fall 2026",
+    "is_student": false,
+    "visibility": "general_public",
+    "entity_type": "section",
+    "family_name": "syllabus",
+    "has_upload_thumbnail": false,
+    "has_published_uploads": false
+  },
+  {
+    "code": "v21wyf533",
+    "title": "PHI 2010 (AC.PHI) 018",
+    "total": 89,
+    "editors": [
+      {
+        "entity_id": "f7b4e847-74db-41a2-bd26-006c871ce854",
+        "full_name": "Jeffrey Diamond",
+        "last_name": "Diamond",
+        "first_name": "Jeffrey",
+        "has_headshot": false
+      }
+    ],
+    "term_id": "39cbf616-b092-4b22-a29e-7c5f610742dc",
+    "entity_id": "daea433c-e874-4695-9450-3e87e3994028",
+    "following": false,
+    "sub_title": "Introduction to Philosophy",
+    "term_name": "Fall 2026",
+    "is_student": false,
+    "visibility": "general_public",
+    "entity_type": "section",
+    "family_name": "syllabus",
+    "has_upload_thumbnail": false,
+    "has_published_uploads": false
+  },
+  {
+    "code": "v4grj1hgc",
+    "title": "PHI 2010 (AC.PHI) 002",
+    "total": 89,
+    "editors": [
+      {
+        "entity_id": "273fa3a9-c63a-4ea6-b1b3-eb23606cd192",
+        "full_name": "Thomas Slabon",
+        "last_name": "Slabon",
+        "first_name": "Thomas",
+        "has_headshot": false
+      },
+      {
+        "entity_id": "ad662d85-5bfb-4d76-b2df-7188ee9cbf6f",
+        "full_name": "Samuel Ubani",
+        "last_name": "Ubani",
+        "first_name": "Samuel",
+        "has_headshot": false
+      }
+    ],
+    "term_id": "39cbf616-b092-4b22-a29e-7c5f610742dc",
+    "entity_id": "2657c8a9-0adf-43c9-9d0a-12d648c1a0e1",
+    "following": false,
+    "sub_title": "Introduction to Philosophy",
+    "term_name": "Fall 2026",
+    "is_student": false,
+    "visibility": "general_public",
+    "entity_type": "section",
+    "family_name": "syllabus",
+    "has_upload_thumbnail": false,
+    "has_published_uploads": false
+  },
+  {
+    "code": "v5wxt2527",
+    "title": "PHI 1600 (AC.PHI) 009",
+    "total": 89,
+    "editors": [
+      {
+        "entity_id": "b9e554bf-5489-4836-8d97-a5d5f1eb516f",
+        "full_name": "Matija Budisin",
+        "last_name": "Budisin",
+        "first_name": "Matija",
+        "has_headshot": false
+      }
+    ],
+    "term_id": "39cbf616-b092-4b22-a29e-7c5f610742dc",
+    "entity_id": "e4993e93-269e-4966-a85b-37bb33738aa5",
+    "following": false,
+    "sub_title": "Introduction to Ethics",
+    "term_name": "Fall 2026",
+    "is_student": false,
+    "visibility": "general_public",
+    "entity_type": "section",
+    "family_name": "syllabus",
+    "has_upload_thumbnail": false,
+    "has_published_uploads": false
+  },
+  {
+    "code": "wte6t8jww",
+    "title": "PHI 2622 (AC.PHI) 003",
+    "total": 89,
+    "editors": [
+      {
+        "entity_id": "adcee5f2-ae88-49cb-8626-91709f36fa5f",
+        "full_name": "Richard Lamborn",
+        "last_name": "Lamborn",
+        "first_name": "Richard",
+        "has_headshot": false
+      }
+    ],
+    "term_id": "39cbf616-b092-4b22-a29e-7c5f610742dc",
+    "entity_id": "211d030b-1ae6-4a4f-ab8b-4bf21086fa3a",
+    "following": false,
+    "sub_title": "Biomedical Ethics",
+    "term_name": "Fall 2026",
+    "is_student": false,
+    "visibility": "general_public",
+    "entity_type": "section",
+    "family_name": "syllabus",
+    "has_upload_thumbnail": false,
+    "has_published_uploads": false
+  },
+  {
+    "code": "xr1vc1eqf",
+    "title": "PHI 2010 (AC.PHI) 001",
+    "total": 89,
+    "editors": [
+      {
+        "entity_id": "273fa3a9-c63a-4ea6-b1b3-eb23606cd192",
+        "full_name": "Thomas Slabon",
+        "last_name": "Slabon",
+        "first_name": "Thomas",
+        "has_headshot": false
+      },
+      {
+        "entity_id": "ad662d85-5bfb-4d76-b2df-7188ee9cbf6f",
+        "full_name": "Samuel Ubani",
+        "last_name": "Ubani",
+        "first_name": "Samuel",
+        "has_headshot": false
+      }
+    ],
+    "term_id": "39cbf616-b092-4b22-a29e-7c5f610742dc",
+    "entity_id": "c9ea382b-0df3-45a5-8e40-ddd7880cb6ec",
+    "following": false,
+    "sub_title": "Introduction to Philosophy",
+    "term_name": "Fall 2026",
+    "is_student": false,
+    "visibility": "general_public",
+    "entity_type": "section",
+    "family_name": "syllabus",
+    "has_upload_thumbnail": false,
+    "has_published_uploads": false
+  },
+  {
+    "code": "yfsjdagbo",
+    "title": "PHP 4000 (AC.PHI) 901",
+    "total": 89,
+    "editors": [
+      {
+        "entity_id": "273fa3a9-c63a-4ea6-b1b3-eb23606cd192",
+        "full_name": "Thomas Slabon",
+        "last_name": "Slabon",
+        "first_name": "Thomas",
+        "has_headshot": false
+      }
+    ],
+    "term_id": "39cbf616-b092-4b22-a29e-7c5f610742dc",
+    "entity_id": "8a3430e1-91ea-4aba-b4ce-ce171496f8fd",
+    "following": false,
+    "sub_title": "Plato",
+    "term_name": "Fall 2026",
+    "is_student": false,
+    "visibility": "general_public",
+    "entity_type": "section",
+    "family_name": "syllabus",
+    "has_upload_thumbnail": false,
+    "has_published_uploads": false
+  },
+  {
+    "code": "yxjsmruql",
+    "title": "PHI 1103 (AC.PHI) 004",
+    "total": 89,
+    "editors": [
+      {
+        "entity_id": "36c73a37-e44d-4d3c-ad84-e4c15b8b78ec",
+        "full_name": "Patrick Leland",
+        "last_name": "Leland",
+        "first_name": "Patrick",
+        "has_headshot": false
+      }
+    ],
+    "term_id": "39cbf616-b092-4b22-a29e-7c5f610742dc",
+    "entity_id": "1174abdf-5f02-4e74-9de9-4167141cb8d0",
+    "following": false,
+    "sub_title": "Critical Thinking",
+    "term_name": "Fall 2026",
+    "is_student": false,
+    "visibility": "general_public",
+    "entity_type": "section",
+    "family_name": "syllabus",
+    "has_upload_thumbnail": false,
+    "has_published_uploads": false
+  },
+  {
+    "code": "yyjln3nid",
+    "title": "PHI 2010 (AC.PHI) 016",
+    "total": 89,
+    "editors": [
+      {
+        "entity_id": "a7ba106a-614d-4f22-b24c-6981875564dc",
+        "full_name": "Greg McCreery",
+        "last_name": "McCreery",
+        "first_name": "Greg",
+        "has_headshot": false
+      }
+    ],
+    "term_id": "39cbf616-b092-4b22-a29e-7c5f610742dc",
+    "entity_id": "3efa5f78-8542-4cee-883f-86028e8ea768",
+    "following": false,
+    "sub_title": "Introduction to Philosophy",
+    "term_name": "Fall 2026",
+    "is_student": false,
+    "visibility": "general_public",
+    "entity_type": "section",
+    "family_name": "syllabus",
+    "has_upload_thumbnail": false,
+    "has_published_uploads": false
+  },
+  {
+    "code": "zfd311l4o",
+    "title": "PHI 4300 (AC.PHI) 001",
+    "total": 89,
+    "editors": [
+      {
+        "entity_id": "273fa3a9-c63a-4ea6-b1b3-eb23606cd192",
+        "full_name": "Thomas Slabon",
+        "last_name": "Slabon",
+        "first_name": "Thomas",
+        "has_headshot": false
+      }
+    ],
+    "term_id": "39cbf616-b092-4b22-a29e-7c5f610742dc",
+    "entity_id": "9fed6ba1-ae93-483c-bee8-1f668a9975be",
+    "following": false,
+    "sub_title": "Theory of Knowledge",
+    "term_name": "Fall 2026",
+    "is_student": false,
+    "visibility": "general_public",
+    "entity_type": "section",
+    "family_name": "syllabus",
+    "has_upload_thumbnail": false,
+    "has_published_uploads": false
+  }
+]

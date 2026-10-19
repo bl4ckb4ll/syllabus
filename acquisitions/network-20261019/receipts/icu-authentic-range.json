@@ -1,0 +1,87 @@
+{
+  "finished_at": "2026-10-19T22:18:01.962080+00:00",
+  "github_sha_declared": null,
+  "parameters": {
+    "body": "/workspace/scratch/d9cf5c50308f/captured-sources/CC39-REED-20260906235851.warc.gz",
+    "chez-setting": "CHEZ=/workspace/scratch/a17a779c0b0f/Idric/_/.tools/bin/scheme",
+    "idric": "/workspace/scratch/a17a779c0b0f/Idric/_/build/exec/idris2",
+    "length": "9367",
+    "library": "/workspace/scratch/d9cf5c50308f/icu-installed/bin/response-probe_app/libicu_transport.so",
+    "library-directory": "/workspace/scratch/d9cf5c50308f/icu/build/exec/protocol-version-probe_app/",
+    "metadata": "/workspace/scratch/d9cf5c50308f/captured-sources/CC39-REED-20260906235851.metadata",
+    "offset": "843666201",
+    "package": "/workspace/scratch/d9cf5c50308f/icu/protocol-version-probe.ipkg",
+    "prefix-setting": "IDRIS2_PREFIX=/workspace/scratch/d9cf5c50308f/compiler-prefix",
+    "probe": "/workspace/scratch/d9cf5c50308f/icu/build/exec/protocol-version-probe",
+    "url": "https://data.commoncrawl.org/crawl-data/CC-MAIN-2026-39/segments/1788492699693.82/warc/CC-MAIN-20260906231007-20260907021007-00742.warc.gz"
+  },
+  "pipeline": "syllabus-range-diagnostic",
+  "pipeline_path": "pipelines/syllabus-range-diagnostic.json",
+  "pipeline_sha256": "e752e1b766766c025d012f7ac8dec8cd241cf6b5a92ab28b5e292c82738386c4",
+  "repository_commit": "8b9de5b54cf1482ab210053d0ac1877f3b16ecee",
+  "runner": {
+    "machine": "x86_64",
+    "python": "3.12.14",
+    "release": "6.18.55",
+    "system": "Linux"
+  },
+  "schema_version": 1,
+  "stages": [
+    {
+      "argv": [
+        "env",
+        "CHEZ=/workspace/scratch/a17a779c0b0f/Idric/_/.tools/bin/scheme",
+        "IDRIS2_PREFIX=/workspace/scratch/d9cf5c50308f/compiler-prefix",
+        "/workspace/scratch/a17a779c0b0f/Idric/_/build/exec/idris2",
+        "--build",
+        "/workspace/scratch/d9cf5c50308f/icu/protocol-version-probe.ipkg"
+      ],
+      "cwd": ".",
+      "exit_code": 0,
+      "finished_at": "2026-10-19T22:17:58.303280+00:00",
+      "index": 1,
+      "kind": "command",
+      "name": "compile-idric-probe",
+      "started_at": "2026-10-19T22:17:57.442491+00:00",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_sha256": "381ac36bc214b59979b0333e747c23adc5b8be18f68ca3f6268a3dbec40ae5a0"
+    },
+    {
+      "argv": [
+        "cp",
+        "/workspace/scratch/d9cf5c50308f/icu-installed/bin/response-probe_app/libicu_transport.so",
+        "/workspace/scratch/d9cf5c50308f/icu/build/exec/protocol-version-probe_app/"
+      ],
+      "cwd": ".",
+      "exit_code": 0,
+      "finished_at": "2026-10-19T22:17:58.305795+00:00",
+      "index": 2,
+      "kind": "command",
+      "name": "bind-same-icu-provider",
+      "started_at": "2026-10-19T22:17:58.303610+00:00",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "argv": [
+        "/workspace/scratch/d9cf5c50308f/icu/build/exec/protocol-version-probe",
+        "https://data.commoncrawl.org/crawl-data/CC-MAIN-2026-39/segments/1788492699693.82/warc/CC-MAIN-20260906231007-20260907021007-00742.warc.gz",
+        "/workspace/scratch/d9cf5c50308f/captured-sources/CC39-REED-20260906235851.warc.gz",
+        "/workspace/scratch/d9cf5c50308f/captured-sources/CC39-REED-20260906235851.metadata",
+        "843666201",
+        "9367"
+      ],
+      "cwd": ".",
+      "exit_code": 0,
+      "finished_at": "2026-10-19T22:18:01.962009+00:00",
+      "index": 3,
+      "kind": "command",
+      "name": "fetch-and-verify-range",
+      "started_at": "2026-10-19T22:17:58.305839+00:00",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_sha256": "3bf33c37001707e83b791a1c73d98f1180b1f938f2ba3910587c30ebd413e235"
+    }
+  ],
+  "started_at": "2026-10-19T22:17:57.442431+00:00",
+  "status": "PASS"
+}

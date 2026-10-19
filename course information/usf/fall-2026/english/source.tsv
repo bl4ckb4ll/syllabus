@@ -1,0 +1,20 @@
+field	value
+institution	University of South Florida
+department	English
+discipline	english
+course	ENC 1101
+section	064
+instructor	Anita Wholuba
+term	Fall 2026
+source_document	acquisitions/usf-20261019T222542Z/syllabi/usf/fall-2026/english/simple-syllabus/documents/01zbfm1ij.html
+source_bytes	166705
+source_sha256	b7059702acb049036b802c873864597e3032f23854cd9060eec99d230db1c670
+document_url	https://usf.simplesyllabus.com/api2/doc-html/01zbfm1ij/Fall-2026-ENC-1101-%28AC-ENG%29-064-Composition-I
+public_url	https://usf.simplesyllabus.com/doc/01zbfm1ij/Fall-2026-ENC-1101-%28AC-ENG%29-064-Composition-I?mode=view
+archive_reference	https://github.com/bl4ckb4ll/syllabus/actions/runs/39333675595/artifacts/12226621504
+artifact_zip_sha256	47fbcfc22fa2970b07461f0e65bf7bbf900fdb14e669225eadb189ca2fb63495
+http_status	unknown; legacy ICU does not expose headers
+status	PARTIAL
+course_population	unknown
+whole_population_complete	false
+missing_evidence	No authors or ISBNs in syllabus; no chapter/page assignments; no enumerated course population; Purdue OWL is a possible supplementary resource without a specific assigned text; InQuizitive is software access and is not counted as a book

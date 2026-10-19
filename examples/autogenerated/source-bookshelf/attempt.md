@@ -1,0 +1,7 @@
+# Source-linked canonical bookshelf records
+
+The job explicitly requests actual Ithon execution. This small generator consumes manually source-checked assignment TSVs, never a course catalog, and emits one canonical root Markdown record per distinct work/author selection. It refuses to overwrite a different existing record. `--check` verifies exact reproducibility without writing. It does not guess authors, editions or missing work titles.
+
+Type sketch: course metadata and readings are `dict[str,str]` records; original evidence stays independently hash-bound; output is a deterministic function of a reading row and course metadata. Failures are explicit nonzero exceptions. The consumer HTML parser remains separately recorded legacy debt. Development uses the pinned checked host interface; native current-head CI must execute the same `.pi` through the native-backed launcher before claiming native acceptance.
+
+The paired `searches.pi` assembles exact source response hashes and bounded-query dispositions; transport success is never source acceptance. `parsers/classify_syllabus.pi` is a deliberately bounded HTML classifier for the acquired course-code family. It refuses to promote the authentic Reed homepage into a syllabus. A positive result is only a candidate: assigned-reading claims still require source evidence and independent acceptance. This is not a universal syllabus classifier or HTML/PDF recovery engine.

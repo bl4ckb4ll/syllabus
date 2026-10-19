@@ -1,0 +1,25 @@
+{
+  "code": "06spksbji",
+  "title": "EUH 3401 (AC.HTY) 001",
+  "total": 105,
+  "editors": [
+    {
+      "entity_id": "36866e10-33f6-41d3-9adb-e06102d3c38b",
+      "full_name": "Jesse Obert",
+      "last_name": "Obert",
+      "first_name": "Jesse",
+      "has_headshot": false
+    }
+  ],
+  "term_id": "39cbf616-b092-4b22-a29e-7c5f610742dc",
+  "entity_id": "f01d54bc-aab4-4b3b-84ae-c7cbe70c9413",
+  "following": false,
+  "sub_title": "Classical Greece",
+  "term_name": "Fall 2026",
+  "is_student": false,
+  "visibility": "general_public",
+  "entity_type": "section",
+  "family_name": "syllabus",
+  "has_upload_thumbnail": false,
+  "has_published_uploads": false
+}

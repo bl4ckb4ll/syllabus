@@ -1,0 +1,36 @@
+"""Bounded classifier for the actually acquired HTML sources; no course completion claim."""
+import hashlib
+import html
+import re
+import sys
+from pathlib import Path
+from builtins import list, ValueError
+
+
+def classify(raw ∈ bytes) → str:
+    decoded ∈ str ← raw.decode('utf-8')
+    untagged ∈ str ← re.sub(r'<[^>]+>', ' ', decoded)
+    text ∈ str ← html.unescape(untagged)
+    normalized ∈ str ← ' '.join(text.split())
+    course ∈ object ← re.search(r'\b(?:PHM|PHI|ENC|EUH)\s+[0-9]{4}\b', normalized)
+    term ∈ object ← re.search(r'\b(?:Fall|Spring|Summer)\s+20[0-9]{2}\b', normalized)
+    if bool(course) and bool(term) and 'Required Texts and/or Readings and Course Materials' in normalized:
+        return 'SYLLABUS_CANDIDATE_READING_EVIDENCE_REQUIRED'
+    return 'UNRELATED_OR_UNSUPPORTED_HTML_NO_ASSIGNMENT_CLAIM'
+
+
+def main() → None:
+    arguments ∈ list[str] ← sys.argv
+    if len(arguments) != 3:
+        raise ValueError('requires HTML_FILE EXPECTED_CLASSIFICATION')
+    raw ∈ bytes ← Path(arguments[1]).read_bytes()
+    observed ∈ str ← classify(raw)
+    if observed != arguments[2]:
+        raise ValueError('classification differs from independently inspected source')
+    digest ∈ str ← hashlib.sha256(raw).hexdigest()
+    print('classification\t' + observed)
+    print('source_sha256\t' + digest)
+    print('source_bytes\t' + str(len(raw)))
+
+
+main()

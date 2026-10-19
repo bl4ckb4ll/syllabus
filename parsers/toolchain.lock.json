@@ -1,0 +1,16 @@
+{
+  "schema": 1,
+  "icu": {
+    "repository": "dilapidated-shed/icu",
+    "commit": "a9e5e6089bdbf93d0209d673b93c783eb1957b44"
+  },
+  "grease": {
+    "repository": "isomorphisms/grease",
+    "commit": "e963958976eaa80a2517bae3fd34b0e5115ffcbe",
+    "source_commit": "e9a54ad727d89cd593d0bfe56136046808ea81d2"
+  },
+  "ithon": {
+    "repository": "dilapidated-shed/ithon",
+    "commit": "2e0d634550ecf2eb78315c2c165fe0e85ea1980c"
+  }
+}

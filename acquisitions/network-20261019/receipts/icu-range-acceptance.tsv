@@ -1,0 +1,8 @@
+range-valid	PASS
+range-wrong-status	PASS
+range-wrong-offset	PASS
+range-wrong-total	PASS
+range-missing	PASS
+range-duplicate	PASS
+range-encoding	PASS
+range-truncated	PASS

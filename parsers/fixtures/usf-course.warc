@@ -1,0 +1,11 @@
+WARC/1.1
+WARC-Type: resource
+WARC-Record-ID: <urn:uuid:2e9ab9ac-7ca2-4ab8-8c38-b80e7a05b0e5>
+WARC-Date: 2026-08-29T21:09:00Z
+WARC-Target-URI: https://usf.simplesyllabus.com/api2/doc-full-page-get?code=fixture-phi2010
+Content-Type: application/json; charset=utf-8
+Content-Length: 504
+
+{"items":[{"code":"fixture-phi2010-fall2025","doc_data":{"components":[{"html":"<p>A checked WARC replay fixture.</p>","sort_order":1,"title":"Course Description"},{"html":"<ul><li>Julia Driver, <em>Ethics: The Fundamentals</em>, ISBN 9781405111546</li><li>James Rachels, <em>The Elements of Moral Philosophy</em>, ISBN 9780078038242</li></ul>","sort_order":2,"title":"Required Texts"}]},"editors":[{"name":"Fixture Professor"}],"term_name":"Fall 2025","title":"PHI 2010 - Introduction to Philosophy"}]}
+
+

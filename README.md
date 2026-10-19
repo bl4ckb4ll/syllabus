@@ -38,3 +38,19 @@ PHI 3670 supplies an unusually useful numbered reading schedule from George Sher
 ## Reconstructed courses
 
 - [Earl Shorris — Clemente Course in the Humanities](clemente-course/README.md)
+
+## Collection and replay
+
+The acquisition work continues alongside this bookshelf: `syllabi/` holds public
+metadata and bounded HTML provenance, `parsers/` holds the ingestion programs,
+`course information/` holds derived output, `common crawl results pertinent to
+universities/` holds index records and WARC pointers, and `crawling log/` holds
+append-only stage receipts. PDFs remain at their public sources; their exact
+hashes and archive pointers belong in provenance records.
+
+Each reading claim needs its source bytes/hash, parser identity and tool pins.
+ICU owns network acquisition; Grease owns shell orchestration; Ithon source must
+pass its actual frontend before execution. Missing capabilities produce a failed
+or blocked receipt. The older `.py` parsers are retained migration debt and do
+not establish checked-Ithon acceptance. See [the parser documentation](parsers/README.md)
+and [the Common Crawl replay boundary](parsers/COMMON-CRAWL-WARC.md).
