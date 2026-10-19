@@ -1,29 +1,29 @@
-institution_id	institution	field	status	verified_course_instances	evidence_surface	next_evidence_action
-FSU	Florida State University	philosophy	PARTIAL_READING_EVIDENCE	2	main:README.md; PHI 3670 (Spring unknown year); PHI 3700 (Fall 2006)	Enumerate relevant philosophy course/term paths; recover assigned reading per syllabus
-FSU	Florida State University	history	UNSEARCHED	unknown	none attested in this ledger	Find actual history department syllabus instances
-FSU	Florida State University	english	UNSEARCHED	unknown	none attested in this ledger	Find actual English department syllabus instances
-FSU	Florida State University	area studies	UNSEARCHED	unknown	program existence not yet checked	Verify program/cross-listed courses before claiming coverage
-USF	University of South Florida	philosophy	UNSEARCHED	unknown	book-first-usf acquisition branch only; EDG 7067 fixture is education	Find PHI-coded terms and real reading evidence
-USF	University of South Florida	history	UNSEARCHED	unknown	book-first-usf acquisition work only	Find HIS-coded courses and real reading evidence
-USF	University of South Florida	english	UNSEARCHED	unknown	book-first-usf acquisition work only	Find ENG/ENL/LIT-coded course evidence after course-code verification
-USF	University of South Florida	area studies	UNSEARCHED	unknown	program existence not yet checked	Identify language and regional studies programs
-MIAMIOH	Miami University (Ohio)	philosophy	UNSEARCHED	unknown	historical starter-school lead	Enumerate program and syllabi
-MIAMIOH	Miami University (Ohio)	history	UNSEARCHED	unknown	historical starter-school lead	Enumerate program and syllabi
-MIAMIOH	Miami University (Ohio)	english	UNSEARCHED	unknown	historical starter-school lead	Enumerate program and syllabi
-MIAMIOH	Miami University (Ohio)	area studies	UNSEARCHED	unknown	program existence not yet checked	Verify program and language/humanities cross-lists
-MVSU	Mississippi Valley State University	philosophy	UNSEARCHED	unknown	historical starter-school lead	Identify actual department/program and courses
-MVSU	Mississippi Valley State University	history	UNSEARCHED	unknown	historical starter-school lead	Find instructor/term syllabus evidence
-MVSU	Mississippi Valley State University	english	UNSEARCHED	unknown	historical starter-school lead	Find instructor/term syllabus evidence
-MVSU	Mississippi Valley State University	area studies	UNSEARCHED	unknown	program existence not yet checked	Verify if courses/programs exist; avoid fabricating absence
-OLEMISS	University of Mississippi	philosophy	UNSEARCHED	unknown	historical starter-school lead	Collect course instances with assignment evidence
-OLEMISS	University of Mississippi	history	UNSEARCHED	unknown	historical starter-school lead	Collect course instances with assignment evidence
-OLEMISS	University of Mississippi	english	UNSEARCHED	unknown	historical starter-school lead	Collect course instances with assignment evidence
-OLEMISS	University of Mississippi	area studies	UNSEARCHED	unknown	program existence not yet checked	Find cross-listed language/history/regional classes
-REED	Reed College	philosophy	UNSEARCHED	unknown	historical starter-school lead	Collect syllabus instances; distinguish core from major
-REED	Reed College	history	UNSEARCHED	unknown	historical starter-school lead	Collect syllabus instances; distinguish core from major
-REED	Reed College	english	UNSEARCHED	unknown	historical starter-school lead	Collect syllabus instances; distinguish core from major
-REED	Reed College	area studies	UNSEARCHED	unknown	program existence not yet checked	Identify actual area studies program/courses
-UCHI	University of Chicago	philosophy	UNSEARCHED	unknown	historical starter-school lead	Collect assigned readings; distinguish Core from major
-UCHI	University of Chicago	history	UNSEARCHED	unknown	historical starter-school lead	Collect assigned readings; distinguish Core from major
-UCHI	University of Chicago	english	UNSEARCHED	unknown	historical starter-school lead	Collect assigned readings; distinguish Core from major
-UCHI	University of Chicago	area studies	UNSEARCHED	unknown	program existence not yet checked	Identify area studies schools/centers and teaching courses
+institution_id	institution	field	status	documented_course_instances	complete_course_instances	course_denominator	evidence_source	next_evidence_action
+FSU	Florida State University	philosophy	PARTIAL_READING_EVIDENCE	2	0	unknown	course-instances.tsv; source-rechecks.tsv; main source notes	Enumerate relevant philosophy course/term paths; recover assigned reading per syllabus
+FSU	Florida State University	history	UNSEARCHED	unknown	0	unknown	no_bounded_recorded_search	Find actual history department syllabus instances
+FSU	Florida State University	english	UNSEARCHED	unknown	0	unknown	no_bounded_recorded_search	Find actual English department syllabus instances
+FSU	Florida State University	area studies	UNSEARCHED	unknown	0	unknown	no_bounded_recorded_search	Verify program/cross-listed courses before claiming coverage
+USF	University of South Florida	philosophy	SEARCH_ATTEMPT_RECORDED	0	0	unknown	discovery-responses.tsv; usf_discovery snapshot; no observed reading-bearing PHI course	Qualify CDX response/status; retrieve real syllabus URLs using ICU; keep EDG 7067 excluded
+USF	University of South Florida	history	UNSEARCHED	unknown	0	unknown	no_bounded_recorded_search	Find HIS-coded courses and real reading evidence
+USF	University of South Florida	english	UNSEARCHED	unknown	0	unknown	no_bounded_recorded_search	Find ENG/ENL/LIT-coded course evidence after course-code verification
+USF	University of South Florida	area studies	UNSEARCHED	unknown	0	unknown	no_bounded_recorded_search	Identify language and regional studies programs
+MIAMIOH	Miami University (Ohio)	philosophy	UNSEARCHED	unknown	0	unknown	no_bounded_recorded_search	Enumerate program and syllabi
+MIAMIOH	Miami University (Ohio)	history	UNSEARCHED	unknown	0	unknown	no_bounded_recorded_search	Enumerate program and syllabi
+MIAMIOH	Miami University (Ohio)	english	UNSEARCHED	unknown	0	unknown	no_bounded_recorded_search	Enumerate program and syllabi
+MIAMIOH	Miami University (Ohio)	area studies	UNSEARCHED	unknown	0	unknown	no_bounded_recorded_search	Verify program and language/humanities cross-lists
+MVSU	Mississippi Valley State University	philosophy	UNSEARCHED	unknown	0	unknown	no_bounded_recorded_search	Identify actual department/program and courses
+MVSU	Mississippi Valley State University	history	UNSEARCHED	unknown	0	unknown	no_bounded_recorded_search	Find instructor/term syllabus evidence
+MVSU	Mississippi Valley State University	english	UNSEARCHED	unknown	0	unknown	no_bounded_recorded_search	Find instructor/term syllabus evidence
+MVSU	Mississippi Valley State University	area studies	UNSEARCHED	unknown	0	unknown	no_bounded_recorded_search	Verify if courses/programs exist; avoid fabricating absence
+OLEMISS	University of Mississippi	philosophy	UNSEARCHED	unknown	0	unknown	no_bounded_recorded_search	Collect course instances with assignment evidence
+OLEMISS	University of Mississippi	history	UNSEARCHED	unknown	0	unknown	no_bounded_recorded_search	Collect course instances with assignment evidence
+OLEMISS	University of Mississippi	english	UNSEARCHED	unknown	0	unknown	no_bounded_recorded_search	Collect course instances with assignment evidence
+OLEMISS	University of Mississippi	area studies	UNSEARCHED	unknown	0	unknown	no_bounded_recorded_search	Find cross-listed language/history/regional classes
+REED	Reed College	philosophy	UNSEARCHED	unknown	0	unknown	no_bounded_recorded_search	Collect syllabus instances; distinguish core from major
+REED	Reed College	history	UNSEARCHED	unknown	0	unknown	no_bounded_recorded_search	Collect syllabus instances; distinguish core from major
+REED	Reed College	english	UNSEARCHED	unknown	0	unknown	no_bounded_recorded_search	Collect syllabus instances; distinguish core from major
+REED	Reed College	area studies	UNSEARCHED	unknown	0	unknown	no_bounded_recorded_search	Identify actual area studies program/courses
+UCHI	University of Chicago	philosophy	UNSEARCHED	unknown	0	unknown	no_bounded_recorded_search	Collect assigned readings; distinguish Core from major
+UCHI	University of Chicago	history	UNSEARCHED	unknown	0	unknown	no_bounded_recorded_search	Collect assigned readings; distinguish Core from major
+UCHI	University of Chicago	english	UNSEARCHED	unknown	0	unknown	no_bounded_recorded_search	Collect assigned readings; distinguish Core from major
+UCHI	University of Chicago	area studies	UNSEARCHED	unknown	0	unknown	no_bounded_recorded_search	Identify area studies schools/centers and teaching courses

@@ -1,0 +1,5 @@
+name: Source inventory acceptance
+description: Run the consumer controls and pinned checked-Ithon AICI assertions without a shell command layer.
+runs:
+  using: node20
+  main: github-action.js

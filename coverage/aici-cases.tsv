@@ -1,0 +1,12 @@
+diagnostic	path	data_row_index	column_index	replacement
+INV-COURSE-COUNT	course-instances.tsv	8	0	DELETE_ROW
+INV-READING-COUNT	assigned-readings.tsv	28	0	DELETE_ROW
+INV-CELL-COUNT	starter-institutions.tsv	27	0	DELETE_ROW
+INV-SOURCE-MANIFEST	source-files.tsv	0	5	0000000000000000000000000000000000000000000000000000000000000000
+INV-INVENTED-COMPLETION	course-instances.tsv	0	14	COMPLETE
+INV-FULL-DOCUMENT-HASH	course-instances.tsv	0	13	0000000000000000000000000000000000000000000000000000000000000000
+INV-EDUCATION-COUNT	course-instances.tsv	2	3	philosophy
+INV-UNKNOWN-YEAR	course-instances.tsv	0	8	2006
+INV-FALSE-ABSENCE	starter-institutions.tsv	1	3	NO_SYLLABUS_EXISTS
+INV-UNSEARCHED-COUNT	starter-institutions.tsv	4	3	UNSEARCHED
+INV-MESSAGE-AS-ABSENCE	discovery-responses.tsv	0	8	no_syllabi_exist
