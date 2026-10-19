@@ -1,0 +1,20 @@
+field	value
+institution	University of South Florida
+department	History
+discipline	history
+course	EUH 3401
+section	001
+instructor	Jesse Obert
+term	Fall 2026
+source_document	acquisitions/usf-20261019T222542Z/syllabi/usf/fall-2026/history/simple-syllabus/documents/06spksbji.html
+source_bytes	157824
+source_sha256	afd00ad7af9297ccdcaa8e7a7a5f15019694b3b3b8445f448fdd9279be1f0b56
+document_url	https://usf.simplesyllabus.com/api2/doc-html/06spksbji/Fall-2026-EUH-3401-%28AC-HTY%29-001-Classical-Greece
+public_url	https://usf.simplesyllabus.com/doc/06spksbji/Fall-2026-EUH-3401-%28AC-HTY%29-001-Classical-Greece?mode=view
+archive_reference	https://github.com/bl4ckb4ll/syllabus/actions/runs/39333675595/artifacts/12226621504
+artifact_zip_sha256	47fbcfc22fa2970b07461f0e65bf7bbf900fdb14e669225eadb189ca2fb63495
+http_status	unknown; legacy ICU does not expose headers
+status	PARTIAL
+course_population	unknown
+whole_population_complete	false
+missing_evidence	No enumerated course population; no ISBNs; exact translators/Loeb volumes not supplied; titles for Herodotus and Thucydides not named in the source; Canvas-only copies not recovered

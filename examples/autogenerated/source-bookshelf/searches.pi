@@ -1,0 +1,77 @@
+import csv
+import hashlib
+import io
+import json
+import sys
+from pathlib import Path
+from builtins import dict, list, tuple, ValueError, UnicodeError
+
+
+def child(root ∈ Path, name ∈ str) → Path:
+    value ∈ Path ← root.joinpath(name)
+    return value
+
+
+def table(path ∈ Path) → list[dict[str, str]]:
+    content ∈ str ← path.read_text(encoding='utf-8')
+    reader ∈ object ← csv.DictReader(io.StringIO(content), delimiter='\t')
+    result ∈ list[dict[str, str]] ← list(reader)
+    return result
+
+
+def classify(status ∈ str, body ∈ bytes) → tuple[str, str]:
+    if status != '200':
+        if status == '404':
+            return 'BOUNDED_NO_MATCH_RESPONSE', 'unknown'
+        return 'HTTP_UNAVAILABLE', 'unknown'
+    try:
+        text ∈ str ← body.decode('utf-8')
+        lines ∈ list[str] ← text.splitlines()
+        if len(lines) == 0 or len(lines) > 5:
+            return 'MALFORMED_OR_OVER_LIMIT_CDX', 'unknown'
+        for line in lines:
+            row ∈ dict[str, object] ← json.loads(line)
+            names ∈ list[str] ← list(row)
+            for name in ('url', 'timestamp', 'filename', 'offset', 'length', 'digest', 'status'):
+                if not (name in names):
+                    return 'MALFORMED_CDX', 'unknown'
+        return 'CAPTURE_POINTERS_ONLY_NOT_SYLLABI', str(len(lines))
+    except (ValueError, UnicodeError):
+        return 'MALFORMED_CDX', 'unknown'
+
+
+def main() → None:
+    arguments ∈ list[str] ← sys.argv
+    if len(arguments) != 3:
+        raise ValueError('requires --write|--check REPOSITORY_ROOT')
+    root ∈ Path ← child(Path(arguments[2]), 'acquisitions/network-20261019/panel')
+    queries ∈ list[dict[str, str]] ← table(child(root, 'queries.tsv'))
+    result ∈ str ← 'institution\tdiscipline\thttp_status\tresponse_bytes\tresponse_sha256\tdisposition\tindexed_rows\n'
+    for query in queries:
+        name ∈ str ← 'panel-' + query['institution'] + '-' + query['discipline']
+        body ∈ bytes ← child(root, name + '.body').read_bytes()
+        metadata ∈ str ← child(root, name + '.metadata').read_text(encoding='utf-8')
+        status ∈ str ← 'unknown'
+        metadata_lines ∈ list[str] ← metadata.splitlines()
+        for line in metadata_lines:
+            fields ∈ list[str] ← line.split('\t')
+            if len(fields) == 2 and fields[0] == 'http_status':
+                status ← fields[1]
+        classified ∈ tuple[str, str] ← classify(status, body)
+        digest ∈ str ← hashlib.sha256(body).hexdigest()
+        output_row ∈ str ← '\t'.join([query['institution'], query['discipline'], status,
+            str(len(body)), digest, classified[0], classified[1]])
+        result ← result + output_row + '\n'
+    target ∈ Path ← child(root, 'results.tsv')
+    if arguments[1] == '--write':
+        target.write_text(result, encoding='utf-8')
+    elif arguments[1] == '--check':
+        actual ∈ str ← target.read_text(encoding='utf-8')
+        if actual != result:
+            raise ValueError('search receipts are not reproducible')
+    else:
+        raise ValueError('unknown mode')
+    print('PASS: exact response hashes and honest bounded-search dispositions for ' + str(len(queries)) + ' panel cells')
+
+
+main()

@@ -1,0 +1,48 @@
+{
+  "finished_at": "2026-10-19T22:35:15.112583+00:00",
+  "github_sha_declared": null,
+  "parameters": {
+    "acceptance": "/workspace/scratch/d9cf5c50308f/aici-icu/icu/accept.grease",
+    "aici": "/workspace/scratch/d9cf5c50308f/aici-icu",
+    "evidence": "/workspace/scratch/d9cf5c50308f/icu-build-evidence",
+    "grease": "/workspace/scratch/5e7dcaebed89/ick-package-complete/bin/grease",
+    "installed": "/workspace/scratch/d9cf5c50308f/icu-installed",
+    "phase": "capture"
+  },
+  "pipeline": "syllabus-icu-acceptance",
+  "pipeline_path": "pipelines/syllabus-icu-acceptance.json",
+  "pipeline_sha256": "89d26ffd17d61ff492baeb9432c065d48574df3b31ffdc431b11730b5b5c52f8",
+  "repository_commit": "8b9de5b54cf1482ab210053d0ac1877f3b16ecee",
+  "runner": {
+    "machine": "x86_64",
+    "python": "3.12.14",
+    "release": "6.18.55",
+    "system": "Linux"
+  },
+  "schema_version": 1,
+  "stages": [
+    {
+      "argv": [
+        "env",
+        "ASAN_OPTIONS=detect_leaks=0",
+        "/workspace/scratch/5e7dcaebed89/ick-package-complete/bin/grease",
+        "/workspace/scratch/d9cf5c50308f/aici-icu/icu/accept.grease",
+        "/workspace/scratch/d9cf5c50308f/icu-installed",
+        "/workspace/scratch/d9cf5c50308f/icu-build-evidence",
+        "/workspace/scratch/d9cf5c50308f/aici-icu",
+        "capture"
+      ],
+      "cwd": ".",
+      "exit_code": 0,
+      "finished_at": "2026-10-19T22:35:15.111302+00:00",
+      "index": 1,
+      "kind": "command",
+      "name": "independent-installed-acceptance",
+      "started_at": "2026-10-19T22:34:38.499260+00:00",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_sha256": "697d10d4d2b0e87be579ccf7496539730ee91083708d1760e2763603394b0ad3"
+    }
+  ],
+  "started_at": "2026-10-19T22:34:38.499189+00:00",
+  "status": "PASS"
+}

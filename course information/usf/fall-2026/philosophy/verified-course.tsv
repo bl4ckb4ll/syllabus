@@ -1,0 +1,27 @@
+field	value
+schema	source-backed-assignments-v1
+status	PARTIAL
+institution	University of South Florida
+department	Philosophy
+discipline	philosophy
+course	PHM 6267
+section	901
+instructor	Joshua Rayman
+term	Fall 2026
+course_population	unknown
+whole_population_complete	false
+source_document	syllabi/usf/fall-2026/philosophy/simple-syllabus/documents/10e8ekbh6.html
+source_bytes	72077
+source_sha256	eb038eb7ac76f2e82809fafae57e44c78fa2cc1e8f23c2615c7d2735eb38e608
+document_url	https://usf.simplesyllabus.com/api2/doc-html/10e8ekbh6/Fall-2026-PHM-6267-%28AC-PHI%29-901-Continental-Philosophy-III%3A-Struc-Deconstruc
+public_url	https://usf.simplesyllabus.com/doc/10e8ekbh6/Fall-2026-PHM-6267-%28AC-PHI%29-901-Continental-Philosophy-III%3A-Struc-Deconstruc?mode=view
+archive_reference	https://github.com/bl4ckb4ll/syllabus/actions/runs/39332095374/artifacts/12224844297
+artifact_zip_sha256	ab2004cbe13262a9168beadfbc503129d2ad337bf4b3d9afa27bf26a19473556
+http_status	unknown
+exact_schedule_evidence	course information/usf/fall-2026/philosophy/documents/10e8ekbh6.json#/components/12
+missing_evidence	Final HTTP status and headers are not exposed by the pinned legacy ICU client
+missing_evidence	No independent historical archive capture of this syllabus
+missing_evidence	No enumerated university course population
+missing_evidence	Edition statements and translators are not supplied; ISBNs are preserved without inferring an edition name
+missing_evidence	September 28 and October 5 schedule entries do not specify chapters or pages
+missing_evidence	Canvas-only text copies have not been acquired

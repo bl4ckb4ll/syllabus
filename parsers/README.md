@@ -30,4 +30,3 @@ be imported). The parser and receipt-check invocations now remove that foreign
 environment locally, preserving Grease's own runtime environment. Source bytes
 and partial evidence are retained even when a later stage fails. Inspect the
 actual original before promoting a candidate title to an assigned reading.
-

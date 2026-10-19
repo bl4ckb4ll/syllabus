@@ -1,0 +1,72 @@
+import csv
+import io
+import sys
+from pathlib import Path
+from builtins import dict, list, ValueError
+
+
+def child(root ∈ Path, name ∈ str) → Path:
+    result ∈ Path ← root.joinpath(name)
+    return result
+
+
+def table(path ∈ Path) → list[dict[str, str]]:
+    text ∈ str ← path.read_text(encoding='utf-8')
+    reader ∈ object ← csv.DictReader(io.StringIO(text), delimiter='\t')
+    result ∈ list[dict[str, str]] ← list(reader)
+    return result
+
+
+def render(course ∈ dict[str, str], reading ∈ dict[str, str], directory ∈ str) → str:
+    title ∈ str ← reading['title']
+    if title == 'unknown':
+        title ← 'Assigned selections; work title not specified in the syllabus'
+    link ∈ str ← directory.replace(' ', '%20')
+    return ('# ' + reading['author'] + ' — ' + title + '\n\n' +
+        course['institution'] + ', ' + course['department'] + ', ' + course['course'] +
+        ' section ' + course['section'] + ', ' + course['instructor'] + ', ' + course['term'] + '.\n\n' +
+        'Requirement: **' + reading['requirement'] + '**.\n\n' +
+        'Assigned: ' + reading['assignment'] + '.\n\n' +
+        'Edition/source description as supplied: ' + reading['edition'] + '.\n\n' +
+        'Exact source evidence: “' + reading['source_text'] + '”.\n\n' +
+        '[Original syllabus](' + course['public_url'] + '), ' + course['source_bytes'] +
+        ' bytes, SHA-256 `' + course['source_sha256'] + '`.\n\n' +
+        '[Course-specific reading provenance](' + link + '/verified-readings.tsv). ' +
+        '[Document provenance and missing evidence](' + link + '/source.tsv).\n')
+
+
+def main() → None:
+    arguments ∈ list[str] ← sys.argv
+    if len(arguments) != 4:
+        raise ValueError('requires --write|--check REPOSITORY_ROOT COURSE_DIRECTORY')
+    mode ∈ str ← arguments[1]
+    if not (mode in ('--write', '--check')):
+        raise ValueError('unsupported mode')
+    root ∈ Path ← Path(arguments[2]).resolve()
+    directory ∈ str ← arguments[3]
+    source_rows ∈ list[dict[str, str]] ← table(child(root, directory + '/source.tsv'))
+    course ∈ dict[str, str] ← {}
+    for row in source_rows:
+        course.__setitem__(row['field'], row['value'])
+    readings ∈ list[dict[str, str]] ← table(child(root, directory + '/verified-readings.tsv'))
+    seen ∈ list[str] ← []
+    for reading in readings:
+        filename ∈ str ← reading['bookshelf']
+        if '/' in filename or filename in seen:
+            raise ValueError('unsafe or duplicate canonical target')
+        seen.append(filename)
+        path ∈ Path ← child(root, filename)
+        expected ∈ str ← render(course, reading, directory)
+        exists ∈ bool ← path.exists()
+        if exists:
+            actual ∈ str ← path.read_text(encoding='utf-8')
+            if actual != expected:
+                raise ValueError('existing canonical record differs: ' + filename)
+        elif mode == '--write':
+            path.write_text(expected, encoding='utf-8')
+        else:
+            raise ValueError('missing canonical record: ' + filename)
+    print('PASS reproducible source-linked bookshelf records: ' + str(len(readings)))
+
+
+main()
