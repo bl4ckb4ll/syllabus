@@ -1,6 +1,11 @@
 # syllabus
 
-What do people with degrees actually read?
+## What would I read at a particular college?
+
+| College | What you can read from the documented courses |
+| --- | --- |
+| [Florida State University](where%20would%20I%20read%20this%20and%20who%20would%20I%20read%20it%20with/Florida%20State%20University/README.md) | Ethical Theory in reading order and the Philosophy of Religion anthology, both from historical offerings with partial evidence. |
+| [University of South Florida](where%20would%20I%20read%20this%20and%20who%20would%20I%20read%20it%20with/University%20of%20South%20Florida/README.md) | Continental Philosophy III, Classical Greece, and Composition I, each tied to a Fall 2026 syllabus. |
 
 [The revision-stamped course/evidence inventory](coverage/README.md) separates documented assignments, partial captures, synthetic fixtures, branch-only work, failed stages and unsearched coverage.
 
@@ -18,9 +23,9 @@ Primary evidence should be public FSU syllabi. A catalog description can tell us
 
 ### Current state of the FSU pass
 
-The first surviving public syllabi recovered are:
+The first two documented offerings have partial reading records:
 
-- PHI 3670 — Ethical Theory — David McNaughton — Spring, year not stated in the surviving syllabus.
+- PHI 3670 — Ethical Theory — David McNaughton — Spring, year not stated in the indexed syllabus.
 - PHI 3700 — Philosophy of Religion — David McNaughton — Fall 2006.
 
 PHI 3670 supplies an unusually useful numbered reading schedule from George Sher's anthology. Where a second independent source using the same second edition identifies a chapter number unambiguously, the individual reading gets its own canonical root entry. Ambiguous chapter-number mappings stay unresolved rather than being guessed.
