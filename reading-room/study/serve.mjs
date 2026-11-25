@@ -4,7 +4,7 @@ import { join, resolve, sep, extname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { homedir } from 'node:os';
 import { randomUUID } from 'node:crypto';
-import { spawnSync } from 'node:child_process';
+import { spawn, spawnSync } from 'node:child_process';
 import { askGuide, findItems, items, sourcePacket, webRoot } from './catalog.mjs';
 import { change, createProfile, due, profileID, reader, snapshot } from './profiles.mjs';
 
@@ -13,6 +13,10 @@ const web = realpathSync(fileURLToPath(webRoot));
 if (root === web || root.startsWith(web + sep)) throw Error('Keep reader profiles outside the public web directory.');
 const publicTypes = { '.html':'text/html', '.js':'text/javascript', '.css':'text/css', '.tsv':'text/tab-separated-values', '.json':'application/json', '.txt':'text/plain', '.ttf':'font/ttf', '.png':'image/png', '.webp':'image/webp', '.jpg':'image/jpeg' };
 const cookie = 'bb_study';
+const publishedOrigin = process.env.STUDY_ORIGIN ? new URL(process.env.STUDY_ORIGIN) : null;
+if (publishedOrigin && (publishedOrigin.protocol !== 'https:' || publishedOrigin.href !== publishedOrigin.origin + '/')) {
+  throw Error('STUDY_ORIGIN must be the HTTPS origin used by the reverse proxy.');
+}
 const help = 'FIND words | ABOUT id | PLAN id passage or session | CHECK id unread/part/done [note] | CONTINUE id [next step] | PAUSE id | STOP id | REMIND id time-with-offset | CLEAR id | STATUS | ASK id question | ADD url title';
 function error(message, status = 400) { return Object.assign(Error(message), { status }); }
 function send(res, status, body, type = 'application/json') {
@@ -38,7 +42,7 @@ function authenticated(id) {
   return reader(root, id);
 }
 function setCookie(res, key) {
-  res.setHeader('Set-Cookie', cookie + '=' + key + '; Path=/; HttpOnly; SameSite=Strict; Max-Age=' + (key ? 31536000 : 0));
+  res.setHeader('Set-Cookie', cookie + '=' + key + '; Path=/; HttpOnly; SameSite=Strict;' + (publishedOrigin ? ' Secure;' : '') + ' Max-Age=' + (key ? 31536000 : 0));
 }
 function statusText(s) {
   return s.plans.map(p => p.title + ' [' + p.id + '] — ' + p.target + ' | ' + p.report + ', ' + p.status +
@@ -76,8 +80,8 @@ function serve(port) {
   const server = createServer(async (req, res) => {
     try {
       const host = req.headers.host || '';
-      if (!/^(127\.0\.0\.1|localhost|\[::1\])(:\d+)?$/.test(host)) throw error('Unknown host.', 403);
-      if (req.headers.origin && req.headers.origin !== 'http://' + host) throw error('This request requires the same origin.', 403);
+      if (host !== publishedOrigin?.host && !/^(127\.0\.0\.1|localhost|\[::1\])(:\d+)?$/.test(host)) throw error('Unknown host.', 403);
+      if (req.headers.origin && req.headers.origin !== (publishedOrigin?.origin || 'http://' + host)) throw error('This request requires the same origin.', 403);
       const { pathname } = new URL(req.url, 'http://localhost');
       if (pathname.startsWith('/jog/')) {
         const id = credentials(req, true);
@@ -132,7 +136,18 @@ function serve(port) {
       if (!res.headersSent) send(res, e.status || (e.code ? 500 : 400), { error: message });
     }
   });
-  server.listen(port, '127.0.0.1', () => console.log('Reading Room http://127.0.0.1:' + server.address().port + '/#open'));
+  const sender = process.env.STUDY_SMS_SENDER;
+  let worker = null;
+  function sendDue() {
+    if (!sender || worker) return;
+    worker = spawn(process.execPath, [fileURLToPath(import.meta.url), 'deliver', sender], { stdio: ['ignore','ignore','inherit'] });
+    worker.once('error', e => console.error('Reminder transport:', e.message));
+    worker.once('close', () => { worker = null; });
+  }
+  server.listen(port, '127.0.0.1', () => {
+    console.log('Reading Room ' + (publishedOrigin?.origin || 'http://127.0.0.1:' + server.address().port) + '/#open');
+    if (sender) { sendDue(); setInterval(sendDue, 60000).unref(); }
+  });
 }
 function deliver(command) {
   if (!command) throw Error('Supply the path to the SMS transport executable.');

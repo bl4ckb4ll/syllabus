@@ -28,6 +28,7 @@ test('catalogue rows link to real provider identities and the published roster r
   assert.equal(new Set(ou.map(c=>c.subject)).size,9);assert.ok(ou.length>=900);
   const pages=table('openlearn-pages'); assert.equal(new Set(pages.map(p=>p.listing)).size,pages.length);
   assert.equal(pages.reduce((sum,p)=>sum+Number(p.maintenance_rows),0),1);
+  for(const l of table('open-lessons')){assert.ok(items.has(l.item));assert.equal(new URL(l.url).protocol,'https:');}
   for(const row of guides){assert.ok(items.has(row.item));assert.ok(!row.related || items.has(row.related));assert.ok(row.context && row.try && new URL(row.url).protocol==='https:');}
   assert.ok(courses.some(c=>c.id==='yale-ital-310'));assert.equal(guides.some(g=>g.item==='book-inferno' && g.related==='yale-ital-310'),true);
   const nptel=courses.filter(c=>c.provider==='nptel');
@@ -122,4 +123,16 @@ test('independent processes commit simultaneous replies without overwriting any 
   await Promise.all(children);
   const history=snapshot(reader(root,p.id)).plans[0].history;
   assert.deepEqual(history.filter(e=>e.verb==='CHECK').map(e=>e.note).sort(),['device-0','device-1','device-2','device-3','device-4']);
+});
+test('the running service dispatches an opted-in reminder through its configured sender',async t=>{
+  const root=temporary(t),person=createProfile(root,'Reader'),before=new Date('2020-01-01T00:00:00Z');
+  change(root,person.id,{verb:'PLAN',item,arg:'Read one canto'},'plan',before);
+  change(root,person.id,{verb:'REMIND',item,arg:'2020-01-02T00:00:00Z'},'opt-in',before);
+  const sender=join(root,'sender'),receipt=join(root,'delivery');
+  writeFileSync(sender,'#!/usr/bin/env node\nrequire("node:fs").writeFileSync(process.env.TEST_RECEIPT,process.argv[3]);\n',{mode:0o700});
+  const proc=spawn(process.execPath,[service,'serve','0'],{env:{...process.env,STUDY_HOME:root,STUDY_SMS_SENDER:sender,TEST_RECEIPT:receipt},stdio:['ignore','pipe','inherit']});
+  t.after(async()=>{if(proc.exitCode===null){const closed=once(proc,'exit');proc.kill();await closed;}});
+  await once(proc.stdout,'data');
+  for(let i=0; i<100 && due(root).length; i++) await new Promise(resolve=>setTimeout(resolve,50));
+  assert.equal(readFileSync(receipt,'utf8'),'opt-in');assert.equal(due(root).length,0);
 });

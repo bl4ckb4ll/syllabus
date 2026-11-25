@@ -16,6 +16,7 @@ const workRows = table('works');
 const assignments = table('assignments');
 const copies = table('copies');
 export const guides = table('study-guides');
+const lessons = table('open-lessons');
 export const items = new Map();
 for (const c of courses) {
   items.set(c.id, { ...c, institution: [c.school, providers.get(c.provider).name].filter(Boolean).join(' · '), kind: 'course' });
@@ -82,6 +83,7 @@ export function sourcePacket(item, sectionId = '') {
     const provider = providers.get(item.provider);
     if (!sources.some(s => s.url === item.url)) sources.push({ title: item.title,
       text: [item.institution, item.subject, item.level, item.duration, item.instructor, item.term].filter(Boolean).join(' · '), url: item.url });
+    for (const l of lessons.filter(l=>l.item===item.id)) if (!sources.some(s=>s.url===l.url)) sources.push({title:l.label,text:l.label,url:l.url});
     sources.push({ title: provider.name + ' catalogue', text: provider.access, url: provider.url });
   }
   if (item.text) {

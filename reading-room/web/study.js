@@ -25,12 +25,12 @@ const studyUI = (() => {
     setReaderScope(profile?.id || '');
   }
   async function load() {
-    if (!loading) loading = Promise.all(['open-courses','open-courses-nptel','open-providers','study-guides','open-access'].map(fetchTable))
+    if (!loading) loading = Promise.all(['open-courses','open-courses-nptel','open-providers','study-guides','open-access','open-lessons'].map(fetchTable))
       .then(entries => {
         const all = Object.fromEntries(entries), providers = new Map(all['open-providers'].map(p => [p.id, p]));
         const courses = [...all['open-courses'], ...all['open-courses-nptel']].map(c => ({ ...c, providerName:providers.get(c.provider).name, kind:'Course' }));
         const books = corpus.works.map(w => ({ id:'book-' + w.id, title:w.title, providerName:w.author, kind:'Book', work:w.id }));
-        tables = { courses, providers, guides:all['study-guides'], access:all['open-access'], items:new Map([...courses,...books].map(i => [i.id,i])) };
+        tables = { courses, providers, guides:all['study-guides'], access:all['open-access'], lessons:all['open-lessons'], items:new Map([...courses,...books].map(i => [i.id,i])) };
       }).catch(e => { loading = undefined; throw e; });
     await loading;
   }
@@ -121,7 +121,7 @@ const studyUI = (() => {
     content.innerHTML='<div class="crumbs">'+link('Open courses','open')+'<i>/</i>'+link('My study plan','plans')+'</div>'+recoveryBox()+
       '<div class="subhead"><p class="kicker">'+esc(record.providerName||'Your saved link')+'</p><h1>'+esc(record.title)+'</h1><p class="small">'+esc([record.school,record.subject,record.level,record.duration,record.instructor,record.term].filter(Boolean).join(' · '))+'</p>'+
       '<div class="actions">'+(record.work?primaryAction(getBook(record.work),chosenRow(record.work,'')?.course||''):external(record.kind==='saved link'?'Open saved link':'Open course',record.url,'btn primary'))+
-      (record.materials_url?external('Course materials',record.materials_url,'quietlink'):'')+(record.work?link('Editions & assignments','book/'+record.work,'quietlink'):'')+'</div>'+(provider?'<p class="small">'+esc(provider.access)+' '+external('Catalogue entry',record.listed_at,'quietlink')+'</p>':'')+'</div>'+
+      tables.lessons.filter(l=>l.item===id).map(l=>external(l.label,l.url,'quietlink')).join('')+(record.materials_url?external('Course materials',record.materials_url,'quietlink'):'')+(record.work?link('Editions & assignments','book/'+record.work,'quietlink'):'')+'</div>'+(provider?'<p class="small">'+esc(provider.access)+' '+external('Catalogue entry',record.listed_at,'quietlink')+'</p>':'')+'</div>'+
       '<div class="grid-detail"><section class="stack">'+(sources.length?'<h2>Before you begin</h2>'+sources.map(g=>'<article><h3>'+esc(g.label)+'</h3><p>'+esc(g.context)+'</p><p class="small">'+esc(g.try)+'</p><div class="rowacts">'+external('Read the source',g.url,'textlink')+(g.related?rowLink(g.related):'')+'</div></article>').join(''):'')+
       (tables.items.has(id)?'<h2>Ask about this '+(record.work?'reading':'course')+'</h2>'+form('ask',(edition?formField('Passage for your question','<select name="section">'+options(edition.sections.map(s=>[s.id,s.title]),getEntry(record.work)?.cursor?.section||edition.start)+'</select>'):'')+formField('Your question','<input name="question" placeholder="Where should I start?" maxlength="600" required>')+btn('Ask'),id)+
        '<p class="small">'+(model?'Questions and public sources go to the configured model.':'Answers draw on the source notes for this item.')+'</p><div id="study-answer" aria-live="polite"></div>':'')+
@@ -198,5 +198,13 @@ const studyUI = (() => {
     if(action==='close'){try{await request('close',{});profile=null;recovery='';setReaderScope('');announceSwitch();renderRoute();}catch(e){notice(e.message);}}
   });
   window.addEventListener('storage',async e=>{if(e.key==='blackball.study.switch'){recovery='';conversations.clear();await session();if(location.hash==='#plans')renderRoute();else location.hash='plans';}});
-  return { session, show };
+  function readerNotebook(book, where) {
+    if (!profile) return '';
+    const id='book-'+book, plan=profile.plans.find(p=>p.id===id);
+    const label=plan?'Check in on '+plan.target:'Choose a passage to try';
+    return '<div class="notebox"><p class="overline">'+esc(profile.name)+'</p>'+
+      (where?'<p>'+esc(where)+'</p>':'')+(plan?'<p class="small">'+esc(planStatus(plan))+'</p>':'')+
+      link(label,'study/'+id,'btn soft smallbtn')+'</div>';
+  }
+  return { session, show, readerNotebook };
 })();
