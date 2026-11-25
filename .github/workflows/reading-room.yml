@@ -1,0 +1,18 @@
+name: Reading Room
+on:
+  push:
+    branches: [main]
+    paths: ['reading-room/**', '.github/workflows/reading-room.yml']
+  pull_request:
+    paths: ['reading-room/**', '.github/workflows/reading-room.yml']
+permissions:
+  contents: read
+jobs:
+  reading-room:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - run: node reading-room/source/check-shelf.mjs
+      - run: node --test reading-room/source/check-open-study.mjs
