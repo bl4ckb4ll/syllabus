@@ -7,7 +7,13 @@ const compareState = {left: 'g2203', right: 'g2204', group: 'both', query: ''};
 const corpus = {};
 const textCache = new Map();
 const loadedTexts = new Map();
-const storageKey = 'blackball.reading-room.v1';
+let storageKey = 'blackball.reading-room.v1';
+function setReaderScope(profileId) {
+  const next = 'blackball.reading-room.v1' + (profileId ? '.' + profileId : '');
+  if (next !== storageKey) { closePlayer(); reader = null; }
+  storageKey = next;
+  state = readState();
+}
 let state = readState();
 let routeToken = 0;
 let noteTimer;
@@ -222,7 +228,7 @@ function detail(id,cid) {
   const start = firstRoute(id,cid);
   const additional = corpus.supplements.filter(row => row.course===cid && row.parent===id);
   content.innerHTML=crumbs('Book details')+`<div class="subhead"><p class="kicker">${aa.length?'On the shelf':'Related reading'}</p><h1>${esc(b.title)}</h1><p class="author">${esc(b.author)}${b.year?' · '+esc(b.year):''}</p>${b.description?`<p class="sub">${esc(b.description)}</p>`:''}
-  <div class="actions">${primaryAction(b,cid)}${r?`<a class="btn soft" href="#${routeFor('listen',id,cid)}">${icon('play')} Listen</a>`:companionAudio(b,cid)}${b.text?link('Short screens',routeFor('short',id,cid),'quietlink'):''}<button class="linkbutton" data-action="save-book" data-book="${id}" data-course="${cid}">${logged?'Open my reading log':'Save to my reading log'}</button></div></div>
+  <div class="actions">${primaryAction(b,cid)}${r?`<a class="btn soft" href="#${routeFor('listen',id,cid)}">${icon('play')} Listen</a>`:companionAudio(b,cid)}${b.text?link('Short screens',routeFor('short',id,cid),'quietlink'):''}${link('Study guide & check-in','study/book-'+id,'quietlink')}<button class="linkbutton" data-action="save-book" data-book="${id}" data-course="${cid}">${logged?'Open my reading log':'Save to my reading log'}</button></div></div>
   <div class="grid-detail"><section class="detail-section"><h2>Copies & editions</h2>${copiesPanel(b,cid)}
   ${start?.course&&!b.text?`<p class="small start-note">${esc(start.detail)}</p>`:''}
   ${additional.length?`<div class="detail-section"><p class="kicker">Also assigned by Cohn</p><div class="stack">${additional.map(row=>`<p>${link(getBook(row.work).short,routeFor('book',row.work,cid),'textlink')}<br><span class="small">${esc(row.scope)}</span></p>`).join('')}</div></div>`:''}
@@ -233,8 +239,8 @@ function notFound() {content.innerHTML=`<div class="loading"><h1>Reading unavail
 function sources() {
   document.title='Course sources · Blackball';
   content.innerHTML=crumbs('Sources')+`<div class="subhead"><h1>Sources & coverage</h1><p class="sub">Each offering has its own instructor, term and coverage. The comparison uses the reviewed reading lists below.</p></div><section class="sources">${corpus.courses.map(c=>`<article class="box stack"><p class="overline">${esc(c.school)} · ${esc(courseInfo(c).department)} · ${esc(c.code)}</p><h3>${esc(c.title)}</h3><p>${esc(c.instructor)} · ${esc(c.term)}</p><p class="small">${esc(c.coverage)} ${esc(c.major)}</p>${courseInfo(c).search?`<p class="small">${esc(courseInfo(c).search)}</p>`:''}<div class="source-nav">${courseSourceLink(c)} ${c.catalog!==c.listing?external(c.id==='u3401'?'Verified reading records':'Program or publication record',c.id==='u3401'?c.listing:c.catalog):''} ${c.id.startsWith('y')?external('Historical course listing',c.listing):''}</div></article>`).join('')}
-  <details class="fold"><summary>Download the reading data</summary><p class="small">The tables document the works, assignments, copies and evidence attached to them. See the course context for review scope and the source status for acquisition.</p><div class="source-nav copyline">${['works','courses','course-context','slots','grinnell-evidence','assignments','supplements','reading-starts','copies','recordings','recording-mirrors','recording-cues','tracks','source-status'].map(s=>`<a href="data/${s}.tsv" download>${s}.tsv</a>`).join(' ')}<a href="text/provenance.tsv" download>Text provenance</a><a href="text/rights.tsv" download>Text rights</a></div></details>
-  <details class="fold"><summary>Blackball source projects</summary><div class="copyline source-nav"><a href="https://github.com/bl4ckb4ll/syllabus/tree/main/reading-room" target="_blank" rel="noopener noreferrer">Reading Room source code</a><a href="https://github.com/bl4ckb4ll/syllabus" target="_blank" rel="noopener noreferrer">Syllabus bookshelf</a><a href="https://github.com/bl4ckb4ll/syllabus/pull/40" target="_blank" rel="noopener noreferrer">Yale and Grinnell source intake</a><a href="https://github.com/Ashtray-Archer/sms-book-reader/blob/3ef8aa7896fec64c0e29572ae8f325219df2bb64/README.md" target="_blank" rel="noopener noreferrer">SMS Book Reader mock</a></div><p class="small copyline">Short screens run in this browser. The separate Go reader has a mock command transport; this site has no connected texting service.</p></details>
+  <details class="fold"><summary>Download the reading data</summary><p class="small">The tables document the works, assignments, copies and evidence attached to them. See the course context for review scope and the source status for acquisition.</p><div class="source-nav copyline">${['works','courses','course-context','slots','grinnell-evidence','assignments','supplements','reading-starts','copies','recordings','recording-mirrors','recording-cues','tracks','source-status','open-courses','open-courses-nptel','open-providers','openlearn-pages','open-access','open-lessons','study-guides'].map(s=>`<a href="data/${s}.tsv" download>${s}.tsv</a>`).join(' ')}<a href="text/provenance.tsv" download>Text provenance</a><a href="text/rights.tsv" download>Text rights</a></div></details>
+  <details class="fold"><summary>Blackball source projects</summary><div class="copyline source-nav"><a href="https://github.com/bl4ckb4ll/syllabus/tree/main/reading-room" target="_blank" rel="noopener noreferrer">Reading Room source code</a><a href="https://github.com/bl4ckb4ll/syllabus" target="_blank" rel="noopener noreferrer">Syllabus bookshelf</a><a href="https://github.com/bl4ckb4ll/syllabus/pull/40" target="_blank" rel="noopener noreferrer">Yale and Grinnell source intake</a><a href="https://github.com/Ashtray-Archer/sms-book-reader/blob/3ef8aa7896fec64c0e29572ae8f325219df2bb64/README.md" target="_blank" rel="noopener noreferrer">SMS Book Reader mock</a></div><p class="small copyline">The study service accepts plain-text commands and provides opted-in reminders to a configured sender. The separate Go reader handles passage navigation.</p></details>
   <details class="fold"><summary>Text and image credits</summary><p class="small">The built-in readers reproduce public-domain texts in English. Source identities and edition coverage are recorded in the text provenance table. The Douglass portrait is by an unknown artist, c. 1844. The shelf also uses Jules Breton’s The Song of the Lark and Jean Delville’s L’École de Platon via Standard Ebooks, and illustrations from the Alcott and Zola editions at Project Gutenberg.</p><div class="source-nav copyline"><a href="data/art.tsv">Image credits and source records</a><a href="text/provenance.tsv">Edition records</a></div></details>
   </section>`;
 }
@@ -301,6 +307,8 @@ function notesList(e) {
   return e.notes.slice().reverse().map(n=>`<div class="note"><time>${esc(n.kind)} · ${esc(localDate(n.at))}${n.where?' · '+esc(n.where):''}</time><div>${esc(n.text)}</div></div>`).join('');
 }
 function notebook(id,cid,where='') {
+  const privateNotebook=studyUI.readerNotebook(id,where);
+  if(privateNotebook)return privateNotebook;
   const e=getEntry(id),key=completionKey(cid),done=!!e?.finished?.[key];
   return `<div class="notebox" data-book="${id}" data-course="${esc(cid)}" data-where="${esc(where)}">
   <label class="field-label" for="kind-${id}">Add a reading note</label>
@@ -309,13 +317,13 @@ function notebook(id,cid,where='') {
   <label class="sr-only" for="note-${id}">What did you take from the reading?</label><textarea id="note-${id}" maxlength="12000" placeholder="What did you notice? Which passage would you come back to?" style="margin-top:9px"></textarea>
   <button class="btn smallbtn" data-action="save-note">Save note</button>
   <div class="notelist">${notesList(e)}</div><hr class="softline">
-  <label class="field-label" for="date-${id}">Next check-in on this device</label><div class="formline"><input id="date-${id}" type="date" value="${esc(e?.date||'')}"><button class="btn smallbtn" data-action="save-date">Save date</button></div><p class="small" style="margin-top:5px">The date appears in your log. This preview sends no notifications.</p>
+  <label class="field-label" for="date-${id}">Next check-in on this device</label><div class="formline"><input id="date-${id}" type="date" value="${esc(e?.date||'')}"><button class="btn smallbtn" data-action="save-date">Save date</button></div><p class="small" style="margin-top:5px">This date appears in the browser log. Open a private study plan for a reminder.</p>
   <hr class="softline"><button class="btn soft smallbtn" data-action="finish" aria-pressed="${done}">${done?'Undo finished mark':cid?'Mark assigned reading finished':'Mark work finished'}</button><p class="small finishlabel" style="margin-top:5px">${done?'Marked finished on '+esc(localDate(e.finished[key]))+'.':'Finish when you have read or listened to the portion you chose.'}</p></div>`;
 }
 function logView() {
   document.title='Reading log · Blackball';
   const rowIds=Object.keys(state.books).filter(id=>getBook(id)).sort((a,b)=>String(state.books[b].updated).localeCompare(String(state.books[a].updated)));
-  content.innerHTML=`<div class="pagehead"><div><p class="kicker">Your reading</p><h1>Reading log</h1><p class="sub">Your place, your notes and the readings you’ve marked finished. Saved in this browser.</p></div></div>`+
+  content.innerHTML=`<div class="pagehead"><div><p class="kicker">Your reading</p><h1>Reading log</h1><p class="sub">Your place, your notes and the readings you’ve marked finished. Saved in this browser.</p></div>${link('My private study plan','plans','aside-link')}</div>`+
   (!rowIds.length?`<div class="logempty"><h2>Your first reading</h2><p class="sub">Open a text or save a book to start keeping your place.</p><div class="actions">${primaryAction(getBook('douglass'),'y119')}${link('Browse the shelf','shelf','quietlink')}</div></div>`:rowIds.map(id=>{
     const b=getBook(id),e=state.books[id],cid=e.course||'',a=chosenRow(id,cid);
     const finished=e.finished?.[completionKey(cid)],pos=e.cursor;
@@ -520,13 +528,14 @@ function renderRoute(autoplay=false) {
   reader=null;
   const token=++routeToken;
   const [page='shelf',id='',cid='',rid='']=location.hash.replace(/^#/,'').split('/').filter(Boolean);
-  const navPage=page==='compare'?'compare':page==='log'?'log':'shelf';
+  const navPage=['open','plans','study'].includes(page)?'open':page==='compare'?'compare':page==='log'?'log':'shelf';
   document.querySelectorAll('[data-nav]').forEach(el=>{if(el.dataset.nav===navPage)el.setAttribute('aria-current','page');else el.removeAttribute('aria-current');});
   if(['shelf','compare','log','path'].includes(previousView))breadcrumb=previousView;
   previousView=page;
   document.title='Blackball · Reading room';
   if(page==='shelf')shelf();
   else if(page==='compare')compare(id,cid);
+  else if(['open','plans','study'].includes(page))studyUI.show(page,id,token);
   else if(page==='log')logView();
   else if(page==='sources')sources();
   else if(page==='path')collegePath(id);
@@ -581,5 +590,5 @@ document.addEventListener('click',event=>{
 window.addEventListener('hashchange',()=>renderRoute());
 window.addEventListener('storage',event=>{if(event.key===storageKey)state=readState();});
 Promise.all(['courses','course-context','slots','works','assignments','supplements','reading-starts','copies','recordings','recording-mirrors','tracks'].map(fetchTable)).then(pairs=>{
-  Object.assign(corpus,Object.fromEntries(pairs));renderRoute();
+  Object.assign(corpus,Object.fromEntries(pairs));return studyUI.session().then(()=>renderRoute());
 }).catch(()=>{content.innerHTML=`<section class="loading"><h1>The shelf could not load</h1><p>${external('Read Douglass at chapter I','https://pressbooks.library.torontomu.ca/narrativeofthelifeoffrederickdouglass/chapter/1/','textlink')}</p><button class="btn" onclick="location.reload()">Reload the shelf</button></section>`;});

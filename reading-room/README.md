@@ -4,7 +4,9 @@ The Reading Room opens a work at a place a student was assigned to read. The she
 
 ## Run and edit
 
-From the root of the syllabus checkout, serve `reading-room/web` with `python3 -m http.server 8000 --directory reading-room/web`. Open http://localhost:8000/ in a browser. Run `node reading-room/source/check-shelf.mjs` to check the tables and the digests of the reader texts. The JavaScript and CSS are the code served to the browser. Edit them directly.
+For open courses, per-reader study plans, reminders and reading questions, run `node reading-room/study/serve.mjs` from the checkout root and open [Open courses](http://127.0.0.1:8000/#open). [The study service](study/README.md) documents the public course records, private files, text commands and optional model.
+
+For a static copy of the bookshelf, serve `reading-room/web` with `python3 -m http.server 8000 --directory reading-room/web`. Open http://localhost:8000/ in a browser. Run `node reading-room/source/check-shelf.mjs` to check the tables and the digests of the reader texts. The JavaScript and CSS are the code served to the browser. Edit them directly.
 
 - `web/app.js` reads the data, opens work and comparison pages, keeps reading state, and renders the text and audio players.
 - `web/paths.js` renders the course chooser. A documented choice between sections uses a radio group. Ordinary lists let the reader select courses independently.

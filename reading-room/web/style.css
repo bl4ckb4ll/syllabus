@@ -1291,3 +1291,26 @@ details[open]>summary:after {
 .review-status { color: var(--gold); margin-top: 9px; }
 .start-note { margin-top: 15px; }
 .mirror { margin-top: 6px; }
+
+.study-first {display:grid;grid-template-columns:3fr 2fr;gap:2rem;align-items:center;background:var(--panel);border-block:1px solid var(--border);padding:clamp(1.25rem,3vw,2.5rem);margin-bottom:2rem}
+.study-first h2,.study-first h3,.study-hit h3,.study-journal h2 {margin:0}
+.study-first p {max-width:57ch}
+.study-choices {display:grid;gap:.6rem;padding-left:1.6rem;border-left:1px solid var(--border)}
+.study-filters {display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem}
+.study-field {display:grid;gap:.3rem;color:var(--muted);font-size:.9rem;min-width:0}
+.study-field input,.study-field select,.study-field textarea {width:100%;background:var(--body);color:var(--paper);border:1px solid var(--border);border-radius:4px;padding:.55rem .65rem}
+.study-hit {display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:.85rem 0;border-top:1px solid var(--line)}
+.study-hit .overline,.study-hit p {margin:.15rem 0}
+.study-hit h3 a {text-decoration:none}.study-hit h3 a:hover {text-decoration:underline}
+.study-form {display:grid;align-content:start;gap:.7rem;margin:.8rem 0 1.2rem}
+.study-form button,.study-recovery button {justify-self:start}
+.study-error {color:var(--gold)}.study-error:empty {display:none}
+.study-account {display:flex;justify-content:space-between;align-items:center}
+.study-recovery {display:grid;gap:.65rem}.study-recovery code {overflow-wrap:anywhere;user-select:all}
+.study-answer {white-space:pre-line}
+.study-directories {display:grid;grid-template-columns:1fr 1fr;gap:0 1rem}
+@media(max-width:620px) {
+  .study-first,.study-filters,.study-directories {grid-template-columns:1fr}
+  .study-first {gap:1.1rem}.study-choices {padding:1rem 0 0;border-left:0;border-top:1px solid var(--border)}
+  .study-hit {display:block}.mast-inner nav {flex-wrap:wrap;gap:0 .7rem}
+}
