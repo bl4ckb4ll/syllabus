@@ -2,6 +2,8 @@
 
 What do people with degrees actually read?
 
+[The Reading Room](reading-room/README.md) lets readers compare course lists and open the assigned readings. Its source, editable data and text-rebuild instructions live together in this repository.
+
 [The revision-stamped course/evidence inventory](coverage/README.md) separates documented assignments, partial captures, synthetic fixtures, branch-only work, failed stages and unsearched coverage.
 
 The repository is a bookshelf. Canonical books, papers, and other assigned readings live at the repository root.
